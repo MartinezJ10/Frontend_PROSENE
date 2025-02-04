@@ -14,6 +14,7 @@
 <script>
     
     import { ref } from "vue";
+    import { useRouter  } from "vue-router";
     import ReusableForm from "../components/ReusableForm.vue";
 
     export default {
@@ -22,6 +23,9 @@
             ReusableForm
         },
         setup() {
+            const router = useRouter();  
+
+            //Fields for the login form
             const loginFields = ref([
                 { name: 'email', label: 'Email', type: 'email' },
                 { name: 'password', label: 'Contraseña', type: 'password' }
@@ -30,6 +34,7 @@
             //Handle the form submission
             const handleLoginSubmit = (formData) => {
                 //console.log(formData);
+                router.push("/landingAdmin");  
             };
 
             //return everything haha
