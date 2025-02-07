@@ -1,10 +1,10 @@
 <template>
   <div class="landing">
         <div class="landing-block nav" >
-          <button>
+          <button @click="router.push('/manageUsers')">
             Crear Usuario
           </button>
-          <button>
+          <button @click="router.push('/listUsers')">
             Ver Usuarios
           </button>
         </div>
@@ -47,10 +47,7 @@ export default {
 
     //Handle user creation
     const handleUserCreationSubmit = async (formData) => {
-      console.log("CREATING USER");
-      console.log(formData);
-      console.log(localStorage.getItem("jwt"));
-      
+
       try {
         const response = await axios.post(
           "http://localhost:8000/api/v1/users/create",
