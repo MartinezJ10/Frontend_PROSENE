@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent="handleSubmit" method="post">
         <div v-for="(field, index) in fields" :key="index" class="form-group">
             <label :for="field.name">{{ field.label }}</label>
             
@@ -48,7 +48,6 @@ const formData = ref(props.fields.reduce((acc, field) => {
 
 //Simply put the handleSubmit to the given function
 const handleSubmit = () => {
-
     props.onSubmit(formData.value);
 };
 
@@ -75,13 +74,16 @@ const handleSubmit = () => {
     }
 
     input {
-        padding: 10px;
+        padding: 6px 10px;
         font-size: 16px;
         border-radius: 20px;
         border: 1.5px solid var(--obscure);
         width: 100%;
     }
-
+    input:focus {
+        border: 1.5px solid var(--main-blue);
+        outline: none; /* Remove the outer blue stroke */
+    }
     button {
         padding: 12px;
         background-color: var(--main-blue);

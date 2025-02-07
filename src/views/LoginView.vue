@@ -25,7 +25,6 @@ export default {
   },
   setup() {
     const router = useRouter();
-
     //Fields for the login form
     const loginFields = ref([
       { name: "email", label: "Email", type: "email" },
@@ -34,7 +33,6 @@ export default {
 
     //Handle the form submission
     const handleLoginSubmit = async (formData) => {
-      console.log(formData.email + " " + formData.password);
       try {
         const response = await axios.post(
           "http://localhost:8000/api/v1/auth/login",
@@ -44,7 +42,8 @@ export default {
           }
         );
 
-        console.log("Login successful:", response.data);
+        localStorage.setItem("jwt", response.data.token);
+
         router.push("/landingAdmin");
       } catch (err) {
         console.error("Login failed:" || err.message);

@@ -54,7 +54,7 @@ export default {
 }
 .upper-options{
     grid-area: 1 / 2 / 2 / 5; 
-    background-color: gray;
+    background-color: white;
 }
 
 @media (max-width: 850px) {
