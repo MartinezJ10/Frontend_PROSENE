@@ -48,7 +48,7 @@ const formData = ref(props.fields.reduce((acc, field) => {
 
 //Simply put the handleSubmit to the given function
 const handleSubmit = () => {
- 
+
     props.onSubmit(formData.value);
 };
 
