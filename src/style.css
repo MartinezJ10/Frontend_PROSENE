@@ -10,6 +10,8 @@
   --main-blue: #091C5A;
   --accent-blue: rgba(9, 28, 90, 0.35);
   --obscure: #000000;
+  --white: #FFFFFF;
+  --accent-yellow: #FEFEC6;
 
 }
 body {

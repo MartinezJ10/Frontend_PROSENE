@@ -1,134 +1,104 @@
 <template>
-  <div class="landing">
-        <div class="landing-block nav" >
-          <button @click="router.push('/manageUsers')">
-            Crear Usuario
-          </button>
-          <button @click="router.push('/listUsers')">
-            Ver Usuarios
-          </button>
-        </div>
-        <div class="landing-block mid">
-          <div class="form-container">
-            <h2>Crear Usuario</h2>
-            <ReusableForm
-            :fields="createUsersFields"
-            submitButtonText="Crear Usuario"
-            :onSubmit="handleUserCreationSubmit"
-            />
+  <div class="card-container">
+    <div v-for="(user, index) in userInfo" :key="index" class="user-card">
+     
+        <div class="user-card-header">
+          <p><strong> {{ user.first_name }} {{ user.last_name }}</strong></p>
+          <div class="status">
+            <div class="status-circle"></div>
+            <span>Inactivo</span>
           </div>
+        </div> 
+        <div class="user-card-body">
+          <p> {{ user.email }}</p>
+          <p> {{ user.role_id }}</p>
+          <p>Creado el 1/31/2025 10:25 am</p>
         </div>
-        <div class="landing-block notification-bar"></div>
-        <div class="landing-block upper-options"></div>
-    </div>
-
+      </div>
+  
+  </div>
+    
 </template>
 
 <script>
-import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
-import ReusableForm from "../components/ReusableForm.vue";
+import { onMounted, ref } from 'vue';
 
 export default {
   name: "ManageUsers",
-  components: {
-    ReusableForm,
-  },
+
   setup() {
     const router = useRouter();
+        const userInfo = ref({});
+        const retrieveUsers = async () => {
 
-    const createUsersFields = ref([
-      { name: "name", label: "Nombre", type: "text" },
-      { name: "email", label: "Email", type: "email" },
-      { name: "password", label: "Contraseña", type: "password" },
-      { name: "rol", label: "Rol", type: "text" },
-    ]);
-
-    //Handle user creation
-    const handleUserCreationSubmit = async (formData) => {
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/api/v1/users/create",
-          {
-            first_name: formData.name,
-            last_name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role_id: formData.rol,
-          },{
-            headers: {
-            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+            try {
+            const response = await axios.get(
+                "http://localhost:8000/api/v1/users/all",
+                {
+                headers: {
+                'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                }
+                }
+            );
+            userInfo.value = response.data;
+            } catch (err) {
+                console.error("User Listing Failed:" || err.message);
             }
-          }
-        );
-        console.log("USER CREATED FINE");
-        router.push("/landingAdmin");  
-      } catch (err) {
-        console.error("User creation failed:" || err.message);
-      }
-    };
-          
+        };
+        
+        onMounted(() => {
+            retrieveUsers();
+        })
+
     return {
-      createUsersFields,
-      handleUserCreationSubmit,
       router,
+      userInfo,
     };
   },
 };
 </script>
 
-<style scoped>
-.landing{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    grid-column-gap: 15px;
-    grid-row-gap: 15px; 
-    width: calc(100% - 30px); 
-    height: calc(100vh - 30px);
-    margin: 15px;
+<style scoped> 
+.card-container{
+  display: flex;
+  margin: 2rem;
+  flex-direction: column;
+  justify-content: center;
+}
+.user-card{
+  border: 2px solid var(--obscure);
+  background-color: var(--accent-yellow);
+  border-radius: 15px;
+  margin: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
 
 }
-.landing-block{
-    border-radius: 20px;
+.user-card p{
+  margin: 0;
 }
-.nav{
-    grid-area: 1 / 1 / 7 / 2;
-    background-color: var(--main-blue);
-}
-.mid{
-    grid-area: 2 / 2 / 7 / 4;
-    background-color: var(--accent-blue);
-}
-.notification-bar{
-    grid-area: 2 / 4 / 7 / 5; 
-    background-color: var(--main-blue);
-}
-.upper-options{
-    grid-area: 1 / 2 / 2 / 5; 
-    background-color: white;
-}
-.form-container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-}
-
-@media (max-width: 850px) {
-    .landing {
-        grid-template-columns: 1fr; 
-        grid-template-rows: auto;
-    }   
-    .landing-block{
-        grid-area: unset; 
-    }
+.user-card-body p {
+  display: flex;
+  align-self: flex-start;
 
 }
-
+.user-card-header{
+  display: flex;
+  justify-content: space-between;
+}
+.status{
+  display: flex;
+  align-items: center;
+  justify-items: center;
+}
+.status-circle{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+  margin-right: 5px;
+}
 </style>
