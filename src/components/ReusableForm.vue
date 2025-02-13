@@ -16,7 +16,7 @@
 
 
         </div>
-        <button type="submit">{{ submitButtonText }}</button>
+        <button class="rounded-button" type="submit">{{ submitButtonText }}</button>
 
     </form>
 
@@ -84,21 +84,6 @@ const handleSubmit = () => {
         border: 1.5px solid var(--main-blue);
         outline: none; /* Remove the outer blue stroke */
     }
-    button {
-        padding: 12px;
-        background-color: var(--main-blue);
-        color: white;
-        font-size: 18px;
-        border: 1.5px solid var(--main-blue);
-        border-radius: 20px;
-        cursor: pointer;
-        width: 50%;
-    }
-    button:hover {
-        background-color: white;
-        color: var(--main-blue);
-        border: 1.5px solid var(--main-blue);
-        transition: 0.5s ease;
-    }
+
 
 </style>

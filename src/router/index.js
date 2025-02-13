@@ -28,4 +28,17 @@ const router = createRouter({
   routes,
 });
 
+/**
+ * This function is called every time the user navigates to a new page.
+ * Router Navigation Guard 
+ */
+router.beforeEach(async (to, from) => {
+  const isAuthenticated = localStorage.getItem('jwt');
+
+  if (!isAuthenticated && to.path !== '/login') {
+    // redirect the user to the login page
+    return { path: '/login' }
+  }
+})
+
 export default router;
