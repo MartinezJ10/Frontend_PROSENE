@@ -7,8 +7,8 @@ import CreateUsers from '../views/CreateUsers.vue';
 const routes = [
   { path: '/', redirect: '/login' }, // Redirect to login page
   { path: '/login', component: LoginView },
-  { 
-    path: '/landingAdmin', 
+  {
+    path: '/landingAdmin',
     component: LandingAdmin,
     children: [
       {

@@ -1,40 +1,50 @@
 <template>
-    <Transition name="modal">
-        <div v-if="modelValue" class="modal-mask">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <h3>{{ title }}</h3>
-                </div>
-
-                <div class="modal-body">
-                    <slot>
-                        <component :is="reusableForm" v-bind="formProps" />  
-                    </slot>
-                    <button @click="$emit('update:modelValue', false)">Close</button>
-                </div>
-
-            </div>
-          
+  <Transition name="modal">
+    <div v-if="modelValue" class="modal-mask" @click.self="$emit('update:modelValue', false)">
+      <div class="modal-container">
+        <div class="modal-header">
+          <button @click="$emit('update:modelValue', false)" class="quit-btn">&times;</button>
+          <h3 >{{ title }}</h3>
         </div>
-    </Transition>
+
+        <div class="modal-body">
+          <slot>
+            <component :is="reusableForm" v-bind="formProps" />
+          </slot>
+
+        </div>
+
+      </div>
+
+    </div>
+  </Transition>
 
 </template>
 
 <script>
-import { defineProps,defineEmits  } from "vue";
-
 export default {
-    props: {
-        modelValue: Boolean, // Se usa con v-model
-        title: String,
-        reusableForm: Object, 
-        formProps: Object, // Props del formulario
-    },
-    emits: ["update:modelValue"],
+  props: {
+    modelValue: Boolean, // Se usa con v-model
+    title: String,
+    reusableForm: Object,
+    formProps: Object, // Props del formulario
+  },
+  emits: ["update:modelValue"],
+
+
 };
 </script>
 
 <style>
+.quit-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -57,8 +67,11 @@ export default {
   transition: all 0.3s ease;
 }
 
+.modal-header{
+  display: flex; justify-content: center; align-items: center; position: relative;
+}
 .modal-header h3 {
-  margin-top: 0;
+  margin: 0;
   color: #42b983;
 }
 

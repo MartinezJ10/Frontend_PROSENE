@@ -3,7 +3,7 @@
 
     <div class="upper-container">
       <h1>Lista de Usuarios</h1>
-      <button @click="showModal = true" >Crear Usuario</button>
+      <button class="rounded-button" @click="showModal = true" >Crear Usuario</button>
       <FormModal
         title="Crear Usuario"
         v-model="showModal"
@@ -84,7 +84,10 @@ export default {
         { name: "name", label: "Nombre", type: "text" },
         { name: "email", label: "Email", type: "email" },
         { name: "password", label: "Contraseña", type: "password" },
-        { name: "rol", label: "Rol", type: "text" },
+        { name: "rol", label: "Rol", type: "select", options: [
+            { value: 1, label: "Admin" },
+            { value: 2, label: "User" },
+        ]},
         ]);
 
         const handleUserCreationSubmit = async (formData) => {
@@ -128,6 +131,17 @@ export default {
   margin: 2rem;
   flex-direction: column;
   justify-content: center;
+}
+.upper-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem
+}
+.upper-container .rounded-button{
+  position: relative;
+  width: auto;
+  height: 4rem;
 }
 .user-card{
   border: 2px solid var(--obscure);

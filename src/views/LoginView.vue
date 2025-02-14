@@ -3,11 +3,7 @@
     <div class="block-art"></div>
     <div class="block-form">
       <h1>PROSENE</h1>
-      <ReusableForm
-        :fields="loginFields"
-        submitButtonText="Acceder"
-        :onSubmit="handleLoginSubmit"
-      />
+      <ReusableForm :fields="loginFields" submitButtonText="Acceder" :onSubmit="handleLoginSubmit" />
     </div>
   </div>
 </template>
@@ -66,9 +62,11 @@ export default {
   width: 100%;
   height: 100vh;
 }
+
 .block-art {
   background-color: var(--main-blue);
 }
+
 .block-form {
   place-self: center;
 }
@@ -77,6 +75,7 @@ export default {
   .login-view {
     grid-template-columns: 1fr;
   }
+
   .block-form {
     margin: 2rem;
   }
