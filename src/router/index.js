@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue';
 import LandingAdmin from '../views/LandingAdmin.vue';
 import ManageUsers from '../views/ManageUsers.vue';
 import CreateUsers from '../views/CreateUsers.vue';
+import DetailsUser from '../views/DetailsUser.vue';
 
 const routes = [
   { path: '/', redirect: '/login' }, // Redirect to login page
@@ -18,6 +19,10 @@ const routes = [
       {
         path: '/createUsers',
         component: CreateUsers
+      },
+      {
+        path: '/detailsUser/:id',
+        component: DetailsUser,
       }
     ]
   },

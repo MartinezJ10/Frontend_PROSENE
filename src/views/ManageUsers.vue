@@ -18,7 +18,7 @@
     </div>
 
     <div class="card-container">
-    <div v-for="(user, index) in userInfo" :key="index" class="user-card">
+    <div v-for="(user, index) in userInfo" :key="index" class="user-card" @click="router.push(`/detailsUser/${user.id}`)">
         <div class="user-card-header">
           <p><strong> {{ user.first_name }} {{ user.last_name }}</strong></p>
           <div class="status">
@@ -106,6 +106,9 @@ export default {
                 }
             }
             );
+              // Refresh the user list
+              await retrieveUsers();
+              
             console.log("USER CREATED FINE");
             showModal.value = false;
           } catch (err) {
@@ -132,6 +135,8 @@ export default {
   flex-direction: column;
   justify-content: center;
 }
+
+
 .upper-container{
   display: flex;
   justify-content: space-between;
@@ -153,6 +158,14 @@ export default {
   flex-direction: column;
 
 }
+
+.user-card:hover {
+  cursor: pointer;
+  transform: scale(1.01);
+  transition: transform 0.2s ease;
+}
+
+
 .user-card p{
   margin: 0;
 }

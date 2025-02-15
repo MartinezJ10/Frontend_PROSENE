@@ -37,8 +37,8 @@ body {
   width: 50%;
 }
 
-.red {
-  color: red;
+.danger {
+  background-color: red;
 }
 
 .rounded-button:hover {
