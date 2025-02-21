@@ -29,6 +29,8 @@ export default {
 
     //Handle the form submission
     const handleLoginSubmit = async (formData) => {
+      console.log(formData);
+      
       try {
         const response = await axios.post(
           "http://localhost:8000/api/v1/auth/login",

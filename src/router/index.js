@@ -4,9 +4,10 @@ import LandingAdmin from '../views/LandingAdmin.vue';
 import ManageUsers from '../views/ManageUsers.vue';
 import CreateUsers from '../views/CreateUsers.vue';
 import DetailsUser from '../views/DetailsUser.vue';
+import CreateStudent from '../views/CreateStudent.vue';
 
 const routes = [
-  { path: '/', redirect: '/login' }, // Redirect to login page
+  { path: '/', redirect: '/login' }, 
   { path: '/login', component: LoginView },
   {
     path: '/landingAdmin',
@@ -17,13 +18,18 @@ const routes = [
         component: ManageUsers
       },
       {
+        path: '/studentEnrollment', 
+        component: CreateStudent , 
+      },
+      {
         path: '/createUsers',
         component: CreateUsers
       },
       {
         path: '/detailsUser/:id',
         component: DetailsUser,
-      }
+      },
+     
     ]
   },
 ];
@@ -37,6 +43,8 @@ const router = createRouter({
  * This function is called every time the user navigates to a new page.
  * Router Navigation Guard 
  */
+
+
 router.beforeEach(async (to, from) => {
   const isAuthenticated = localStorage.getItem('jwt');
 

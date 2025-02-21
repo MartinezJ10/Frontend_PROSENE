@@ -65,11 +65,11 @@ const validateEmail = (email) => {
 };
 
 const validatePassword = (password) => {
-    return password.length >= 8;
+    return password.length >= 2;
 };
 
 const validateRequiredField = (field) => {
-    const value = formData.value[field.name]?.trim();
+    const value = formData.value[field.name];
     if (!value) {
         errors.value[field.name] = `${field.label} es requerido`;
     } else {

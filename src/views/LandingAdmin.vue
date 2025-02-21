@@ -1,16 +1,20 @@
 <template>
     <div class="landing">
+        
         <div class="landing-block nav" >
             <button class="btn" @click="router.push('/manageUsers')">
                 Manejar Usuarios
             </button>
-
+            <button class="btn" @click="router.push('/studentEnrollment')">
+                Manejar Alumnos
+            </button>
         </div>
+
         <div class="landing-block mid">
             <router-view ></router-view>
         </div>
         <div class="landing-block notification-bar"></div>
-        <div class="landing-block upper-options"></div>
+        <div class="landing-block upper-options"></div> 
     </div>
 </template>
 
@@ -57,6 +61,7 @@ export default {
 .mid{
     grid-area: 2 / 2 / 7 / 6;
     overflow: scroll;
+    overflow-x: hidden;
     background-color: var(--accent-blue);
 }
 .notification-bar{
