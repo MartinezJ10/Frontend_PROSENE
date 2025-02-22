@@ -1,20 +1,9 @@
 <template>
-   <FormKit
-    type="text"
-    label="Name"
-    validation="required"
-  />
-      <!-- ID Formulario -->
-      <FormKit
-        type="number"
-        label="ID Formulario"
-        validation="required"
-        v-model="formData.idformulario"
-      />
   
       <!-- Usa Braille -->
       <FormKit
         type="checkbox"
+        name="usabraille"
         label="Usa Braille"
         v-model="formData.usabraille"
       />
@@ -22,6 +11,7 @@
       <!-- Usa LSHO -->
       <FormKit
         type="checkbox"
+        name="usalsho"
         label="Usa LSHO"
         v-model="formData.usalsho"
       />
@@ -29,6 +19,7 @@
       <!-- Usa Comunicación Gestual -->
       <FormKit
         type="checkbox"
+        name="usacomunicaciongestual"
         label="Usa Comunicación Gestual"
         v-model="formData.usacomunicaciongestual"
       />
@@ -36,6 +27,7 @@
       <!-- Usa Lectura Labial -->
       <FormKit
         type="checkbox"
+        name="usalecturalabial"
         label="Usa Lectura Labial"
         v-model="formData.usalecturalabial"
       />
@@ -43,6 +35,7 @@
       <!-- Usa Comunicación Total -->
       <FormKit
         type="checkbox"
+        name="usacomunicaciontotal"
         label="Usa Comunicación Total"
         v-model="formData.usacomunicaciontotal"
       />
@@ -50,6 +43,7 @@
       <!-- Usa ACABO -->
       <FormKit
         type="checkbox"
+        name="usaacabo"
         label="Usa ACABO"
         v-model="formData.usaacabo"
       />
@@ -57,6 +51,7 @@
       <!-- Uso de Calculadora -->
       <FormKit
         type="checkbox"
+        name="usodecalculadora"
         label="Uso de Calculadora"
         v-model="formData.usodecalculadora"
       />

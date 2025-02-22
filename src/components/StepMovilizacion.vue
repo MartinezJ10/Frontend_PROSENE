@@ -1,21 +1,10 @@
 <template>
-   <FormKit
-    type="text"
-    label="Name"
-    validation="required"
-  />
-      <!-- ID Formulario -->
-      <FormKit
-        type="number"
-        label="ID Formulario"
-        validation="required"
-        v-model="formData.idformulario"
-      />
 
       <!-- Dificultad para Orientarse en Entorno -->
       <FormKit
         type="select"
         label="Dificultad para Orientarse en Entorno"
+        name="dificultadparaorientarseenentorno"
         :options="opcionesDificultad"
         v-model="formData.dificultadparaorientarseenentorno"
       />
@@ -24,6 +13,7 @@
       <FormKit
         type="select"
         label="Dificultad para Salvar Desniveles"
+        name="dificultadparasalvardesniveles"
         :options="opcionesDificultad"
         v-model="formData.dificultadparasalvardesniveles"
       />
@@ -31,6 +21,7 @@
       <!-- Dificultad para Usar Gradas -->
       <FormKit
         type="select"
+        name="dificultadparausargradas"
         label="Dificultad para Usar Gradas"
         :options="opcionesDificultad"
         v-model="formData.dificultadparausargradas"
@@ -39,6 +30,7 @@
       <!-- Dificultad para Viajar en Transporte Público -->
       <FormKit
         type="select"
+        name="dificultadparaviajarentrasportepublico"
         label="Dificultad para Viajar en Transporte Público"
         :options="opcionesDificultad"
         v-model="formData.dificultadparaviajarentrasportepublico"
@@ -48,7 +40,7 @@
       <FormKit 
         type="select"
         label="Dificultad para Subir y Bajar del Vehículo"
-        
+        name="dificultadparasubirybajardelvehiculo"
         :options="opcionesDificultad"
         v-model="formData.dificultadparasubirybajardelvehiculo"
       />
@@ -56,6 +48,7 @@
       <!-- Dificultad para Desplazarse Distancias -->
       <FormKit
         type="select"
+        name="dificultadparadesplazarsedistancias"
         label="Dificultad para Desplazarse Distancias"
         :options="opcionesDificultad"
         v-model="formData.dificultadparadesplazarsedistancias"

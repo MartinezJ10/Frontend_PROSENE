@@ -1,17 +1,9 @@
 <template>
-      <!-- ID Formulario -->
-      <FormKit
-        type="number"
-        label="ID Formulario"
-        validation="required"
-        v-model="formData.idformulario"
-      />
-  
       <!-- Hipoacusia -->
       <FormKit
         type="text"
         validation="required"
-
+        name="hipoacusia"
         label="Hipoacusia"
         v-model="formData.hipoacusia"
       />
@@ -20,7 +12,7 @@
       <FormKit
         type="text"
         validation="required"
-
+        name="hipoacusia"
         label="Sordera"
         v-model="formData.sordera"
       />
@@ -29,7 +21,7 @@
       <FormKit
         type="text"
         validation="required"
-
+        name="bajavision"
         label="Baja Visión"
         v-model="formData.bajavision"
       />
@@ -38,7 +30,7 @@
       <FormKit
         type="text"
         validation="required"
-
+        name="movilidadreducidamiembrosinferiores"
         label="Movilidad Reducida Miembros Inferiores"
         v-model="formData.movilidadreducidamiembrosinferiores"
       />
@@ -47,7 +39,7 @@
       <FormKit
         type="text"
         validation="required"
-
+        name="movilidadreducidamiembrossuperiores"
         label="Movilidad Reducida Miembros Superiores"
         v-model="formData.movilidadreducidamiembrossuperiores"
       />

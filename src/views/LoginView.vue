@@ -32,15 +32,16 @@ export default {
       console.log(formData);
       
       try {
-        const response = await axios.post(
+        const response = await axios.post( 
           "http://localhost:8000/api/v1/auth/login",
           {
             email: formData.email,
             password: formData.password,
           }
-        );
+        ); 
 
         localStorage.setItem("jwt", response.data.token);
+        localStorage.setItem("user_id",response.data.idusuario)
 
         router.push("/landingAdmin");
       } catch (err) {
