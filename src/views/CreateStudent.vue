@@ -337,6 +337,11 @@ export default {
 :root {
     --fk-max-width-input: none;
 }
+label {
+    text-align: left;
+    margin-bottom: 8px;
+    font-size: 20px;
+}
 
 .form-block {
     display: flex;
@@ -350,5 +355,11 @@ export default {
     min-width: 800px;
     width: 100%;
     margin: 0 auto;
+    
 }
+.formkit-steps{
+    border: none !important;
+    box-shadow: none !important;
+}
+
 </style>
