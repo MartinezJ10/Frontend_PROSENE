@@ -4,7 +4,7 @@
       <div class="modal-container">
         <div class="modal-header">
           <button @click="$emit('update:modelValue', false)" class="quit-btn">&times;</button>
-          <h3 >{{ title }}</h3>
+          <h3>{{ title }}</h3>
         </div>
 
         <div class="modal-body">
@@ -54,29 +54,47 @@ export default {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
+  justify-content: center;
+  /* Center the modal horizontally */
+  align-items: center;
+  /* Center the modal vertically */
   transition: opacity 0.3s ease;
 }
 
 .modal-container {
-  width: 300px;
+  width: 90%;
+  /* Make the modal responsive */
+  max-width: 600px;
+  /* Set a maximum width for larger screens */
   margin: auto;
-  padding: 20px 30px;
+  padding: 30px;
+  /* Increased padding for better spacing */
   background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  border-radius: 8px;
+  /* Rounded corners */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  /* Deeper shadow for a "lifted" effect */
   transition: all 0.3s ease;
 }
 
-.modal-header{
-  display: flex; justify-content: center; align-items: center; position: relative;
+.modal-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding-bottom: 20px; /* Add space below the header */
+  border-bottom: 1px solid #eee; /* Add a subtle line below the header */
 }
+
 .modal-header h3 {
   margin: 0;
   color: #42b983;
+  font-size: 24px; 
 }
 
 .modal-body {
   margin: 20px 0;
+  padding: 10px 0; 
 }
 
 .modal-enter-from {

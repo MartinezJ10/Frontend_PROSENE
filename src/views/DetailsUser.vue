@@ -9,9 +9,18 @@
                 <p v-if="userFound.role_id === 1">Rol: Administrador</p>
                 <p v-else-if="userFound.role_id === 2">Rol: Empleado/Colaborador</p>
                 <p v-else-if="userFound.role_id === 3">Rol: Estudiante</p>
-                <p>Centro Regional: {{userFound.centroregional?.centroregional}}</p>
+                <p>Centro Regional: {{ userFound.centroregional?.centroregional }}</p>
             </div>
             <div class="details-user-actions">
+                <button class="rounded-button" @click="showDetailsModal = true">Detalles Personales</button>
+                <FormModal title="Detalles Personales de Usuario" v-model="showDetailsModal"
+                    :reusableForm="reusableFormComponent" :formProps="{
+                        fields: detailsUsersFields,
+                        submitButtonText: 'Confirmar',
+                        onSubmit: submitUserDetails
+                    }">
+                </FormModal>
+
                 <button class="rounded-button" @click="showModal = true">Actualizar</button>
                 <FormModal title="Actualizar Usuario" v-model="showModal" :reusableForm="reusableFormComponent"
                     :formProps="{
@@ -42,12 +51,16 @@ export default {
     },
     setup() {
         const showModal = ref(false);
+        const showDetailsModal = ref(false);
+
         const userFound = ref({});
         const reusableFormComponent = ReusableForm;
         const updateUsersFields = ref([]);
+        const detailsUsersFields = ref([]);
+
 
         const router = useRouter();
-        const routeData = useRoute();   
+        const routeData = useRoute();
 
         const userId = routeData.params.id;
 
@@ -61,7 +74,7 @@ export default {
                         }
                     }
                 );
-                
+
                 userFound.value = response.data;
             } catch (err) {
                 console.error("ERROR FINDING USER:" || err.message);
@@ -77,18 +90,18 @@ export default {
                             'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                         }
                     }
-                );      
+                );
                 console.log(response.data);
-                      
+
                 router.push("/manageUsers");
-                
+
             } catch (err) {
                 console.error("ERROR DELETING USER:", {
-                message: err.message,
-                response: err.response, // Full response from the server
-                request: err.request,   // Request details
-                config: err.config      // Axios request configuration
-            });
+                    message: err.message,
+                    response: err.response, // Full response from the server
+                    request: err.request,   // Request details
+                    config: err.config      // Axios request configuration
+                });
             }
         };
 
@@ -113,7 +126,7 @@ export default {
 
         const updateSingleUser = async (userFound) => {
             try {
-                const response = await axios.delete(
+                const response = await axios.put(
                     `http://localhost:8000/api/v1/users/put/?email=${userFound.value.email}`,
                     {
                         first_name: formData.name,
@@ -134,6 +147,59 @@ export default {
             }
         }
 
+        detailsUsersFields.value = [
+            { name: 'numeroidentidad', label: 'Número de Identidad', type: 'text' },
+            { name: 'primernombre', label: 'Primer Nombre', type: 'text' },
+            { name: 'segundonombre', label: 'Segundo Nombre', type: 'text' },
+            { name: 'primerapellido', label: 'Primer Apellido', type: 'text' },
+            { name: 'segundoapellido', label: 'Segundo Apellido', type: 'text' },
+            { name: 'direccion', label: 'Dirección', type: 'text' },
+            { name: 'telefono', label: 'Teléfono', type: 'text' },
+            { name: 'fechanacimiento', label: 'Fecha de Nacimiento', type: 'date' },
+            {
+                name: 'sexo',
+                label: 'Sexo',
+                type: 'select',
+                options: [
+                    { value: 'Hombre', label: 'Hombre' },
+                    { value: 'Mujer', label: 'Mujer' },
+                    { value: 'Otro', label: 'Otro' },
+                ],
+            },
+        ];
+
+        const submitUserDetails = async (formData) => {
+
+            try {
+                const response = await axios.post(
+                    `http://localhost:8000/api/v1/users/detalles_personales`,
+                    {
+                        idusuario: userFound.value.idusuario,
+                        numeroidentidad: formData.numeroidentidad,
+                        primernombre: formData.primernombre,
+                        segundonombre: formData.segundonombre,
+                        primerapellido: formData.primerapellido,
+                        segundoapellido: formData.segundoapellido,
+                        direccion: formData.direccion,
+                        telefono: formData.telefono,
+                        fechanacimiento: formData.fechanacimiento,
+                        sexo: formData.sexo
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+                console.log("DETALLES INSERTADOS CORRECTAMENTE");
+            
+                showDetailsModal.value = false
+
+            } catch (err) {
+                console.error("ERROR CREATING DETAILS:" || err.message);
+            }
+        }
+
         onMounted(() => {
             getSingleUserDetails(userId);
         })
@@ -146,6 +212,9 @@ export default {
             updateSingleUser,
             FormModal,
             updateUsersFields,
+            detailsUsersFields,
+            submitUserDetails,
+            showDetailsModal
         };
     },
 

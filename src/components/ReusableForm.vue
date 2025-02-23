@@ -1,15 +1,16 @@
 <template>
-    <form @submit.prevent="handleSubmit" method="post">
+    <form @submit.prevent="handleSubmit" method="post" :class="{ 'two-columns': fields.length > 6 }">
         <div v-for="(field, index) in fields" :key="index" class="form-group">
             <label :for="field.name">{{ field.label }}</label>
-            <input v-if="field.type === 'text' || field.type === 'password' || field.type === 'email'"
-                v-model="formData[field.name]"  :type="field.type" :name="field.name" :id="field.name" 
+            <input
+                v-if="field.type === 'text' || field.type === 'password' || field.type === 'date' || field.type === 'email'"
+                v-model="formData[field.name]" :type="field.type" :name="field.name" :id="field.name"
                 @blur="validateField(field)" required />
             <span v-if="errors[field.name]" class="error-message">
                 <i class="warning-icon">⚠️</i> {{ errors[field.name] }}
             </span>
 
-            <select v-if="field.type === 'select'" v-model="formData[field.name]" :name="field.name" :id="field.name" 
+            <select v-if="field.type === 'select'" v-model="formData[field.name]" :name="field.name" :id="field.name"
                 required>
                 <option v-for="option in field.options" :key="option.value" :value="option.value">
                     {{ option.label }}
@@ -106,12 +107,22 @@ const handleSubmit = () => {
 form {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 30px;
+    /* Increased gap for better spacing */
     padding: 20px;
+    max-width: 400px; /* Set a max width for the form */
+
+    margin: 0 auto; /* Center the form horizontally */
+}
+
+form.two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); 
+    max-width: 800px; /* Set a max width for the form */
+    gap: 30px;
 }
 
 .form-group {
     display: flex;
-    justify-items: left;
     flex-direction: column;
     margin: 10px 0;
 }
@@ -129,7 +140,10 @@ select {
     border-radius: 20px;
     border: 1.5px solid var(--obscure);
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
+
 
 input:focus,
 select:focus {
