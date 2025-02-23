@@ -46,7 +46,7 @@
       <!-- Número de Cuenta -->
       <FormKit
         type="text"
-        name="estudiaenunah"
+        name="numerodecuenta"
         label="Número de Cuenta"
         v-model="formData.numerodecuenta"
         :disabled="!formData.estudiaenunah"

@@ -5,10 +5,11 @@
         <div class="details-user-container">
             <div class="details-user-info">
                 <h2>Información del Usuario</h2>
-                <p>Nombre: <strong> {{ userFound.first_name }} {{ userFound.last_name }}</strong></p>
-                <p>Email: {{ userFound.email }}</p>
-                <p>Rol: {{ userFound.role_id }}</p>
-                <p>Contraseña: {{ userFound.password }}</p>
+                <p><strong>Email: {{ userFound.email }}</strong></p>
+                <p v-if="userFound.role_id === 1">Rol: Administrador</p>
+                <p v-else-if="userFound.role_id === 2">Rol: Empleado/Colaborador</p>
+                <p v-else-if="userFound.role_id === 3">Rol: Estudiante</p>
+                <p>Centro Regional: {{userFound.centroregional?.centroregional}}</p>
             </div>
             <div class="details-user-actions">
                 <button class="rounded-button" @click="showModal = true">Actualizar</button>
@@ -60,7 +61,7 @@ export default {
                         }
                     }
                 );
-
+                
                 userFound.value = response.data;
             } catch (err) {
                 console.error("ERROR FINDING USER:" || err.message);
@@ -80,6 +81,7 @@ export default {
                 console.log(response.data);
                       
                 router.push("/manageUsers");
+                
             } catch (err) {
                 console.error("ERROR DELETING USER:", {
                 message: err.message,
