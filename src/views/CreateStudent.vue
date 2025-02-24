@@ -31,6 +31,8 @@
             </FormKit>
 
         </FormKit>
+
+        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
     </div>
 
 </template>
@@ -43,6 +45,7 @@ import StepDiscapacidad from '../components/StepDiscapacidad.vue';
 import StepInscripcion from '../components/StepInscripcion.vue';
 import StepMovilizacion from '../components/StepMovilizacion.vue';
 import StepServicio from '../components/StepServicio.vue';
+import Mensaje from '../components/Mensaje.vue'; 
 
 import axios from 'axios';
 
@@ -57,7 +60,8 @@ export default {
         StepDeficiencia,
         StepDiscapacidad,
         StepMovilizacion,
-        StepServicio
+        StepServicio, 
+        Mensaje
     },
     setup() {
         const formularioId = ref();
@@ -97,6 +101,9 @@ export default {
                 adecuaciondeaccesoalentorno: false
             },
         });
+        const showMessage = ref(false); 
+        const messageContent = ref(''); 
+        const messageType = ref(''); 
 
         // Submit handler
         const submitForm = async () => {
@@ -112,9 +119,16 @@ export default {
                 await submitServicio();
                 
                 console.log("EVERYTHING UPLOADED");
+
+                messageContent.value = 'Formulario enviado con éxito'; 
+                messageType.value = 'exito'; 
+                showMessage.value = true; 
                 
             } catch (error) {
                 errorLog(error)
+                messageContent.value = 'Error al enviar el formulario'; 
+                messageType.value = 'error'; 
+                showMessage.value = true; 
             }
         };
 
@@ -156,6 +170,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -186,6 +201,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -211,6 +227,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -236,6 +253,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -261,6 +279,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -286,6 +305,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -312,6 +332,7 @@ export default {
 
             } catch (error) {
                 errorLog(error)
+                throw error;
             }
         }
 
@@ -327,6 +348,9 @@ export default {
         return {
             formData,
             submitForm,
+            showMessage, 
+            messageContent,
+            messageType, 
         }
     },
 }

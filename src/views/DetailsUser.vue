@@ -32,6 +32,8 @@
                 <button class="rounded-button danger" @click=deleteSingleUser>Eliminar</button>
             </div>
         </div>
+        <!--componente de mensaje -->
+      <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
     </div>
 
 </template>
@@ -42,16 +44,22 @@ import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import FormModal from '../components/FormModal.vue';
 import ReusableForm from '../components/ReusableForm.vue';
+import Mensaje from '../components/Mensaje.vue'; // Importa el componente
+
 
 export default {
     name: "DetailsUser",
     components: {
         FormModal,
         ReusableForm,
+        Mensaje,
     },
     setup() {
         const showModal = ref(false);
         const showDetailsModal = ref(false);
+        const showMessage = ref(false); // Controla la visibilidad del mensaje
+        const messageContent = ref(''); // Contenido del mensaje
+        const messageType = ref(''); // Tipo de mensaje (éxito o error)
 
         const userFound = ref({});
         const reusableFormComponent = ReusableForm;
@@ -93,6 +101,10 @@ export default {
                 );
                 console.log(response.data);
 
+                messageContent.value = 'Usuario eliminado con éxito'; // Establece el contenido del mensaje
+                messageType.value = 'exito'; // Tipo de mensaje de éxito
+                showMessage.value = true; // Muestra el mensaje
+
                 router.push("/manageUsers");
 
             } catch (err) {
@@ -102,6 +114,10 @@ export default {
                     request: err.request,   // Request details
                     config: err.config      // Axios request configuration
                 });
+                
+                messageContent.value = 'Error al eliminar el usuario'; // Establece el contenido del mensaje de error
+                messageType.value = 'error'; // Tipo de mensaje de error
+                showMessage.value = true; // Muestra el mensaje
             }
         };
 
@@ -110,13 +126,26 @@ export default {
             () => userFound.value,
             (newUserFound) => {
                 updateUsersFields.value = [
-                    { name: "name", label: "Nombre", type: "text", value: newUserFound.first_name },
+                 
                     { name: "email", label: "Email", type: "email", value: newUserFound.email },
                     { name: "password", label: "Contraseña", type: "password", value: newUserFound.password },
                     {
                         name: "rol", label: "Rol", type: "select", value: newUserFound.role_id, options: [
                             { value: 1, label: "Admin" },
                             { value: 2, label: "User" },
+                        ]
+                    },
+                    {
+                        name: "centroregional", label: "Centro Regional", type: "select", value: newUserFound.idcentroregional, options: [
+                        { value: 1, label: "Ciudad Universitaria" },
+                        { value: 2, label: "UNAH-VS" },
+                        { value: 3, label: "CURNO" },
+                        { value: 4, label: "CURC" },
+                        { value: 5, label: "CURLA" },
+                        { value: 6, label: "CURLP" },
+                        { value: 7, label: "CUROC" },
+                        { value: 8, label: "UNAH-TEC" },
+                        { value: 9, label: "UNAH-TEC AGUÁN" },
                         ]
                     },
                 ];
@@ -129,8 +158,6 @@ export default {
                 const response = await axios.put(
                     `http://localhost:8000/api/v1/users/put/?email=${userFound.value.email}`,
                     {
-                        first_name: formData.name,
-                        last_name: formData.name,
                         email: formData.email,
                         password: formData.password,
                         role_id: formData.rol,
@@ -141,9 +168,23 @@ export default {
                         }
                     }
                 );
+
+                messageContent.value = 'Usuario actualizado con éxito'; // Establece el contenido del mensaje
+                messageType.value = 'exito'; // Tipo de mensaje de éxito
+                showMessage.value = true; // Muestra el mensaje
+
+                showModal.value = false; // Cierra la pantalla de actualización del usuario
+
                 router.push("/manageUsers");
             } catch (err) {
+                
                 console.error("ERROR DELETING USER:" || err.message);
+
+                messageContent.value = 'Error al actualizar el usuario'; // Establece el contenido del mensaje de error
+                messageType.value = 'error'; // Tipo de mensaje de error
+                showMessage.value = true; // Muestra el mensaje
+
+                showModal.value = false; // Cierra la pantalla de actualización del usuario
             }
         }
 
@@ -214,7 +255,10 @@ export default {
             updateUsersFields,
             detailsUsersFields,
             submitUserDetails,
-            showDetailsModal
+            showDetailsModal,
+            showMessage, // Añade la referencia de visibilidad del mensaje
+            messageContent, // Añade la referencia del contenido del mensaje
+            messageType, // Añade la referencia del tipo de mensaje
         };
     },
 
