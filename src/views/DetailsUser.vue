@@ -91,8 +91,8 @@ export default {
 
         const deleteSingleUser = async () => {
             try {
-                const response = await axios.delete(
-                    `http://localhost:8000/api/v1/users/delete/?email=${userFound.value.email}`,
+                const response = await axios.put(
+                    `http://localhost:8000/api/v1/users/delete/?email=${userFound.value.email}`,null,
                     {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem("jwt")}`

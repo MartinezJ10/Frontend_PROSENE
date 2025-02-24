@@ -44,6 +44,7 @@ export default {
         localStorage.setItem("user_id",response.data.idusuario)
 
         router.push("/landingAdmin");
+        
       } catch (err) {
         console.error("Login failed:" || err.message);
       }

@@ -28,7 +28,8 @@ export default {
 
         //Handle user creation
         const handleUserCreationSubmit = async (formData) => {
-
+            console.log(formData);
+            
             try {
                 const response = await axios.post(
                     "http://localhost:8000/api/v1/users/create",
@@ -47,9 +48,18 @@ export default {
                 console.log("USER CREATED FINE");
                 router.push("/landingAdmin");
             } catch (err) {
-                console.error("User creation failed:" || err.message);
+                errorLog(err)            
             }
         };
+        
+        const errorLog = async (err) => {
+            console.error("ERROR IN REQUEST:", {
+                message: err.message,
+                response: err.response, // Full response from the server
+                request: err.request,   // Request details
+                config: err.config      // Axios request configuration
+            });
+        }
 
         return {
             createUsersFields,

@@ -32,7 +32,8 @@
 
         </FormKit>
 
-        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
+        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
+            @update:visible="showMessage = false" />
     </div>
 
 </template>
@@ -45,11 +46,11 @@ import StepDiscapacidad from '../components/StepDiscapacidad.vue';
 import StepInscripcion from '../components/StepInscripcion.vue';
 import StepMovilizacion from '../components/StepMovilizacion.vue';
 import StepServicio from '../components/StepServicio.vue';
-import Mensaje from '../components/Mensaje.vue'; 
+import Mensaje from '../components/Mensaje.vue';
 
 import axios from 'axios';
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 export default {
     name: "CreateStudent",
@@ -60,7 +61,7 @@ export default {
         StepDeficiencia,
         StepDiscapacidad,
         StepMovilizacion,
-        StepServicio, 
+        StepServicio,
         Mensaje
     },
     setup() {
@@ -101,9 +102,9 @@ export default {
                 adecuaciondeaccesoalentorno: false
             },
         });
-        const showMessage = ref(false); 
-        const messageContent = ref(''); 
-        const messageType = ref(''); 
+        const showMessage = ref(false);
+        const messageContent = ref('');
+        const messageType = ref('');
 
         // Submit handler
         const submitForm = async () => {
@@ -117,18 +118,18 @@ export default {
                 await submitDiscapacidad();
                 await submitMovilizacion();
                 await submitServicio();
-                
+
                 console.log("EVERYTHING UPLOADED");
 
-                messageContent.value = 'Formulario enviado con éxito'; 
-                messageType.value = 'exito'; 
-                showMessage.value = true; 
-                
+                messageContent.value = 'Formulario enviado con éxito';
+                messageType.value = 'exito';
+                showMessage.value = true;
+
             } catch (error) {
                 errorLog(error)
-                messageContent.value = 'Error al enviar el formulario'; 
-                messageType.value = 'error'; 
-                showMessage.value = true; 
+                messageContent.value = 'Error al enviar el formulario';
+                messageType.value = 'error';
+                showMessage.value = true;
             }
         };
 
@@ -154,7 +155,6 @@ export default {
                 const response = await axios.post(
                     `http://localhost:8000/api/v1/form/inscripcion`,
                     {
-                        idusuario: localStorage.getItem("user_id"),
                         ...formulario
                     },
                     {
@@ -348,9 +348,9 @@ export default {
         return {
             formData,
             submitForm,
-            showMessage, 
+            showMessage,
             messageContent,
-            messageType, 
+            messageType,
         }
     },
 }
@@ -361,6 +361,7 @@ export default {
 :root {
     --fk-max-width-input: none;
 }
+
 label {
     text-align: left;
     margin-bottom: 8px;
@@ -379,11 +380,11 @@ label {
     min-width: 800px;
     width: 100%;
     margin: 0 auto;
-    
+
 }
-.formkit-steps{
+
+.formkit-steps {
     border: none !important;
     box-shadow: none !important;
 }
-
 </style>
