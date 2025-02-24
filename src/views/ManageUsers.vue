@@ -28,6 +28,7 @@
           <p v-else-if="user.role_id === 2">Rol: Empleado/Colaborador</p>
           <p v-else-if="user.role_id === 3">Rol: Estudiante</p>
           <p>{{ user.centroregional.centroregional }}</p>
+          
         </div>
       </div>
     </div>   
@@ -61,6 +62,8 @@ export default {
     const messageType = ref(''); // Tipo de mensaje (éxito o error)
     const router = useRouter();
     const userInfo = ref({});
+    const centrosRegionales = ref([]);
+    const roles = ref([]);
 
     const retrieveUsers = async () => {
 
@@ -79,34 +82,66 @@ export default {
       }
     };
 
-    onMounted(() => {
-      retrieveUsers();
-    })
+    const retrieveCentrosRegionales = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/varios/centros",
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+            }
+          }
+        );
+        centrosRegionales.value = response.data.map((centro) => ({
+          value: centro.idcentroregional,
+          label: centro.centroregional
+        }));
+      } catch (err) {
+        console.error("Failed to retrieve Centros Regionales:" || err.message);
+      }
+    };
+
+    const retrieveRoles = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/varios/roles",
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+            }
+          }
+        );
+        roles.value = response.data.map((rol) => ({
+          value: rol.id,
+          label: rol.name
+        }));
+      } catch (err) {
+        console.error("Failed to retrieve Roles:" || err.message);
+      }
+    };
+    
+
+    onMounted(async () => {
+      await retrieveUsers();
+      await retrieveRoles();
+      await retrieveCentrosRegionales();
+      
+
+      // Initialize createUsersFields after data is fetched
+      createUsersFields.value = [
+        { name: "email", label: "Email", type: "email" },
+        { name: "password", label: "Contraseña", type: "password" },
+        {
+          name: "roles", label: "Roles", type: "select", options: roles.value
+        },
+        {
+          name: "centroregional", label: "Centro Regional", type: "select", options: centrosRegionales.value
+        },
+      ];
+    });
 
     //To create Users
-    const createUsersFields = ref([
-      { name: "email", label: "Email", type: "email" },
-      { name: "password", label: "Contraseña", type: "password" },
-      {
-        name: "rol", label: "Rol", type: "select", options: [
-          { value: 1, label: "Admin" },
-          { value: 2, label: "User" },
-        ]
-      },
-      {
-        name: "centroregional", label: "Centro Regional", type: "select", options: [
-          { value: 1, label: "Ciudad Universitaria" },
-          { value: 2, label: "UNAH-VS" },
-          { value: 3, label: "CURNO" },
-          { value: 4, label: "CURC" },
-          { value: 5, label: "CURLA" },
-          { value: 6, label: "CURLP" },
-          { value: 7, label: "CUROC" },
-          { value: 8, label: "UNAH-TEC" },
-          { value: 9, label: "UNAH-TEC AGUÁN" },
-        ]
-      },
-    ]);
+    const createUsersFields = ref([]);
 
     const handleUserCreationSubmit = async (formData) => {
       try {
