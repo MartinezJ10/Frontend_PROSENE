@@ -1,0 +1,56 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --main-yellow: #FFCC00;
+  --main-blue: #091C5A;
+  --accent-blue: rgba(9, 28, 90, 0.35);
+  --obscure: #000000;
+  --white: #FFFFFF;
+  --accent-yellow: #FEFEC6;
+
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+}
+
+#app {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.rounded-button {
+  padding: 12px;
+  background-color: var(--main-blue);
+  color: white;
+  font-size: 18px;
+  border: 1.5px solid var(--main-blue);
+  border-radius: 20px;
+  cursor: pointer;
+  width: 50%;
+}
+
+.danger {
+  background-color: red;
+}
+
+.rounded-button:hover {
+  background-color: var(--white);
+  color: var(--main-blue);
+  border: 1.5px solid var(--main-blue);
+  transition: 0.5s ease;
+}
+
+.red:hover {
+  color: white;
+  background-color: red;
+  border: 1.5px solid red;
+  transition: 0.5s ease;
+}
