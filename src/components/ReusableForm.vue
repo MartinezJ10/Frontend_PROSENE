@@ -1,171 +1,198 @@
 <template>
-    <form @submit.prevent="handleSubmit" method="post" :class="{ 'two-columns': fields.length > 6 }">
-        <div v-for="(field, index) in fields" :key="index" class="form-group">
-            <label :for="field.name">{{ field.label }}</label>
-            <input
-                v-if="field.type === 'text' || field.type === 'password' || field.type === 'date' || field.type === 'email'"
-                v-model="formData[field.name]" :type="field.type" :name="field.name" :id="field.name"
-                @blur="validateField(field)" required />
-            <span v-if="errors[field.name]" class="error-message">
-                <i class="warning-icon">⚠️</i> {{ errors[field.name] }}
-            </span>
+    <div>
+      <h3 class="text-center">{{ title }}</h3>
+      <form @submit.prevent="handleSubmit" class="form-container">
+        <div v-for="(field, index) in formFields" :key="index" class="mb-3">
+          <label :for="field.id" class="form-label">{{ field.label }}</label>
+          
+          <!-- Input Fields (text, email, password, select, textarea) -->
+          <input
+            v-if="field.type === 'text' || field.type === 'email' || field.type === 'password'"
+            :type="field.type"
+            class="form-control"
+            :id="field.name"
+            v-model="formData[field.name]"
+            :class="{'is-invalid': errors[field.name], 'is-valid': formData[field.name] && !errors[field.name]}"
+            :placeholder="field.placeholder"
+            @blur="validateField(field)"
+            required
+            autocomplete="new-password"
+          />
+          
+          <!-- Select Fields -->
+          <select
+            v-if="field.type === 'select'"
+            v-model="formData[field.name]"
+            :id="field.name"
+            class="form-control"
+            @blur="validateField(field)"
+            required
+          >
+            <option v-for="option in field.options" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+  
+          <!-- Textazrea Fields -->
+          <textarea rows = "8"
+            v-if="field.type === 'text-area'"
+            class="form-control text-area-field"
+            :id="field.name"
+            v-model="formData[field.name]"
+            :class="{'is-invalid': errors[field.name], 'is-valid': formData[field.name] && !errors[field.name]}"
+            :placeholder="field.placeholder"
+            @blur="validateField(field)"
+            required
+          ></textarea>
 
-            <select v-if="field.type === 'select'" v-model="formData[field.name]" :name="field.name" :id="field.name"
-                required>
-                <option v-for="option in field.options" :key="option.value" :value="option.value">
-                    {{ option.label }}
-                </option>
-            </select>
+                    <!-- Agregar campo de fecha -->
+          <input
+            v-if="field.type === 'date'"
+            type="date"
+            class="form-control"
+            :id="field.name"
+            v-model="formData[field.name]"
+            :class="{'is-invalid': errors[field.name], 'is-valid': formData[field.name] && !errors[field.name]}"
+            @blur="validateField(field)"
+            required
+          />
+              
+      
+          <!-- Error Message -->
+          <div v-if="errors[field.name]" class="invalid-feedback">
+            {{ errors[field.name] }}
+          </div>
         </div>
-        <button class="rounded-button" type="submit">{{ submitButtonText }}</button>
-    </form>
-</template>
-
-<script setup>
-import { ref, watch } from 'vue';
-
-const props = defineProps({
-    fields: {
-        type: Array,
-        required: true
-    },
+    
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary w-100">{{ submitButtonText }}</button>
+        
+        <slot name="extra-links"></slot> <!-- Espacio para enlaces opcionales -->
+    
+      </form>
+    </div>
+  </template>
+  
+    
+  <script setup>
+  import { ref, computed, watch } from 'vue';
+  
+  const props = defineProps({
+    title: String,
+    fields: Array,
     submitButtonText: {
-        type: String,
-        default: 'Submit'
+      type: String,
+      default: 'Enviar'
     },
     onSubmit: {
         type: Function,
         required: true
     }
-});
-
-// Initialize formData based on the fields prop
-const formData = ref({});
-const errors = ref({});
-
-// Function to initialize or update formData
-const initializeFormData = () => {
+  });
+  
+  // Initialize formData and errors
+  const formData = ref({});
+  const errors = ref({});
+  
+  // Initialize form data based on fields prop
+  const initializeFormData = () => {
     formData.value = props.fields.reduce((acc, field) => {
-        acc[field.name] = field.value || ''; // Use field.value if provided, otherwise default to ''
-        return acc;
+      acc[field.name] = field.value || ''; // Default to empty string if no value provided
+      return acc;
     }, {});
-};
-
-// Initialize formData when the component is first rendered
-initializeFormData();
-
-// Watch for changes in the fields prop and reinitialize formData
-watch(() => props.fields, () => {
+  };
+  
+  initializeFormData();
+  
+  watch(() => props.fields, () => {
     initializeFormData();
-}, { deep: true });
-
-// Validation methods
-const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-};
-
-const validatePassword = (password) => {
-    return password.length >= 2;
-};
-
-const validateRequiredField = (field) => {
+  }, { deep: true });
+  
+  // Validation functions
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) => password.length >= 2;
+  const validateRequiredField = (field) => {
     const value = formData.value[field.name];
     if (!value) {
-        errors.value[field.name] = `${field.label} es requerido`;
+      errors.value[field.name] = `${field.label} es requerido`;
     } else {
-        errors.value[field.name] = '';
+      errors.value[field.name] = '';
     }
-};
-
-const validateField = (field) => {
+  };
+  
+  const validateField = (field) => {
     validateRequiredField(field);
     if (field.type === 'email' && !validateEmail(formData.value[field.name])) {
-        errors.value[field.name] = 'La dirección email es invalida';
+      errors.value[field.name] = 'La dirección de email es inválida';
     } else if (field.type === 'password' && !validatePassword(formData.value[field.name])) {
-        errors.value[field.name] = 'La contraseña debe tener al menos 8 caracteres';
+      errors.value[field.name] = 'La contraseña debe tener al menos 6 caracteres';
     }
-};
-
-// Handle form submission
-const handleSubmit = () => {
+  };
+  
+  // Handle form submission
+  const handleSubmit = () => {
     let valid = true;
     props.fields.forEach(field => {
-        validateField(field);
-        if (errors.value[field.name]) {
-            valid = false;
-        }
+      validateField(field);
+      if (errors.value[field.name]) {
+        valid = false;
+      }
     });
-
+  
     if (valid) {
-        props.onSubmit(formData.value);
+      props.onSubmit(formData.value);
     }
-};
-</script>
+  };
+  
+  // Compute form fields (copy of fields with default values)
+  const formFields = computed(() => {
+    return props.fields.map(field => {
+      if (!(field.name in formData.value)) {
+        formData.value[field.name] = '';
+      }
+      return { ...field };
+    });
+  });
+  </script>
+    
+  <style scoped> 
+  .form-control,
+  .btn-primary {
+    border-color: #003366;
+  }
+  
+  .form-control:focus,
+  .btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 51, 102, 0.25);
+  }
+  
+  .btn-primary {
+    background-color: #003366;
+    border-color: #003366;
+  }
+  
+  .btn-primary:hover {
+    background-color: #002244;
+    border-color: #002244;
+  }
+  
+  .is-valid {
+    border-color: #003366;
+  }
+  
+  .is-invalid {
+    border-color: red;
+  }
 
-<style scoped>
-form {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    /* Increased gap for better spacing */
-    padding: 20px;
-    max-width: 400px; /* Set a max width for the form */
-
-    margin: 0 auto; /* Center the form horizontally */
-}
-
-form.two-columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); 
-    max-width: 800px; /* Set a max width for the form */
-    gap: 30px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-}
-
-label {
-    text-align: left;
-    margin-bottom: 8px;
-    font-size: 20px;
-}
-
-input,
-select {
-    padding: 6px 10px;
-    font-size: 16px;
-    border-radius: 20px;
-    border: 1.5px solid var(--obscure);
+  .form-label {
+    font-weight: 400;
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-
-input:focus,
-select:focus {
-    border: 1.5px solid var(--main-blue);
-    outline: none;
-}
-
-.error-message {
-    color: #d32f2f;
-    font-size: 14px;
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-    background-color: #ffebee;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #d32f2f;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.warning-icon {
-    margin-right: 8px;
-    font-size: 18px;
-}
-</style>
+    margin-bottom: 2px;
+    color:black;
+  }
+  
+  .text-area-field {
+    resize: none;
+  }
+  </style>
+  

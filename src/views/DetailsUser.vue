@@ -28,12 +28,13 @@
                         onSubmit: updateSingleUser
                     }">
                 </FormModal>
-                <button class="rounded-button danger" @click="deleteSingleUser">Eliminar</button>
+                <button class="rounded-button danger" @click=deleteSingleUser>Eliminar</button>
             </div>
         </div>
         <!--componente de mensaje -->
-        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
+      <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
     </div>
+
 </template>
 
 <script>
@@ -182,16 +183,18 @@ export default {
 
 
         const updateSingleUser = async (formData) => {
+            console.log("It got here");
+            console.log(formData);
+            
             try {
                 const response = await axios.put(
-                    `http://localhost:8000/api/v1/users/put/?email=${userFound.value.email}`,
+                    `http://localhost:8000/api/v1/users/update/?email=${userFound.value.email}`,
                     {
                         email: formData.email,
-                        password: formData.password,
-                        isActive: formData.isActive,
                         role_id: formData.rol,
+                        isActive: formData.isActive,
                         idcentroregional: formData.centroregional,
-                        
+                
                     },
                     {
                         headers: {

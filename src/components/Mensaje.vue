@@ -12,6 +12,7 @@
   
   <script>
   export default {
+    name: 'MensajeRetroalimentacion', // Nombre del componente
     props: {
       mensaje: {
         type: String,

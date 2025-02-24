@@ -28,7 +28,6 @@
           <p v-else-if="user.role_id === 2">Rol: Empleado/Colaborador</p>
           <p v-else-if="user.role_id === 3">Rol: Estudiante</p>
           <p>{{ user.centroregional.centroregional }}</p>
-          
         </div>
       </div>
     </div>   
@@ -64,7 +63,16 @@ export default {
     const userInfo = ref({});
     const centrosRegionales = ref([]);
     const roles = ref([]);
-
+    
+    const errorLog = async (err) => {
+      console.error("ERROR IN REQUEST:", {
+          message: err.message,
+          response: err.response, // Full response from the server
+          request: err.request,   // Request details
+          config: err.config      // Axios request configuration
+      });
+    }
+  
     const retrieveUsers = async () => {
 
       try {
@@ -97,7 +105,7 @@ export default {
           label: centro.centroregional
         }));
       } catch (err) {
-        console.error("Failed to retrieve Centros Regionales:" || err.message);
+        errorLog(err)
       }
     };
 
@@ -111,12 +119,13 @@ export default {
             }
           }
         );
+
         roles.value = response.data.map((rol) => ({
           value: rol.id,
           label: rol.name
         }));
       } catch (err) {
-        console.error("Failed to retrieve Roles:" || err.message);
+        errorLog(err)
       }
     };
     
@@ -176,6 +185,8 @@ export default {
       
     };
     const reusableFormComponent = ReusableForm;
+
+
     return {
       router,
       userInfo,

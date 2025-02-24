@@ -3,22 +3,21 @@
     <div v-if="modelValue" class="modal-mask" @click.self="$emit('update:modelValue', false)">
       <div class="modal-container">
         <div class="modal-header">
+          <!-- Botón de cierre en la esquina superior derecha -->
           <button @click="$emit('update:modelValue', false)" class="quit-btn">&times;</button>
-          <h3>{{ title }}</h3>
+          <!-- Título del modal -->
+          <h3 class="modal-title">{{ title }}</h3>
         </div>
 
         <div class="modal-body">
           <slot>
+            <!-- Componente dinámico con las props del formulario -->
             <component :is="reusableForm" v-bind="formProps" />
           </slot>
-
         </div>
-
       </div>
-
     </div>
   </Transition>
-
 </template>
 
 <script>
@@ -30,19 +29,23 @@ export default {
     formProps: Object, // Props del formulario
   },
   emits: ["update:modelValue"],
-
-
 };
 </script>
 
-<style>
+<style scoped>
 .quit-btn {
   position: absolute;
+  top: 10px;
   right: 10px;
   background: none;
   border: none;
   font-size: 30px;
   cursor: pointer;
+  color: #003366;
+}
+
+.quit-btn:hover {
+  color: #002244;
 }
 
 .modal-mask {
@@ -54,47 +57,45 @@ export default {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
-  /* Center the modal horizontally */
-  align-items: center;
-  /* Center the modal vertically */
   transition: opacity 0.3s ease;
 }
 
 .modal-container {
-  width: 90%;
-  /* Make the modal responsive */
-  max-width: 600px;
-  /* Set a maximum width for larger screens */
+  width: 100vw;
+  max-width: 500px;
+  max-height: 90vh; /* Establece la altura máxima */
   margin: auto;
-  padding: 30px;
-  /* Increased padding for better spacing */
+  padding-left: 30px;
+  padding-right: 30px;
   background-color: #fff;
   border-radius: 8px;
-  /* Rounded corners */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  /* Deeper shadow for a "lifted" effect */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+  box-sizing: border-box;
+  overflow-y: auto; /* Habilita el scroll cuando el contenido se desborda */
+  min-height: 200px; /* Establece una altura mínima */
 }
 
 .modal-header {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  padding-bottom: 20px; /* Add space below the header */
-  border-bottom: 1px solid #eee; /* Add a subtle line below the header */
+  padding: 15px;
+  border-radius: 8px 8px 0 0;
 }
 
-.modal-header h3 {
-  margin: 0;
-  color: #42b983;
-  font-size: 24px; 
+.modal-title {
+  margin-top: 40px;
+  font-size: 1.5em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: black;
 }
 
 .modal-body {
   margin: 20px 0;
-  padding: 10px 0; 
+  color: #003366;
 }
 
 .modal-enter-from {
@@ -107,6 +108,6 @@ export default {
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>

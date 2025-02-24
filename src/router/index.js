@@ -5,6 +5,8 @@ import ManageUsers from '../views/ManageUsers.vue';
 import CreateUsers from '../views/CreateUsers.vue';
 import DetailsUser from '../views/DetailsUser.vue';
 import CreateStudent from '../views/CreateStudent.vue';
+import UserView from '../views/UserView.vue';
+import ChangePasswordView from '../views/ChangePasswordView.vue';
 
 const routes = [
   { path: '/', redirect: '/login' }, 
@@ -32,6 +34,8 @@ const routes = [
      
     ]
   },
+  {path: '/userView', component: UserView},
+  {path: '/usuario/cambiopass/:email', component: ChangePasswordView}
 ];
 
 const router = createRouter({
