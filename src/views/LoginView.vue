@@ -24,7 +24,17 @@
           >
           <template #extra-links>
               <div class="mb-3 text-center">
-                <a href="#" class="btn btn-link">¿Olvidaste tu contraseña?</a>
+                <a href="#" class="btn btn-link" @click="showModal=true">¿Olvidaste tu contraseña?</a>
+                <FormModal 
+                        title="Recuperar Contraseña" 
+                        v-model="showModal" 
+                        :reusableForm="reusableFormComponent" 
+                        :formProps="{
+                            fields: createRequestFields,
+                            submitButtonText: 'Enviar Correo',
+                            onSubmit: handleSendEmail
+                        }">
+                    </FormModal>
               </div>
             </template>
           </ReusableForm>
@@ -35,49 +45,129 @@
       </div>
     </div>
   </div>
+
+  <div >
+                    <MensajeRetroalimentacion
+                        :mensaje="mensaje"
+                        :visible="visible"
+                        :tipo="tipo"
+                        @update:visible="visible = $event"
+                    />
+                    </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import ReusableForm from '@/components/ReusableForm.vue';
+import FormModal from '@/components/FormModal.vue';
+import MensajeRetroalimentacion from '@/components/Mensaje.vue';
 
-const router = useRouter();
+export default {
+  name: 'LoginView',
+  components: {
+    ReusableForm,
+    FormModal,
+    MensajeRetroalimentacion
+  },
+  setup() {
+    const showModal = ref(false);
+    const router = useRouter();
+    const mensaje = ref('');
+    const visible = ref(false);
+    const tipo = ref('');
 
-// Imagen estática
-const images = [
-  new URL('@/assets/fondo-unah1.jpg', import.meta.url).href,
-];
+    const images = [
+      new URL('@/assets/fondo-unah1.jpg', import.meta.url).href,
+    ];
 
-// Campos del formulario de login
-const loginFields = ref([
-  { name: 'email', label: 'Correo Electrónico', type: 'email', placeholder: 'Ingrese su correo' },
-  { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingrese su contraseña' }
-]);
+    const loginFields = ref([
+      { name: 'email', label: 'Correo Electrónico', type: 'email', placeholder: 'Ingrese su correo' },
+      { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingrese su contraseña' }
+    ]);
 
-// Función de envío del formulario
-const handleLoginSubmit = async (formData) => {
-  try {
-    const response = await axios.post(
-      "http://localhost:8000/api/v1/auth/login",
-      {
-        email: formData.email,
-        password: formData.password
+    const createRequestFields = ref([
+      { name: "email", label: "Correo Electrónico", type: "email", placeholder: "Ingrese su correo" }
+    ]);
+
+    // Función de envío del formulario
+    const handleLoginSubmit = async (formData) => {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/auth/login",
+          {
+            email: formData.email,
+            password: formData.password
+          }
+        );
+
+        localStorage.setItem("jwt", response.data.token);
+        localStorage.setItem("user_id",response.data.idusuario)
+        
+        // Redireccionar según el rol
+        if (response.data.role_id === 3) {
+          router.push("/userView");
+        } else {
+          router.push("/landingAdmin");
+        }
+      } catch (err) {
+        console.error("Login failed:", err.message);
       }
-    );
+    };
 
-    localStorage.setItem("jwt", response.data.token);
-    localStorage.setItem("user_id",response.data.idusuario)
-    
-    // Redireccionar según el rol
-    if (response.data.role_id === 3) {
-      router.push("/userView");
-    } else {
-      router.push("/landingAdmin");
-    }
-  } catch (err) {
-    console.error("Login failed:", err.message);
+    const handleSendEmail = async (formData) => {
+      try {
+        await axios.post(
+          "http://localhost:8000/api/v1/users/requestreset",
+          {
+            emailAddress: formData.email
+          }
+        );
+        console.log("Email enviado");
+        showModal.value = false;
+        mostrarExito();
+      } catch (err) {
+        console.error("Error al enviar el correo:", err.message);
+        mostrarError();
+      }
+    };
+
+            // Funciones para los mensajes de retroalimentación
+            const mostrarExito = () => {
+            mensaje.value = 'Operación realizada con éxito.';
+            tipo.value = 'exito';
+            visible.value = true;
+        };
+
+        const mostrarError = () => {
+            mensaje.value = 'Ocurrió un error inesperado.';
+            tipo.value = 'error';
+            visible.value = true;
+        };
+
+        const mostrarAdvertencia = () => {
+            mensaje.value = 'Ten cuidado con los datos ingresados.';
+            tipo.value = 'advertencia';
+            visible.value = true;
+        };
+
+
+    return {
+      images,
+      loginFields,
+      createRequestFields,
+      handleLoginSubmit,
+      handleSendEmail,
+      showModal,
+      reusableFormComponent: ReusableForm,
+      mostrarAdvertencia,
+      mostrarError,
+      mostrarExito,
+      mensaje,
+      visible,
+      tipo
+    };
   }
 };
 </script>

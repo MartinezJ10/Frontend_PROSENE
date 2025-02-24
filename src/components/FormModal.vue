@@ -63,7 +63,7 @@ export default {
 .modal-container {
   width: 100vw;
   max-width: 500px;
-  height: 90vh;
+  max-height: 90vh; /* Establece la altura máxima */
   margin: auto;
   padding-left: 30px;
   padding-right: 30px;
@@ -72,20 +72,21 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow-y: auto; /* Habilita el scroll cuando el contenido se desborda */
+  min-height: 200px; /* Establece una altura mínima */
 }
 
 .modal-header {
   display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: flex-start;
   position: relative;
   padding: 15px;
   border-radius: 8px 8px 0 0;
 }
 
 .modal-title {
-  margin-top: 40px; 
+  margin-top: 40px;
   font-size: 1.5em;
   font-weight: bold;
   letter-spacing: 1px;
