@@ -1,111 +1,121 @@
 <template>
-  <div
-    class="container-fluid m-0 p-0"
-    :style="{ backgroundImage: 'url(${images[0]})' }"
-  >
+  <div class="container-fluid m-0 p-0" :style="{ backgroundImage: 'url(${images[0]})' }">
     <div class="row login-container m-0">
-      <!-- Sección izquierda con la imagen estática -->
       <div class="col-md-8 d-none d-md-block left-section">
         <img :src="images[0]" alt="Imagen de fondo" class="static-background" />
       </div>
 
-      <!-- Sección derecha - Login -->
       <div class="col-md-4 right-section">
         <div class="login-box">
-          <!-- Logo de la parte superior -->
           <img src="@/assets/top-logo.png" alt="Logo de la UNAH" class="top-logo" />
 
-          <!-- Usamos el componente ReusableForm aquí -->
-          <ReusableForm
-            title="Iniciar Sesión"
-            :fields="loginFields"
-            :submitButtonText="'Ingresar'"
-            @submit="handleLoginSubmit"
-          >
-          <template #extra-links>
-              <div class="mb-3 text-center">
-                <a href="#" class="btn btn-link" @click="showModal=true">¿Olvidaste tu contraseña?</a>
-                <FormModal 
-                        title="Recuperar Contraseña" 
-                        v-model="showModal" 
-                        :reusableForm="reusableFormComponent" 
-                        :formProps="{
-                            fields: createRequestFields,
-                            submitButtonText: 'Enviar Correo',
-                            onSubmit: handleSendEmail
-                        }">
-                    </FormModal>
+          <h2 class="text-center mb-4">Iniciar Sesión</h2>
+          
+          <form @submit.prevent="handleLoginSubmit">
+            <div class="mb-3">
+              <label for="email" class="form-label">Correo Electrónico</label>
+              <input 
+                v-model="loginForm.email" 
+                type="email" 
+                class="form-control" 
+                :class="{ 'is-invalid': errorsLogin }"
+                id="email" 
+                placeholder="Ingrese su correo" 
+                required 
+              />
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <div class="input-group"> 
+                <input 
+                  v-model="loginForm.password" 
+                  :type="showPassword ? 'text' : 'password'" 
+                  class="form-control" 
+                  :class="{ 'is-invalid': errorsLogin }"
+                  id="password" 
+                  placeholder="Ingrese su contraseña" 
+                  required 
+                  autocomplete="new-password"
+                />
+                <button class="btn btn-outline-secondary" type="button" @click="togglePasswordVisibility">
+                  <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                </button>
               </div>
-            </template>
-          </ReusableForm>
+              <div v-if="errorsLogin" class="invalid-feedback">
+                {{ errorsLogin }}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+          </form>
+          
+          <div class="mb-3 text-center">
+            <a href="#" class="btn btn-link" @click.prevent="showModal=true">¿Olvidaste tu contraseña?</a>
+            <FormModal 
+              title="Recuperar Contraseña" 
+              v-model="showModal" 
+              :reusableForm="reusableFormComponent" 
+              :formProps="{
+                fields: createRequestFields,
+                submitButtonText: 'Enviar Correo',
+                onSubmit: handleSendEmail
+              }"
+            >
+            </FormModal>
+          </div>
         </div>
-        <!-- Logo en la esquina inferior derecha -->
+
         <img src="@/assets/bottom-logo.png" alt="Logo inferior" class="bottom-logo" />
-        
       </div>
     </div>
   </div>
 
-  <div >
-                    <MensajeRetroalimentacion
-                        :mensaje="mensaje"
-                        :visible="visible"
-                        :tipo="tipo"
-                        @update:visible="visible = $event"
-                    />
-                    </div>
+  <MensajeRetroalimentacion
+    :mensaje="mensaje"
+    :visible="visible"
+    :tipo="tipo"
+    @update:visible="visible = $event"
+  />
 </template>
 
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import ReusableForm from '@/components/ReusableForm.vue';
 import FormModal from '@/components/FormModal.vue';
+import ReusableForm from '@/components/ReusableForm.vue';
 import MensajeRetroalimentacion from '@/components/Mensaje.vue';
 
 export default {
   name: 'LoginView',
-  components: {
-    ReusableForm,
-    FormModal,
-    MensajeRetroalimentacion
-  },
+  components: { FormModal, MensajeRetroalimentacion, ReusableForm },
   setup() {
-    const showModal = ref(false);
     const router = useRouter();
+    const showModal = ref(false);
     const mensaje = ref('');
     const visible = ref(false);
     const tipo = ref('');
+    const errorsLogin = ref('');
+    const showPassword = ref(false);
 
-    const images = [
-      new URL('@/assets/fondo-unah1.jpg', import.meta.url).href,
-    ];
-
-    const loginFields = ref([
-      { name: 'email', label: 'Correo Electrónico', type: 'email', placeholder: 'Ingrese su correo' },
-      { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingrese su contraseña' }
-    ]);
+    const images = [new URL('@/assets/fondo-unah1.jpg', import.meta.url).href];
+    const loginForm = ref({ email: '', password: '' });
 
     const createRequestFields = ref([
       { name: "email", label: "Correo Electrónico", type: "email", placeholder: "Ingrese su correo" }
     ]);
 
-    // Función de envío del formulario
-    const handleLoginSubmit = async (formData) => {
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/api/v1/auth/login",
-          {
-            email: formData.email,
-            password: formData.password
-          }
-        );
+    const togglePasswordVisibility = () => {
+      showPassword.value = !showPassword.value;
+    };
 
+    const handleLoginSubmit = async () => {
+      try {
+        const response = await axios.post("http://localhost:8000/api/v1/auth/login", loginForm.value);
         localStorage.setItem("jwt", response.data.token);
-        localStorage.setItem("user_id",response.data.idusuario)
+        localStorage.setItem("user_id", response.data.idusuario);
         
-        // Redireccionar según el rol
         if (response.data.role_id === 3) {
           router.push("/userView");
         } else {
@@ -113,18 +123,14 @@ export default {
         }
       } catch (err) {
         console.error("Login failed:", err.message);
+        errorsLogin.value = 'Correo o contraseña incorrectos.';
+        mostrarError();
       }
     };
-
+    
     const handleSendEmail = async (formData) => {
       try {
-        await axios.post(
-          "http://localhost:8000/api/v1/users/requestreset",
-          {
-            emailAddress: formData.email
-          }
-        );
-        console.log("Email enviado");
+        await axios.post("http://localhost:8000/api/v1/users/requestreset", { emailAddress: formData.email });
         showModal.value = false;
         mostrarExito();
       } catch (err) {
@@ -133,42 +139,36 @@ export default {
       }
     };
 
-            // Funciones para los mensajes de retroalimentación
-            const mostrarExito = () => {
-            mensaje.value = 'Operación realizada con éxito.';
-            tipo.value = 'exito';
-            visible.value = true;
-        };
-
-        const mostrarError = () => {
-            mensaje.value = 'Ocurrió un error inesperado.';
-            tipo.value = 'error';
-            visible.value = true;
-        };
-
-        const mostrarAdvertencia = () => {
-            mensaje.value = 'Ten cuidado con los datos ingresados.';
-            tipo.value = 'advertencia';
-            visible.value = true;
-        };
-
-
-    return {
-      images,
-      loginFields,
-      createRequestFields,
-      handleLoginSubmit,
-      handleSendEmail,
-      showModal,
-      reusableFormComponent: ReusableForm,
-      mostrarAdvertencia,
-      mostrarError,
-      mostrarExito,
-      mensaje,
-      visible,
-      tipo
+    const mostrarExito = () => {
+      mensaje.value = 'Operación realizada con éxito.';
+      tipo.value = 'exito';
+      visible.value = true;
     };
-  }
+
+    const mostrarError = () => {
+      mensaje.value = 'Ocurrió un error inesperado.';
+      tipo.value = 'error';
+      visible.value = true;
+    };
+
+    return { 
+      images,
+      loginForm,
+      handleLoginSubmit,
+      handleSendEmail, 
+      showModal, 
+      mensaje, 
+      visible, 
+      tipo, 
+      mostrarExito, 
+      mostrarError, 
+      errorsLogin,
+      reusableFormComponent: ReusableForm,
+      createRequestFields,
+      showPassword,
+      togglePasswordVisibility
+    };
+  }	
 };
 </script>
 
@@ -278,6 +278,15 @@ export default {
   height: auto;
 }
 
+.input-group button {
+  border-color: #003366;
+}
+
+.input-group button:hover {
+  background-color: #003366;
+  color: #fff;
+}
+
 /* Media Query para pantallas móviles */
 @media (max-width: 767px) {
   .login-container {
@@ -306,7 +315,8 @@ export default {
   .bottom-logo {
     width: 100px;
     bottom: 10px;
-    right: 10px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 </style>

@@ -222,11 +222,11 @@ export default {
         };
 
         detailsUsersFields.value = [
-            { name: 'numeroidentidad', label: 'Número de Identidad', type: 'text' },
             { name: 'primernombre', label: 'Primer Nombre', type: 'text' },
             { name: 'segundonombre', label: 'Segundo Nombre', type: 'text' },
             { name: 'primerapellido', label: 'Primer Apellido', type: 'text' },
             { name: 'segundoapellido', label: 'Segundo Apellido', type: 'text' },
+            { name: 'numeroidentidad', label: 'Número de Identidad', type: 'text' },
             { name: 'direccion', label: 'Dirección', type: 'text' },
             { name: 'telefono', label: 'Teléfono', type: 'text' },
             { name: 'fechanacimiento', label: 'Fecha de Nacimiento', type: 'date' },

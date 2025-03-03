@@ -16,7 +16,8 @@
                     />
                     </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-primary request-button" @click="showModal = true">Crear solicitud</button>
+                    <button class="btn btn-primary request-button" @click="showModal = true">
+                        <i class="bi bi-plus-circle me-2"></i> Crear solicitud</button>
                     <FormModal 
                         title="Crear Solicitud" 
                         v-model="showModal" 
@@ -49,9 +50,14 @@
             <main class="container-fluid">
                 <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
                 <div class="dashboard-container p-4">
-                    <div v-for="(request, index) in requests" :key="index" class="request-item">
-                        {{ request }}
-                    </div>
+                    <div v-if="false" v-for="(request, index) in requests" :key="index" class="request-item">
+                    <span class="request-id">#{{ request.id }}</span>
+                    <span class="request-description">{{ request.description }}</span>
+                    <span :class="['request-status', getStatusClass(request.status)]">{{ request.status }}</span>
+                </div>
+                <div v-else class="no-requests">
+                    No hay solicitudes registradas.
+                </div>
                 </div>
             </main>
         </div>
@@ -227,73 +233,107 @@ export default {
             background-color: #ffcc00;
         }
 
-    /* Responsivo */
-    /* Responsividad */
-    @media (max-width: 768px) {
-        .header h1 {
-            font-size: 1.5em;
-        }
-        .dashboard-title {
-            font-size: 1.2em;
-        }
-        .dashboard-container {
-            margin-left: 5px;
-            margin-right: 5px;
-            height: auto; /* Permitir que el contenedor crezca según el contenido */
-        }
-        .request-item {
-            font-size: 0.9em;
-            padding: 8px;
-        }
-        .logo {
-            width: 70px;
-        }
-        
-        .notification-button {
-            display: none;
-        }
-        .request-button {
-            display: none;
-        }
-        .logout-button {
-            display: none !important;
-        }
+    .no-requests {
+        text-align: center;
+        color: #666;
+        padding: 20px;
     }
 
-    @media (max-width: 576px) {
-        .header h1 {
+/* Responsivo */
+@media (max-width: 768px) {
+    .header {
+        flex-wrap: wrap; /* Asegura que el contenido se acomode mejor */
+        justify-content: space-between;
+        padding: 10px; /* Ajuste del espaciado */
+    }
+
+    .header h1 {
+        font-size: 1.5em;
+        flex-basis: 100%; /* El título ocupa toda la línea */
+        text-align: center;
+    }
+
+    .logo {
+        width: 70px;
+        margin: 0 10px;
+    }
+
+    .dashboard-title {
+        font-size: 1.2em;
+    }
+
+    .dashboard-container {
+        margin: 0 5px; /* Ajuste del espaciado */
+        height: auto;
+    }
+
+    .request-item {
+        font-size: 0.9em;
+        padding: 8px;
+    }
+
+    .notification-button {
         display: none;
-        }
+    }
+
+    .request-button {
+        display: none;
+    }
+
+    .logout-button {
+        display: none !important;
+    }
+
+    .no-requests {
+        text-align: center;
+        padding: 15px;
+        font-size: 1em;
+    }
     
-        .dashboard-title {
+    main {
+        height: 87vh;
+    }
+}
+
+@media (max-width: 576px) {
+    .header h1 {
+        display: none; /* Ocultar el título en pantallas muy pequeñas */
+    }
+
+    .dashboard-title {
         font-size: 1.1em;
-        }
-    
-        .logo {
+    }
+
+    .logo {
         width: 60px;
-        }
-    
-        .request-item {
+    }
+
+    .request-item {
         font-size: 0.8em;
         padding: 6px;
-        }
-    
-        .notification-button {
-        display: none;
-        }
-    
-        .request-button {
-        display: none;
-        }
-    
-        .logout-button {
-        display: none !important;
-        }
     }
 
-    @media (min-width: 768px) {
-        .mobile-dropdown {
+    .notification-button {
         display: none;
-        }
     }
+
+    .request-button {
+        display: none;
+    }
+
+    .logout-button {
+        display: none !important;
+    }
+
+    main {
+        height: 89vh;
+    }
+}
+
+/* Optimización para pantallas más grandes */
+@media (min-width: 768px) {
+    .mobile-dropdown {
+        display: none; /* Esconde el menú desplegable en pantallas grandes */
+    }
+}
     </style>
