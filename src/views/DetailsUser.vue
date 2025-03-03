@@ -1,5 +1,4 @@
 <template>
-
     <div class="details-user">
         <h1>Detalles de Usuario</h1>
         <div class="details-user-container">
@@ -46,7 +45,6 @@ import FormModal from '../components/FormModal.vue';
 import ReusableForm from '../components/ReusableForm.vue';
 import Mensaje from '../components/Mensaje.vue'; // Importa el componente
 
-
 export default {
     name: "DetailsUser",
     components: {
@@ -65,7 +63,12 @@ export default {
         const reusableFormComponent = ReusableForm;
         const updateUsersFields = ref([]);
         const detailsUsersFields = ref([]);
-
+        const centrosRegionales = ref([]);
+        const roles = ref([]);
+        const isActiveOptions = ref([
+            { value: true, label: 'Activo' },
+            { value: false, label: 'Inactivo' }
+        ]);
 
         const router = useRouter();
         const routeData = useRoute();
@@ -121,46 +124,77 @@ export default {
             }
         };
 
+        const retrieveCentrosRegionales = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:8000/api/v1/varios/centros",
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+                centrosRegionales.value = response.data.map((centro) => ({
+                    value: centro.idcentroregional,
+                    label: centro.centroregional
+                }));
+            } catch (err) {
+                console.error("Failed to retrieve Centros Regionales:" || err.message);
+            }
+        };
+
+        const retrieveRoles = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:8000/api/v1/varios/roles",
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+                roles.value = response.data.map((rol) => ({
+                    value: rol.id,
+                    label: rol.name
+                }));
+            } catch (err) {
+                console.error("Failed to retrieve Roles:" || err.message);
+            }
+        };
 
         watch(
             () => userFound.value,
             (newUserFound) => {
                 updateUsersFields.value = [
-                 
                     { name: "email", label: "Email", type: "email", value: newUserFound.email },
-                    { name: "password", label: "Contraseña", type: "password", value: newUserFound.password },
                     {
-                        name: "rol", label: "Rol", type: "select", value: newUserFound.role_id, options: [
-                            { value: 1, label: "Admin" },
-                            { value: 2, label: "User" },
-                        ]
+                        name: "rol", label: "Rol", type: "select", value: newUserFound.idrol, options: roles.value
                     },
                     {
-                        name: "centroregional", label: "Centro Regional", type: "select", value: newUserFound.idcentroregional, options: [
-                        { value: 1, label: "Ciudad Universitaria" },
-                        { value: 2, label: "UNAH-VS" },
-                        { value: 3, label: "CURNO" },
-                        { value: 4, label: "CURC" },
-                        { value: 5, label: "CURLA" },
-                        { value: 6, label: "CURLP" },
-                        { value: 7, label: "CUROC" },
-                        { value: 8, label: "UNAH-TEC" },
-                        { value: 9, label: "UNAH-TEC AGUÁN" },
-                        ]
+                        name: "isActive", label: "Activo", type: "select", value: newUserFound.isActive, options: isActiveOptions.value
+                    },
+                    {
+                        name: "centroregional", label: "Centro Regional", type: "select", value: newUserFound.idcentroregional, options: centrosRegionales.value
                     },
                 ];
             },
             { deep: true, immediate: true }
         );
 
-        const updateSingleUser = async (userFound) => {
+
+        const updateSingleUser = async (formData) => {
+            console.log("It got here");
+            console.log(formData);
+            
             try {
                 const response = await axios.put(
-                    `http://localhost:8000/api/v1/users/put/?email=${userFound.value.email}`,
+                    `http://localhost:8000/api/v1/users/update/?email=${userFound.value.email}`,
                     {
                         email: formData.email,
-                        password: formData.password,
                         role_id: formData.rol,
+                        isActive: formData.isActive,
+                        idcentroregional: formData.centroregional,
+                
                     },
                     {
                         headers: {
@@ -177,8 +211,7 @@ export default {
 
                 router.push("/manageUsers");
             } catch (err) {
-                
-                console.error("ERROR DELETING USER:" || err.message);
+                console.error("ERROR UPDATING USER:" || err.message);
 
                 messageContent.value = 'Error al actualizar el usuario'; // Establece el contenido del mensaje de error
                 messageType.value = 'error'; // Tipo de mensaje de error
@@ -186,16 +219,16 @@ export default {
 
                 showModal.value = false; // Cierra la pantalla de actualización del usuario
             }
-        }
+        };
 
         detailsUsersFields.value = [
-            { name: 'numeroidentidad', label: 'Número de Identidad', type: 'text', placeholder: 'Ingrese su número de identidad' },
-            { name: 'primernombre', label: 'Primer Nombre', type: 'text', placeholder: 'Ingrese su primer nombre' },
-            { name: 'segundonombre', label: 'Segundo Nombre', type: 'text', placeholder: 'Ingrese su segundo nombre' },
-            { name: 'primerapellido', label: 'Primer Apellido', type: 'text', placeholder: 'Ingrese su primer apellido' },
-            { name: 'segundoapellido', label: 'Segundo Apellido', type: 'text', placeholder: 'Ingrese su segundo apellido' },
-            { name: 'direccion', label: 'Dirección', type: 'text', placeholder: 'Ingrese su dirección' },
-            { name: 'telefono', label: 'Teléfono', type: 'text', placeholder: 'Ingrese su teléfono' },
+            { name: 'primernombre', label: 'Primer Nombre', type: 'text' },
+            { name: 'segundonombre', label: 'Segundo Nombre', type: 'text' },
+            { name: 'primerapellido', label: 'Primer Apellido', type: 'text' },
+            { name: 'segundoapellido', label: 'Segundo Apellido', type: 'text' },
+            { name: 'numeroidentidad', label: 'Número de Identidad', type: 'text' },
+            { name: 'direccion', label: 'Dirección', type: 'text' },
+            { name: 'telefono', label: 'Teléfono', type: 'text' },
             { name: 'fechanacimiento', label: 'Fecha de Nacimiento', type: 'date' },
             {
                 name: 'sexo',
@@ -210,7 +243,6 @@ export default {
         ];
 
         const submitUserDetails = async (formData) => {
-
             try {
                 const response = await axios.post(
                     `http://localhost:8000/api/v1/users/detalles_personales`,
@@ -233,17 +265,19 @@ export default {
                     }
                 );
                 console.log("DETALLES INSERTADOS CORRECTAMENTE");
-            
-                showDetailsModal.value = false
+
+                showDetailsModal.value = false;
 
             } catch (err) {
                 console.error("ERROR CREATING DETAILS:" || err.message);
             }
-        }
+        };
 
-        onMounted(() => {
-            getSingleUserDetails(userId);
-        })
+        onMounted(async () => {
+            await retrieveCentrosRegionales();
+            await retrieveRoles();
+            await getSingleUserDetails(userId);
+        });
 
         return {
             userFound,
@@ -261,9 +295,7 @@ export default {
             messageType, // Añade la referencia del tipo de mensaje
         };
     },
-
-}
-
+};
 </script>
 
 <style>
@@ -285,7 +317,6 @@ export default {
 .details-user-info p {
     margin: 5px 0;
     font-size: 18px;
-
 }
 
 .details-user-actions {
