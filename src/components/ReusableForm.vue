@@ -99,7 +99,7 @@ const props = defineProps({
   title: String,
   fields: {
     type: Array,
-    default: () => []  // Asegura que siempre haya un array
+    default: () => [] 
   },
   submitButtonText: {
     type: String,
@@ -125,6 +125,7 @@ const initializeFormData = () => {
     }
     return acc;
   }, {});
+  
   errors.value = props.fields.reduce((acc, field) => {
     acc[field.name] = [];
     return acc;

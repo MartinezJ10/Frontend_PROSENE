@@ -13,15 +13,22 @@
         <div class="landing-block mid">
             <router-view ></router-view>
         </div>
-        <div class="landing-block notification-bar"></div>
+        <div class="landing-block notification-bar">
+
+            
+
+        </div>
         <div class="landing-block upper-options"></div> 
     </div>
 </template>
 
 <script>
 import { useRouter } from 'vue-router';
+
 export default {
     name: 'LandingAdmin',
+    components: {
+    },
     setup() {
         const router = useRouter();
         return {

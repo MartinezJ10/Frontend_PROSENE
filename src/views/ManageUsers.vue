@@ -124,6 +124,7 @@ export default {
           value: rol.id,
           label: rol.name
         }));
+        
       } catch (err) {
         errorLog(err)
       }
