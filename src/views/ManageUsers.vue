@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="upper-container">
       <h1>Lista de Usuarios</h1>
       <button class="rounded-button" @click="showModal = true">Crear Usuario</button>
@@ -17,11 +16,11 @@
         @click="router.push(`/detailsUser/${user.idusuario}`)">
         <div class="user-card-header">
           <p><strong> {{ user.email }}</strong></p>
-            <div class="status">
+          <div class="status">
             <div class="status-circle" :style="{ backgroundColor: user.isActive ? 'green' : 'red' }"></div>
             <span v-if="user.isActive">Activo</span>
             <span v-else-if="!user.isActive">Inactivo</span>
-            </div>
+          </div>
         </div>
         <div class="user-card-body">
           <p v-if="user.role_id === 1">Rol: Administrador</p>
@@ -30,22 +29,19 @@
           <p>{{ user.centroregional.centroregional }}</p>
         </div>
       </div>
-    </div>   
-           <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
-
+    </div>
+    <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
+      @update:visible="showMessage = false" />
   </div>
-
 </template>
 
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import FormModal from "../components/FormModal.vue";
 import ReusableForm from "../components/ReusableForm.vue";
-import Mensaje from "../components/Mensaje.vue"; 
-
-
+import Mensaje from "../components/Mensaje.vue";
 
 export default {
   name: "ManageUsers",
@@ -56,25 +52,34 @@ export default {
   },
   setup() {
     const showModal = ref(false);
-    const showMessage = ref(false); 
-    const messageContent = ref(''); 
-    const messageType = ref(''); // Tipo de mensaje (éxito o error)
+    const showMessage = ref(false);
+    const messageContent = ref('');
+    const messageType = ref('');
     const router = useRouter();
     const userInfo = ref({});
     const centrosRegionales = ref([]);
     const roles = ref([]);
-    
+    const currentUserRole = ref(null); // Track the current user's role
+
     const errorLog = async (err) => {
       console.error("ERROR IN REQUEST:", {
-          message: err.message,
-          response: err.response, // Full response from the server
-          request: err.request,   // Request details
-          config: err.config      // Axios request configuration
+        message: err.message,
+        response: err.response,
+        request: err.request,
+        config: err.config
       });
-    }
-  
-    const retrieveUsers = async () => {
+    };
 
+    // Retrieve the current user's role from the JWT token
+    const getCurrentUserRole = () => {
+      const token = localStorage.getItem("jwt");
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+        currentUserRole.value = payload.role_id; // Assuming the role_id is stored in the token
+      }
+    };
+
+    const retrieveUsers = async () => {
       try {
         const response = await axios.get(
           "http://localhost:8000/api/v1/users/all",
@@ -105,7 +110,7 @@ export default {
           label: centro.centroregional
         }));
       } catch (err) {
-        errorLog(err)
+        errorLog(err);
       }
     };
 
@@ -124,25 +129,33 @@ export default {
           value: rol.id,
           label: rol.name
         }));
-        
       } catch (err) {
-        errorLog(err)
+        errorLog(err);
       }
     };
-    
+
+    // Filter roles based on the current user's role
+    const filterRoles = () => {
+      if (currentUserRole.value === 2) { // Empleado
+        return roles.value.filter(role => role.value === 3); // Only allow Estudiantes
+      } else if (currentUserRole.value === 1) { // Administrador
+        return roles.value.filter(role => role.value === 2 || role.value === 3); // Allow Empleados and Estudiantes
+      }
+      return []; // Default to no roles if the current user's role is unknown
+    };
 
     onMounted(async () => {
+      getCurrentUserRole(); // Get the current user's role
       await retrieveUsers();
       await retrieveRoles();
       await retrieveCentrosRegionales();
-      
 
-      // Initialize createUsersFields after data is fetched
+      // Initialize createUsersFields with filtered roles
       createUsersFields.value = [
         { name: "email", label: "Email", type: "email" },
         { name: "password", label: "Contraseña", type: "password" },
         {
-          name: "roles", label: "Roles", type: "select", options: roles.value
+          name: "roles", label: "Roles", type: "select", options: filterRoles()
         },
         {
           name: "centroregional", label: "Centro Regional", type: "select", options: centrosRegionales.value
@@ -150,7 +163,6 @@ export default {
       ];
     });
 
-    //To create Users
     const createUsersFields = ref([]);
 
     const handleUserCreationSubmit = async (formData) => {
@@ -160,7 +172,7 @@ export default {
           {
             email: formData.email,
             password: formData.password,
-            role_id: formData.rol,
+            role_id: formData.roles,
             idcentroregional: formData.centroregional,
           }, {
           headers: {
@@ -168,25 +180,23 @@ export default {
           }
         }
         );
-        // Refresh the user list
-        await retrieveUsers();
+        await retrieveUsers(); // Refresh the user list
 
         console.log("USER CREATED FINE");
         showModal.value = false;
-        messageContent.value = 'Usuario creado con éxito'; 
-        messageType.value = 'exito'; 
-        showMessage.value = true; 
+        messageContent.value = 'Usuario creado con éxito';
+        messageType.value = 'exito';
+        showMessage.value = true;
       } catch (err) {
         console.error("User creation failed:" || err.message);
-        messageContent.value = 'Error al crear el usuario'; 
-        messageType.value = 'error'; 
-        showMessage.value = true; 
-        showModal.value = false;    
+        messageContent.value = 'Error al crear el usuario';
+        messageType.value = 'error';
+        showMessage.value = true;
+        showModal.value = false;
       }
-      
     };
-    const reusableFormComponent = ReusableForm;
 
+    const reusableFormComponent = ReusableForm;
 
     return {
       router,
@@ -195,9 +205,9 @@ export default {
       handleUserCreationSubmit,
       showModal,
       reusableFormComponent,
-      showMessage, 
-      messageContent, 
-      messageType, 
+      showMessage,
+      messageContent,
+      messageType,
     };
   },
 };

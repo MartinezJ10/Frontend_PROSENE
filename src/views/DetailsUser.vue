@@ -11,7 +11,7 @@
                 <p>Centro Regional: {{ userFound.centroregional?.centroregional }}</p>
             </div>
             <div class="details-user-actions">
-                <button class="rounded-button" @click="router.push(`/enrollmentDetails/${userFound.idusuario}`)">Revisar Ficha de Inscripción</button>
+                <button v-if="userFound.role_id === 3" class="rounded-button" @click="router.push(`/enrollmentDetails/${userFound.idusuario}`)">Revisar Ficha de Inscripción</button>
                 <button class="rounded-button" @click="showDetailsModal = true">Detalles Personales</button>
                 <FormModal title="Detalles Personales de Usuario" v-model="showDetailsModal"
                     :reusableForm="reusableFormComponent" :formProps="{
