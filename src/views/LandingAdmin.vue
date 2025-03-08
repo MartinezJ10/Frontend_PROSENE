@@ -8,6 +8,9 @@
             <button class="btn" @click="router.push('/studentEnrollment')">
                 Manejar Alumnos
             </button>
+            <button class="btn" @click="router.push('/solicitudes')">
+                Mis solicitudes
+            </button>
         </div>
 
         <div class="landing-block mid">

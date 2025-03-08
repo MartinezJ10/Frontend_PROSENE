@@ -5,6 +5,8 @@ import ManageUsers from '../views/ManageUsers.vue';
 import CreateUsers from '../views/CreateUsers.vue';
 import DetailsUser from '../views/DetailsUser.vue';
 import CreateStudent from '../views/CreateStudent.vue';
+import Solicitudes from '../views/Solicitudes.vue';
+import DetailsSolicitud from '../views/DetailsSolicitud.vue';
 import UserView from '../views/UserView.vue';
 import ChangePasswordView from '../views/ChangePasswordView.vue';
 import EnrollmentDetails from '../views/EnrollmentDetails.vue';
@@ -23,6 +25,14 @@ const routes = [
       {
         path: '/studentEnrollment', 
         component: CreateStudent , 
+      },
+      {
+        path: '/solicitudes',
+        component: Solicitudes,
+      }, 
+      {
+        path: '/detailsSolicitud/:id',
+        component: DetailsSolicitud,
       },
       {
         path: '/createUsers',
