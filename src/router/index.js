@@ -7,6 +7,7 @@ import DetailsUser from '../views/DetailsUser.vue';
 import CreateStudent from '../views/CreateStudent.vue';
 import UserView from '../views/UserView.vue';
 import ChangePasswordView from '../views/ChangePasswordView.vue';
+import EnrollmentDetails from '../views/EnrollmentDetails.vue';
 
 const routes = [
   { path: '/', redirect: '/login' }, 
@@ -30,6 +31,10 @@ const routes = [
       {
         path: '/detailsUser/:id',
         component: DetailsUser,
+      },
+      {
+        path: '/enrollmentDetails/:idusuario',
+        component: EnrollmentDetails,
       },
      
     ]
