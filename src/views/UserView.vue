@@ -50,20 +50,28 @@
           <!-- Si existen solicitudes, se itera sobre ellas -->
           <div v-if="requests.length > 0">
             <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center"
-                  v-for="(request, index) in requests"
-                  :key="request.id">
-                <div>
-                  <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
-                  <p class="mb-0 text-muted text-start">
-                    {{ request.tiposolicitud.descripcion }}
-                  </p>
-                </div>
-                <span :class="['badge', getStatusClass(request.estadosolicitud.descripcion)]"
-                      style="font-size: 1rem;">
-                  {{ request.estadosolicitud.descripcion }}
-                </span>
-              </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+    v-for="(request, index) in requests"
+    :key="request.id">
+  <div>
+    <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
+    <p class="mb-0 text-muted text-start">
+      {{ request.tiposolicitud.descripcion }}
+    </p>
+  </div>
+  <div class="d-flex align-items-center gap-3">
+    <!-- Botón "Detalles" con color personalizado -->
+    <button class="btn btn-outline-dark btn-sm border" @click="openDetailsModal(request.descripcion)">
+  Detalles
+</button>
+
+    <!-- Badge de estado con ancho fijo para mantener el orden -->
+    <span :class="['badge', getStatusClass(request.estadosolicitud.descripcion), 'badge-status']" style="font-size: 1rem;">
+      {{ request.estadosolicitud.descripcion }}
+    </span>
+  </div>
+</li>
+
             </ul>
           </div>
           <!-- Si no hay solicitudes, se muestra un mensaje -->
@@ -71,6 +79,13 @@
             No hay solicitudes registradas.
           </div>
         </div>
+        <!-- Modal reutilizable para mostrar detalles de la solicitud -->
+        <ReusableModal 
+          :show="showDetailsModal" 
+          title="Detalles de la Solicitud" 
+          :message="currentRequestDescription" 
+          @close="showDetailsModal = false" 
+        />
       </main>
     </div>
   </template>
@@ -83,12 +98,16 @@
   import ReusableForm from "../components/ReusableForm.vue";
   import MensajeRetroalimentacion from "../components/Mensaje.vue";
   import NotificationPanel from "../components/NotificationPanel.vue";
+  import ReusableModal from "../components/ReusableModal.vue"; // Importamos el modal reutilizable
   
   export default {
     name: "UserView",
-    components: { FormModal, ReusableForm, MensajeRetroalimentacion, NotificationPanel },
+    components: { FormModal, ReusableForm, MensajeRetroalimentacion, NotificationPanel, ReusableModal },
     setup() {
       const showModal = ref(false);
+      const showDetailsModal = ref(false);
+      const currentRequestDescription = ref('');
+  
       const router = useRouter();
       const mensaje = ref('');
       const tipoSolicitudes = ref([]);
@@ -147,8 +166,6 @@
         }
       };
   
-      // Se eliminó la función truncatedDescription para mostrar la descripción completa
-  
       const handleRequestCreationSubmit = async (formData) => {
         try {
           await axios.post("http://localhost:8000/api/v1/solicitudes/nueva", {
@@ -168,6 +185,12 @@
           console.error("Request creation failed:", err.message);
           mostrarError();
         }
+      };
+  
+      // Función para abrir la modal y asignar la descripción de la solicitud
+      const openDetailsModal = (description) => {
+        currentRequestDescription.value = description;
+        showDetailsModal.value = true;
       };
   
       const handleExit = () => {
@@ -228,6 +251,8 @@
       return {
         router,
         showModal,
+        showDetailsModal,
+        currentRequestDescription,
         createRequestFields,
         handleRequestCreationSubmit,
         handleExit,
@@ -241,14 +266,15 @@
         isNotificationPanelVisible,
         toggleNotificationPanel,
         requests,
-        getStatusClass
+        getStatusClass,
+        openDetailsModal
       };
     }
   };
   </script>
-    
-  <!-- Global reset para html y body -->
+  
   <style>
+  /* Global reset para html y body */
   html,
   body {
     margin: 0;
@@ -257,9 +283,9 @@
     overflow-x: hidden;
   }
   </style>
-    
+  
   <style scoped>
-  /* Contenedor principal ajustado al viewport */
+  /* Estilos del dashboard */
   .app {
     display: flex;
     flex-direction: column;
@@ -267,13 +293,12 @@
     margin: 0;
     overflow: hidden;
   }
-    
+  
   h5 {
     font-size: 1.25rem;
     text-align: left;
   }
-    
-  /* Header */
+  
   .header {
     background-color: #003366;
     color: white;
@@ -282,12 +307,12 @@
     justify-content: space-between;
     align-items: center;
   }
-    
+  
   .logo {
     width: 90px;
     max-width: 100%;
   }
-    
+  
   .tittle-container h1 {
     font-size: 2em;
     font-weight: bold;
@@ -295,15 +320,13 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     margin: 0;
   }
-    
-  /* Botones */
+  
   .request-button {
     background-color: #FFD100;
     color: #003366;
     border: none;
   }
-    
-  /* Main */
+  
   main {
     flex-grow: 1;
     padding: 30px;
@@ -315,26 +338,24 @@
     display: flex;
     flex-direction: column;
   }
-    
-  /* Dashboard Container con tamaño fijo y scroll vertical */
+  
   .dashboard-container {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin: 10px;
-    height: calc(100vh - 200px); /* Tamaño fijo basado en el viewport */
-    overflow-y: auto; /* Scroll vertical cuando el contenido se desborda */
+    height: calc(100vh - 200px);
+    overflow-y: auto;
   }
-    
+  
   .dashboard-title {
     font-size: 1.5em;
     font-weight: bold;
     color: #003366;
     margin-bottom: 20px;
   }
-    
-  /* Mejoras en la visualización de las solicitudes */
+  
   .list-group-item {
     padding: 15px;
     border: 1px solid #ddd;
@@ -347,11 +368,28 @@
     align-items: center;
     transition: background-color 0.2s ease;
   }
-    
+  
   .list-group-item:hover {
     background-color: #f9f9f9;
   }
-    
+
+/* Botón de detalles personalizado */
+.btn-details {
+  color: #ffffff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  width: 55px;
+  height: 21px;
+  transition: background-color 0.3s;
+}
+
+/* Establece un ancho mínimo para el badge de estado y centra su contenido */
+.badge-status {
+  min-width: 100px;
+  text-align: center;
+}
+
+  
   @media (max-width: 576px) {
     .list-group-item {
       flex-direction: column;
@@ -362,25 +400,23 @@
       align-self: flex-end;
     }
   }
-    
-  /* Botones de Bootstrap */
+  
   .btn-primary {
     background-color: #FFD100;
     color: #003366;
     border: none;
   }
-    
+  
   .btn-primary:hover {
     background-color: #ffcc00;
   }
-    
+  
   .no-requests {
     text-align: center;
     color: #666;
     padding: 20px;
   }
-    
-  /* Media Queries */
+  
   @media (max-width: 768px) {
     .header {
       flex-wrap: wrap;
@@ -416,7 +452,7 @@
       height: 87vh;
     }
   }
-    
+  
   @media (max-width: 576px) {
     .header h1 {
       display: none;
@@ -440,7 +476,7 @@
       height: 89vh;
     }
   }
-    
+  
   @media (min-width: 768px) {
     .mobile-dropdown {
       display: none;
