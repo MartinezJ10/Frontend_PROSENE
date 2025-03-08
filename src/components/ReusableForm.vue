@@ -227,7 +227,7 @@ const formFields = computed(() => {
 }
 
 .form-control {
-  border: 2px solid #003366;
+  border: 1px solid #003366;
   border-radius: 5px;
   padding: 10px 15px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -247,7 +247,7 @@ const formFields = computed(() => {
 .input-group-text {
   background: #003366;
   color: #fff;
-  border: 2px solid #003366;
+  border: 1px solid #003366;
   border-left: 0;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -287,7 +287,7 @@ const formFields = computed(() => {
   appearance: none;
   padding-right: 30px;
   background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22 stroke=%22currentColor%22%3E%3Cpath d=%22M5 7l5 5 5-5%22/%3E%3C/svg%3E') no-repeat right 10px center/12px 12px;
-  border: 2px solid #003366;
+  border: 1px solid #003366;
   border-radius: 5px;
   padding: 10px 15px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;

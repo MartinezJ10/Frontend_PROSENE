@@ -84,7 +84,7 @@ h2 {
 }
 
 input {
-  border: 2px solid #0056b3;
+  border: 1px solid #0056b3;
   border-radius: 10px;
   padding: 10px;
   font-size: 1rem;

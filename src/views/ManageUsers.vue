@@ -226,7 +226,7 @@ export default {
 }
 
 .user-card {
-  border: 2px solid var(--obscure);
+  border: 1px solid var(--obscure);
   background-color: var(--accent-yellow);
   border-radius: 15px;
   margin: 8px;

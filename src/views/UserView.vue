@@ -47,11 +47,26 @@
       <main class="container-fluid">
         <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
         <div class="dashboard-container p-4">
-          <div v-if="false" v-for="(request, index) in requests" :key="index" class="request-item">
-            <span class="request-id">#{{ request.id }}</span>
-            <span class="request-description">{{ request.description }}</span>
-            <span :class="['request-status', getStatusClass(request.status)]">{{ request.status }}</span>
+          <!-- Si existen solicitudes, se itera sobre ellas -->
+          <div v-if="requests.length > 0">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center"
+                  v-for="(request, index) in requests"
+                  :key="request.id">
+                <div>
+                  <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
+                  <p class="mb-0 text-muted text-start">
+                    {{ request.tiposolicitud.descripcion }}
+                  </p>
+                </div>
+                <span :class="['badge', getStatusClass(request.estadosolicitud.descripcion)]"
+                      style="font-size: 1rem;">
+                  {{ request.estadosolicitud.descripcion }}
+                </span>
+              </li>
+            </ul>
           </div>
+          <!-- Si no hay solicitudes, se muestra un mensaje -->
           <div v-else class="no-requests">
             No hay solicitudes registradas.
           </div>
@@ -63,7 +78,7 @@
   <script>
   import axios from "axios";
   import { useRouter } from "vue-router";
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, onUnmounted } from 'vue';
   import FormModal from "../components/FormModal.vue";
   import ReusableForm from "../components/ReusableForm.vue";
   import MensajeRetroalimentacion from "../components/Mensaje.vue";
@@ -80,11 +95,16 @@
       const visible = ref(false);
       const tipo = ref('');
       const createRequestFields = ref([]);
-      const isNotificationPanelVisible = ref(false); // State to control notification panel visibility
+      const isNotificationPanelVisible = ref(false);
+      const requests = ref([]);
+      const isMobile = ref(false);
   
-      // Toggle notification panel
       const toggleNotificationPanel = () => {
         isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
+      };
+  
+      const checkScreenSize = () => {
+        isMobile.value = window.innerWidth <= 768;
       };
   
       const errorLog = async (err) => {
@@ -101,9 +121,7 @@
           const response = await axios.get(
             "http://localhost:8000/api/v1/varios/tipos",
             {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem("jwt")}`
-              }
+              headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
             }
           );
           tipoSolicitudes.value = response.data.map((tipoSolicitud) => ({
@@ -114,6 +132,22 @@
           errorLog(err);
         }
       };
+  
+      const retrieveRequests = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:8000/api/v1/solicitudes/",
+            {
+              headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
+            }
+          );
+          requests.value = response.data;
+        } catch (err) {
+          errorLog(err);
+        }
+      };
+  
+      // Se eliminó la función truncatedDescription para mostrar la descripción completa
   
       const handleRequestCreationSubmit = async (formData) => {
         try {
@@ -129,6 +163,7 @@
           });
           showModal.value = false;
           mostrarExito();
+          await retrieveRequests();
         } catch (err) {
           console.error("Request creation failed:", err.message);
           mostrarError();
@@ -158,12 +193,36 @@
         visible.value = true;
       };
   
+      const getStatusClass = (status) => {
+        switch (status) {
+          case 'Recibida':
+            return 'bg-info text-white';
+          case 'En Proceso':
+            return 'bg-warning text-dark';
+          case 'Finalizada':
+            return 'bg-success';
+          case 'Cancelada':
+            return 'bg-secondary';
+          case 'Rechazada':
+            return 'bg-danger';
+          default:
+            return 'bg-dark';
+        }
+      };
+  
       onMounted(async () => {
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
         await retrieveTipoSolicitudes();
+        await retrieveRequests();
         createRequestFields.value = [
           { name: "requestType", label: "Tipo de Solicitud", type: "select", options: tipoSolicitudes.value },
           { name: "description", label: "Descripción", type: "text-area" }
         ];
+      });
+  
+      onUnmounted(() => {
+        window.removeEventListener('resize', checkScreenSize);
       });
   
       return {
@@ -180,48 +239,72 @@
         mostrarAdvertencia,
         reusableFormComponent: ReusableForm,
         isNotificationPanelVisible,
-        toggleNotificationPanel
+        toggleNotificationPanel,
+        requests,
+        getStatusClass
       };
     }
   };
   </script>
-
-
-<style scoped>
-.app {
+    
+  <!-- Global reset para html y body -->
+  <style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  </style>
+    
+  <style scoped>
+  /* Contenedor principal ajustado al viewport */
+  .app {
     display: flex;
     flex-direction: column;
-    height: 100%;
-}
-
-.header {
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+    
+  h5 {
+    font-size: 1.25rem;
+    text-align: left;
+  }
+    
+  /* Header */
+  .header {
     background-color: #003366;
     color: white;
     padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.logo {
+  }
+    
+  .logo {
     width: 90px;
-}
-
-.tittle-container h1 {
+    max-width: 100%;
+  }
+    
+  .tittle-container h1 {
     font-size: 2em;
     font-weight: bold;
     letter-spacing: 1px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     margin: 0;
-}
-
-.request-button {
+  }
+    
+  /* Botones */
+  .request-button {
     background-color: #FFD100;
     color: #003366;
     border: none;
-}
-
-main {
+  }
+    
+  /* Main */
+  main {
     flex-grow: 1;
     padding: 30px;
     background-color: #f4f7fc;
@@ -231,150 +314,137 @@ main {
     background-size: 300px;
     display: flex;
     flex-direction: column;
-}
-
-.dashboard-container {
+  }
+    
+  /* Dashboard Container con tamaño fijo y scroll vertical */
+  .dashboard-container {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-    flex-grow: 1;
-    height: calc(100vh - 200px);
-    overflow-y: auto;
-}
-
-.dashboard-title {
+    margin: 10px;
+    height: calc(100vh - 200px); /* Tamaño fijo basado en el viewport */
+    overflow-y: auto; /* Scroll vertical cuando el contenido se desborda */
+  }
+    
+  .dashboard-title {
     font-size: 1.5em;
     font-weight: bold;
     color: #003366;
     margin-bottom: 20px;
-}
-
-.request-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    color: #003366;
-}
-
-.btn-primary {
+  }
+    
+  /* Mejoras en la visualización de las solicitudes */
+  .list-group-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+  }
+    
+  .list-group-item:hover {
+    background-color: #f9f9f9;
+  }
+    
+  @media (max-width: 576px) {
+    .list-group-item {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+    .list-group-item span {
+      margin-top: 10px;
+      align-self: flex-end;
+    }
+  }
+    
+  /* Botones de Bootstrap */
+  .btn-primary {
     background-color: #FFD100;
     color: #003366;
     border: none;
-}
-
-.btn-primary:hover {
+  }
+    
+  .btn-primary:hover {
     background-color: #ffcc00;
-}
-
-.no-requests {
+  }
+    
+  .no-requests {
     text-align: center;
     color: #666;
     padding: 20px;
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
+  }
+    
+  /* Media Queries */
+  @media (max-width: 768px) {
     .header {
-        flex-wrap: wrap;
-        /* Asegura que el contenido se acomode mejor */
-        justify-content: space-between;
-        padding: 10px;
-        /* Ajuste del espaciado */
+      flex-wrap: wrap;
+      padding: 10px;
     }
-
-    .header h1 {
-        font-size: 1.5em;
-        flex-basis: 100%;
-        /* El título ocupa toda la línea */
-        text-align: center;
+    .tittle-container h1 {
+      font-size: 1.5em;
+      flex-basis: 100%;
+      text-align: center;
+      margin: 10px 0;
     }
-
     .logo {
-        width: 70px;
-        margin: 0 10px;
+      width: 70px;
+      margin: 0 10px;
     }
-
     .dashboard-title {
-        font-size: 1.2em;
+      font-size: 1.2em;
     }
-
     .dashboard-container {
-        margin: 0 5px;
-        /* Ajuste del espaciado */
-        height: auto;
+      margin: 0 5px;
+      height: auto;
     }
-
     .request-item {
-        font-size: 0.9em;
-        padding: 8px;
+      font-size: 0.9em;
+      padding: 8px;
     }
-
-    .notification-button {
-        display: none;
-    }
-
-    .request-button {
-        display: none;
-    }
-
+    .notification-button,
+    .request-button,
     .logout-button {
-        display: none !important;
+      display: none;
     }
-
-    .no-requests {
-        text-align: center;
-        padding: 15px;
-        font-size: 1em;
-    }
-
     main {
-        height: 87vh;
+      height: 87vh;
     }
-}
-
-@media (max-width: 576px) {
+  }
+    
+  @media (max-width: 576px) {
     .header h1 {
-        display: none;
-        /* Ocultar el título en pantallas muy pequeñas */
+      display: none;
     }
-
     .dashboard-title {
-        font-size: 1.1em;
+      font-size: 1.4em;
     }
-
     .logo {
-        width: 60px;
+      width: 60px;
     }
-
     .request-item {
-        font-size: 0.8em;
-        padding: 6px;
+      font-size: 0.8em;
+      padding: 6px;
     }
-
-    .notification-button {
-        display: none;
-    }
-
-    .request-button {
-        display: none;
-    }
-
+    .notification-button,
+    .request-button,
     .logout-button {
-        display: none !important;
+      display: none !important;
     }
-
     main {
-        height: 89vh;
+      height: 89vh;
     }
-}
-
-/* Optimización para pantallas más grandes */
-@media (min-width: 768px) {
+  }
+    
+  @media (min-width: 768px) {
     .mobile-dropdown {
-        display: none;
-        /* Esconde el menú desplegable en pantallas grandes */
+      display: none;
     }
-}
-</style>
+  }
+  </style>
+  
