@@ -6,9 +6,9 @@
                 <input type="date" v-model="searchDate" @input="filterSolicitudes" placeholder="Buscar por fecha" class="filter-input" />
                 <select v-model="searchEstado" @change="filterSolicitudes" class="filter-select">
                     <option value="">Todos los estados</option>
-                    <option value="1">Pendiente</option>
-                    <option value="2">Aprobado</option>
-                    <option value="3">Rechazado</option>
+                    <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
+                        {{ estado.descripcion }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -51,6 +51,7 @@ export default {
         const solicitudes = ref([]);
         const searchDate = ref('');
         const searchEstado = ref('');
+        const estados = ref([]); // Add this to store estados
 
         const retrieveSolicitudes = async () => {
             try {
@@ -74,17 +75,25 @@ export default {
             }
         };
 
-        const getStatusText = (estado) => {
-            switch (estado) {
-                case 1:
-                    return 'Pendiente';
-                case 2:
-                    return 'Aprobado';
-                case 3:
-                    return 'Rechazado';
-                default:
-                    return 'Desconocido';
+        const retrieveEstados = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:8000/api/v1/varios/estados",
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+                estados.value = response.data; // Store estados
+            } catch (err) {
+                console.error("Failed to retrieve estados:", err.message);
             }
+        };
+
+        const getStatusText = (estado) => {
+            const estadoObj = estados.value.find(e => e.idestadosolicitud === estado);
+            return estadoObj ? estadoObj.descripcion : 'Desconocido';
         };
 
         const getStatusColor = (estado) => {
@@ -129,6 +138,7 @@ export default {
 
         onMounted(async () => {
             await retrieveSolicitudes();
+            await retrieveEstados(); // Fetch estados
         });
 
         return {
@@ -141,6 +151,7 @@ export default {
             formatDate,
             searchDate,
             searchEstado,
+            estados, // Return estados for use in the template
             filteredSolicitudes,
             filterSolicitudes,
             goToDetails
@@ -148,7 +159,6 @@ export default {
     },
 };
 </script>
-
 <style scoped>
 .card-container {
     display: flex;

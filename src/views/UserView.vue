@@ -29,14 +29,12 @@
             onSubmit: handleRequestCreationSubmit
           }"
         />
-        <!-- Notification Button -->
         <button
           class="btn btn-light border notification-button"
           @click="toggleNotificationPanel"
         >
           <i class="bi bi-bell"></i>
         </button>
-        <!-- Notification Panel -->
         <NotificationPanel
           v-if="isNotificationPanelVisible"
           @close="toggleNotificationPanel"
@@ -80,12 +78,23 @@
     <main class="container-fluid">
       <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
       <div class="dashboard-container p-4">
+        <!-- Add filter inputs here -->
+        <div class="filters mb-4">
+          <input type="date" v-model="searchDate" @input="filterRequests" placeholder="Buscar por fecha" class="filter-input" />
+          <select v-model="searchEstado" @change="filterRequests" class="filter-select">
+            <option value="">Todos los estados</option>
+            <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
+              {{ estado.descripcion }}
+            </option>
+          </select>
+        </div>
+
         <!-- Si existen solicitudes, se itera sobre ellas -->
-        <div v-if="requests.length > 0">
+        <div v-if="filteredRequests.length > 0">
           <ul class="list-group">
             <li
               class="list-group-item"
-              v-for="(request, index) in requests"
+              v-for="(request, index) in filteredRequests"
               :key="request.id"
             >
               <!-- Tarjeta interna -->
@@ -141,10 +150,11 @@
   </div>
 </template>
 
+
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, onUnmounted } from "vue";
+import { onMounted, ref, computed,onUnmounted } from "vue";
 import FormModal from "../components/FormModal.vue";
 import ReusableForm from "../components/ReusableForm.vue";
 import MensajeRetroalimentacion from "../components/Mensaje.vue";
@@ -174,6 +184,9 @@ export default {
     const isNotificationPanelVisible = ref(false);
     const requests = ref([]);
     const isMobile = ref(false);
+    const searchDate = ref('');
+    const searchEstado = ref('');
+    const estados = ref([]); // Store estados here
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -217,6 +230,17 @@ export default {
       }
     };
 
+    const retrieveEstados = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        });
+        estados.value = response.data; // Store estados
+      } catch (err) {
+        console.error("Failed to retrieve estados:", err.message);
+      }
+    };
+
     const handleRequestCreationSubmit = async (formData) => {
       try {
         await axios.post(
@@ -242,7 +266,6 @@ export default {
       }
     };
 
-    // Función para abrir la modal y asignar la descripción de la solicitud
     const openDetailsModal = (description) => {
       currentRequestDescription.value = description;
       showDetailsModal.value = true;
@@ -271,7 +294,6 @@ export default {
       visible.value = true;
     };
 
-    // Clases para el estado (colores discretos)
     const getStatusClass = (status) => {
       switch (status.toLowerCase()) {
         case "recibida":
@@ -289,11 +311,30 @@ export default {
       }
     };
 
+    const isSameDate = (date1, date2) => {
+      const d1 = new Date(date1);
+      const d2 = new Date(date2);
+      return d1.toISOString().split('T')[0] === d2.toISOString().split('T')[0];
+    };
+
+    const filteredRequests = computed(() => {
+      return requests.value.filter(request => {
+        const matchesDate = searchDate.value ? isSameDate(request.fechacreacion, searchDate.value) : true;
+        const matchesEstado = searchEstado.value ? request.estadosolicitud.idestadosolicitud === parseInt(searchEstado.value) : true;
+        return matchesDate && matchesEstado;
+      });
+    });
+
+    const filterRequests = () => {
+      // This function is just a placeholder to trigger the computed property
+    };
+
     onMounted(async () => {
       checkScreenSize();
       window.addEventListener("resize", checkScreenSize);
       await retrieveTipoSolicitudes();
       await retrieveRequests();
+      await retrieveEstados(); // Fetch estados
       createRequestFields.value = [
         {
           name: "requestType",
@@ -329,6 +370,11 @@ export default {
       requests,
       getStatusClass,
       openDetailsModal,
+      searchDate,
+      searchEstado,
+      estados, // Return estados for use in the template
+      filteredRequests,
+      filterRequests,
     };
   },
 };
