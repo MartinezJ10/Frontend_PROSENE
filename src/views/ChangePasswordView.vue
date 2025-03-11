@@ -29,7 +29,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const email = route.params.email;
+    const token = route.params.jwt;
 
     const fields = ref([
       { name: 'newPassword', label: 'Nueva Contraseña', type: 'password', placeholder: 'Ingrese su nueva contraseña' },
@@ -38,11 +38,11 @@ export default {
 
     const handleChangePassword = async (formData) => {
       try {
-        await axios.post(`http://localhost:8000/api/v1/users/resetpassword/${email}`, {
-          email: email,
+        await axios.post(`http://localhost:8000/api/v1/users/password/${token}`, {
+          token: token,
           password: formData.newPassword
         });
-
+        
         router.push('/login');
       } catch (err) {
         console.error("La contraseña no pudo ser cambiada:", err.message);

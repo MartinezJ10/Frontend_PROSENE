@@ -78,15 +78,61 @@
     <main class="container-fluid">
       <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
       <div class="dashboard-container p-4">
-        <!-- Add filter inputs here -->
-        <div class="filters mb-4">
-          <input type="date" v-model="searchDate" @input="filterRequests" placeholder="Buscar por fecha" class="filter-input" />
-          <select v-model="searchEstado" @change="filterRequests" class="filter-select">
-            <option value="">Todos los estados</option>
-            <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
-              {{ estado.descripcion }}
-            </option>
-          </select>
+
+        <!-- Filtros mejorados -->
+        <div class="filters mb-4 row g-3 align-items-end">
+          <!-- Filtro por fecha -->
+          <div class="col-md-4">
+            <label for="dateFilter" class="form-label">Fecha</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-calendar-date"></i>
+              </span>
+              <input
+                type="date"
+                id="dateFilter"
+                class="form-control"
+                v-model="searchDate"
+                @input="filterRequests"
+              />
+            </div>
+          </div>
+
+          <!-- Filtro por estado -->
+          <div class="col-md-4">
+            <label for="estadoFilter" class="form-label">Estado</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-filter"></i>
+              </span>
+              <select
+                id="estadoFilter"
+                class="form-select"
+                v-model="searchEstado"
+                @change="filterRequests"
+              >
+                <option value="">Todos los estados</option>
+                <option
+                  v-for="estado in estados"
+                  :key="estado.idestadosolicitud"
+                  :value="estado.idestadosolicitud"
+                >
+                  {{ estado.descripcion }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Botón para limpiar filtros (opcional) -->
+          <div class="col-md-4">
+            <button
+              type="button"
+              class="btn btn-secondary w-100"
+              @click="resetFilters"
+            >
+              Limpiar filtros
+            </button>
+          </div>
         </div>
 
         <!-- Si existen solicitudes, se itera sobre ellas -->
@@ -150,11 +196,10 @@
   </div>
 </template>
 
-
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed,onUnmounted } from "vue";
+import { onMounted, ref, computed, onUnmounted } from "vue";
 import FormModal from "../components/FormModal.vue";
 import ReusableForm from "../components/ReusableForm.vue";
 import MensajeRetroalimentacion from "../components/Mensaje.vue";
@@ -184,8 +229,8 @@ export default {
     const isNotificationPanelVisible = ref(false);
     const requests = ref([]);
     const isMobile = ref(false);
-    const searchDate = ref('');
-    const searchEstado = ref('');
+    const searchDate = ref("");
+    const searchEstado = ref("");
     const estados = ref([]); // Store estados here
 
     const toggleNotificationPanel = () => {
@@ -314,19 +359,30 @@ export default {
     const isSameDate = (date1, date2) => {
       const d1 = new Date(date1);
       const d2 = new Date(date2);
-      return d1.toISOString().split('T')[0] === d2.toISOString().split('T')[0];
+      return d1.toISOString().split("T")[0] === d2.toISOString().split("T")[0];
     };
 
     const filteredRequests = computed(() => {
-      return requests.value.filter(request => {
-        const matchesDate = searchDate.value ? isSameDate(request.fechacreacion, searchDate.value) : true;
-        const matchesEstado = searchEstado.value ? request.estadosolicitud.idestadosolicitud === parseInt(searchEstado.value) : true;
+      return requests.value.filter((request) => {
+        const matchesDate = searchDate.value
+          ? isSameDate(request.fechacreacion, searchDate.value)
+          : true;
+        const matchesEstado = searchEstado.value
+          ? request.estadosolicitud.idestadosolicitud === parseInt(searchEstado.value)
+          : true;
         return matchesDate && matchesEstado;
       });
     });
 
     const filterRequests = () => {
-      // This function is just a placeholder to trigger the computed property
+      // Trigger computed property
+    };
+
+    // Método para limpiar los filtros
+    const resetFilters = () => {
+      searchDate.value = "";
+      searchEstado.value = "";
+      filterRequests();
     };
 
     onMounted(async () => {
@@ -334,7 +390,7 @@ export default {
       window.addEventListener("resize", checkScreenSize);
       await retrieveTipoSolicitudes();
       await retrieveRequests();
-      await retrieveEstados(); // Fetch estados
+      await retrieveEstados();
       createRequestFields.value = [
         {
           name: "requestType",
@@ -372,9 +428,10 @@ export default {
       openDetailsModal,
       searchDate,
       searchEstado,
-      estados, // Return estados for use in the template
+      estados,
       filteredRequests,
       filterRequests,
+      resetFilters,
     };
   },
 };
@@ -456,16 +513,12 @@ main {
 }
 
 /* --- Ajustes para la lista y la "tarjeta" de solicitud --- */
-
-/* Quitamos el borde y el padding por defecto de list-group-item
-   para no duplicar con el card interno */
 .list-group-item {
   border: none;
   padding: 0;
   margin-bottom: 1rem;
 }
 
-/* Tarjeta interna de cada solicitud */
 .request-card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -489,31 +542,55 @@ main {
   text-align: center;
 }
 
-/* Colores suaves para cada estado */
 .badge-status.recibida {
-  background-color: #e2e3e5; /* Gris claro */
+  background-color: #e2e3e5;
   color: #383d41;
 }
 
 .badge-status.en-proceso {
-  background-color: #fff3cd; /* Amarillo claro */
+  background-color: #fff3cd;
   color: #856404;
 }
 
 .badge-status.finalizada {
-  background-color: #d4edda; /* Verde claro */
+  background-color: #d4edda;
   color: #155724;
 }
 
 .badge-status.cancelada,
 .badge-status.rechazada {
-  background-color: #f8d7da; /* Rojo rosado */
+  background-color: #f8d7da;
   color: #721c24;
 }
 
 .badge-status.otro-estado {
   background-color: #dee2e6;
   color: #495057;
+}
+
+/* --- Filtros (estilos extra) --- */
+.filters {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.filters .form-label {
+  font-weight: 600;
+  color: #003366;
+}
+
+.input-group-text {
+  background-color: #003366;
+  color: #fff;
+}
+
+/* --- Mensaje de "no hay solicitudes" --- */
+.no-requests {
+  font-size: 1.5rem;       /* Texto más grande */
+  text-align: center;     
+  margin-top: 2rem;       /* Separación desde el bloque de filtros */
 }
 
 /* --- Responsivo --- */
@@ -535,8 +612,6 @@ main {
   main {
     height: 89vh;
   }
-
-  /* Ajusta la separación de la tarjeta en pantallas muy pequeñas */
   .request-card {
     padding: 1rem;
   }

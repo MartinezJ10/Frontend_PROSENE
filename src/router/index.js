@@ -50,7 +50,7 @@ const routes = [
     ]
   },
   {path: '/userView', component: UserView},
-  {path: '/usuario/cambiopass/:email', component: ChangePasswordView}
+  {path: '/usuario/cambiopass/:jwt', component: ChangePasswordView}
 ];
 
 const router = createRouter({
