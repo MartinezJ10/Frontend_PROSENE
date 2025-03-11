@@ -588,7 +588,7 @@ main {
 
 /* --- Mensaje de "no hay solicitudes" --- */
 .no-requests {
-  font-size: 1.5rem;       /* Texto más grande */
+  font-size: 1.5rem;       /* Texto más grande */ 
   text-align: center;     
   margin-top: 2rem;       /* Separación desde el bloque de filtros */
 }

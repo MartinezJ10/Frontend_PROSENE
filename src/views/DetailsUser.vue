@@ -221,13 +221,6 @@
               value: newUserFound.email,
             },
             {
-              name: 'rol',
-              label: 'Rol',
-              type: 'select',
-              value: newUserFound.idrol,
-              options: roles.value,
-            },
-            {
               name: 'isActive',
               label: 'Activo',
               type: 'select',
