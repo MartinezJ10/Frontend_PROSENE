@@ -17,9 +17,7 @@
             <router-view ></router-view>
         </div>
         <div class="landing-block notification-bar">
-
-            
-
+            <NotificationPanel> </NotificationPanel>
         </div>
         <div class="landing-block upper-options"></div> 
     </div>
@@ -27,10 +25,12 @@
 
 <script>
 import { useRouter } from 'vue-router';
+import NotificationPanel from '../components/NotificationPanel.vue';
 
 export default {
     name: 'LandingAdmin',
     components: {
+        NotificationPanel
     },
     setup() {
         const router = useRouter();
