@@ -17,7 +17,7 @@
           <button class="btn btn-white me-2 border notification-button" @click="toggleNotificationPanel">
             <i class="bi bi-bell"></i> Notificaciones
           </button>
-          <NotificationPanel :url="notificationAdminUrl" v-if="isNotificationPanelVisible"
+          <NotificationPanel :isAdmin="true" :url="notificationAdminUrl" v-if="isNotificationPanelVisible"
             @close="toggleNotificationPanel" />
           <button class="btn btn-danger" @click="handleExit">
             <i class="bi bi-box-arrow-right"></i> Cerrar sesión

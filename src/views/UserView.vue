@@ -23,7 +23,7 @@
         <button class="btn btn-light border notification-button" @click="toggleNotificationPanel">
           <i class="bi bi-bell"></i>
         </button>
-        <NotificationPanel :url="notificationStudentURL" v-if="isNotificationPanelVisible" @close="toggleNotificationPanel" />
+        <NotificationPanel :isAdmin="false" :url="notificationStudentURL" v-if="isNotificationPanelVisible" @close="toggleNotificationPanel" />
         <button class="btn btn-danger d-flex align-items-center logout-button" @click="handleExit">
           <i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión
         </button>
@@ -168,7 +168,7 @@ export default {
     const isMobile = ref(false);
     const searchDate = ref("");
     const searchEstado = ref("");
-    const estados = ref([]); // Store estados here
+    const estados = ref([]);
     const notificationStudentURL = "http://localhost:8000/api/v1/notificaciones/";
 
     const toggleNotificationPanel = () => {

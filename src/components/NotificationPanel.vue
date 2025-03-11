@@ -2,7 +2,7 @@
   <div class="notification-panel" v-click-outside="closePanel">
     <!-- Notification Content -->
     <div v-if="notifications.length === 0" class="text-muted p-3">
-      No new notifications.
+      There are no messages.
     </div>
     <div v-else>
       <div v-for="notification in notifications" :key="notification.idnotificacion" class="notification-card mb-3 p-3"
@@ -13,10 +13,16 @@
             <p class="mb-1 text-muted">{{ notification.solicitudes.descripcion }}</p>
             <small class="text-muted">{{ formatDate(notification.create_date) }}</small>
           </div>
-          <button v-if="!notification.isread" @click="markAsRead(notification.idnotificacion)"
-            class="btn btn-sm mark-as-read-btn">
-            Mark as Read
-          </button>
+          <div>
+            <button v-if="!notification.isread" @click="markAsRead(notification.idnotificacion)"
+              class="btn btn-sm mark-as-read-btn">
+              Mark as Read
+            </button>
+            <!-- Conditionally render the Delete button for admins -->
+            <button v-if="isAdmin" @click="deleteNotification(notification.idnotificacion)" class="btn btn-sm btn-danger ms-2">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -33,12 +39,17 @@ export default {
     url: {
       type: String,
       required: true
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false // Default to false (student)
     }
   },
+  
   emits: ['close'], // Emit close event
   setup(props, { emit }) {
     const notifications = ref([]);
-
+    console.log(props.isAdmin);
     const closePanel = () => {
       emit('close'); // Emit close event to parent
     };
@@ -61,9 +72,19 @@ export default {
         const response = await axios.get(props.url, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
         });
-        notifications.value = response.data;
+
+        // Check if the response contains the "detail" key and handle it
+        if (response.data.detail === "No tienes notificaciones") {
+          notifications.value = []; // Set notifications to an empty array
+        } else {
+          notifications.value = response.data; // Set notifications to the response data
+        }
       } catch (err) {
-        errorLog(err);
+        // Only log errors that are not the specific "No tienes notificaciones" response
+        if (err.response && err.response.data.detail !== "No tienes notificaciones") {
+          errorLog(err); // Log actual errors
+        }
+        notifications.value = []; // Set notifications to an empty array in case of an error
       }
     };
 
@@ -81,6 +102,18 @@ export default {
       }
     };
 
+    const deleteNotification = async (id) => {
+      try {
+        await axios.delete(`http://localhost:8000/api/v1/notificaciones/delete/${id}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
+        });
+        // Remove the deleted notification from the list
+        notifications.value = notifications.value.filter(n => n.idnotificacion !== id);
+      } catch (err) {
+        errorLog(err);
+      }
+    };
+
     onMounted(async () => {
       await retrieveNotifications();
     });
@@ -89,12 +122,16 @@ export default {
       notifications,
       formatDate,
       markAsRead,
+      deleteNotification,
       closePanel
     };
   }
 };
 </script>
 
+<style scoped>
+/* Your existing styles here */
+</style>
 <style scoped>
 :root {
   --main-yellow: #FFCC00;
@@ -191,5 +228,17 @@ export default {
 .mark-as-read-btn:hover {
   background-color: var(--accent-yellow);
   color: var(--main-blue);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.875rem;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
 }
 </style>
