@@ -8,68 +8,39 @@
         <h1 class="m-0">Solicitudes Académicas</h1>
       </div>
       <div>
-        <MensajeRetroalimentacion
-          :mensaje="mensaje"
-          :visible="visible"
-          :tipo="tipo"
-          @update:visible="visible = $event"
-        />
+        <MensajeRetroalimentacion :mensaje="mensaje" :visible="visible" :tipo="tipo"
+          @update:visible="visible = $event" />
       </div>
       <div class="d-flex gap-2">
         <button class="btn btn-primary request-button" @click="showModal = true">
           <i class="bi bi-plus-circle me-2"></i> Crear solicitud
         </button>
-        <FormModal
-          title="Crear Solicitud"
-          v-model="showModal"
-          :reusableForm="reusableFormComponent"
-          :formProps="{
-            fields: createRequestFields,
-            submitButtonText: 'Crear Solicitud',
-            onSubmit: handleRequestCreationSubmit
-          }"
-        />
-        <button
-          class="btn btn-light border notification-button"
-          @click="toggleNotificationPanel"
-        >
+        <FormModal title="Crear Solicitud" v-model="showModal" :reusableForm="reusableFormComponent" :formProps="{
+          fields: createRequestFields,
+          submitButtonText: 'Crear Solicitud',
+          onSubmit: handleRequestCreationSubmit
+        }" />
+        <button class="btn btn-light border notification-button" @click="toggleNotificationPanel">
           <i class="bi bi-bell"></i>
         </button>
-        <NotificationPanel
-          v-if="isNotificationPanelVisible"
-          @close="toggleNotificationPanel"
-        />
-        <button
-          class="btn btn-danger d-flex align-items-center logout-button"
-          @click="handleExit"
-        >
+        <NotificationPanel :url="notificationStudentURL" v-if="isNotificationPanelVisible" @close="toggleNotificationPanel" />
+        <button class="btn btn-danger d-flex align-items-center logout-button" @click="handleExit">
           <i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión
         </button>
       </div>
       <div class="mobile-dropdown dropdown">
-        <button
-          class="btn btn-primary dropdown-toggle"
-          type="button"
-          id="mobileMenu"
-          data-bs-toggle="dropdown"
-        >
+        <button class="btn btn-primary dropdown-toggle" type="button" id="mobileMenu" data-bs-toggle="dropdown">
           Menú
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a class="dropdown-item" href="#" @click="showModal = true"
-              >Crear solicitud</a
-            >
+            <a class="dropdown-item" href="#" @click="showModal = true">Crear solicitud</a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click="toggleNotificationPanel"
-              >Notificaciones</a
-            >
+            <a class="dropdown-item" href="#" @click="toggleNotificationPanel">Notificaciones</a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click="handleExit"
-              >Cerrar sesión</a
-            >
+            <a class="dropdown-item" href="#" @click="handleExit">Cerrar sesión</a>
           </li>
         </ul>
       </div>
@@ -88,13 +59,7 @@
               <span class="input-group-text">
                 <i class="bi bi-calendar-date"></i>
               </span>
-              <input
-                type="date"
-                id="dateFilter"
-                class="form-control"
-                v-model="searchDate"
-                @input="filterRequests"
-              />
+              <input type="date" id="dateFilter" class="form-control" v-model="searchDate" @input="filterRequests" />
             </div>
           </div>
 
@@ -105,18 +70,9 @@
               <span class="input-group-text">
                 <i class="bi bi-filter"></i>
               </span>
-              <select
-                id="estadoFilter"
-                class="form-select"
-                v-model="searchEstado"
-                @change="filterRequests"
-              >
+              <select id="estadoFilter" class="form-select" v-model="searchEstado" @change="filterRequests">
                 <option value="">Todos los estados</option>
-                <option
-                  v-for="estado in estados"
-                  :key="estado.idestadosolicitud"
-                  :value="estado.idestadosolicitud"
-                >
+                <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
                   {{ estado.descripcion }}
                 </option>
               </select>
@@ -125,11 +81,7 @@
 
           <!-- Botón para limpiar filtros (opcional) -->
           <div class="col-md-4">
-            <button
-              type="button"
-              class="btn btn-secondary w-100"
-              @click="resetFilters"
-            >
+            <button type="button" class="btn btn-secondary w-100" @click="resetFilters">
               Limpiar filtros
             </button>
           </div>
@@ -138,11 +90,7 @@
         <!-- Si existen solicitudes, se itera sobre ellas -->
         <div v-if="filteredRequests.length > 0">
           <ul class="list-group">
-            <li
-              class="list-group-item"
-              v-for="(request, index) in filteredRequests"
-              :key="request.id"
-            >
+            <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
               <!-- Tarjeta interna -->
               <div class="request-card p-3">
                 <div class="row align-items-center">
@@ -160,18 +108,11 @@
 
                   <!-- Botones + Estado: en móviles col-12, en md col-4 -->
                   <div
-                    class="col-12 col-md-4 d-flex justify-content-between justify-content-md-end align-items-center mt-2 mt-md-0 gap-2"
-                  >
-                    <button
-                      class="btn btn-outline-dark btn-sm border"
-                      @click="openDetailsModal(request.descripcion)"
-                    >
+                    class="col-12 col-md-4 d-flex justify-content-between justify-content-md-end align-items-center mt-2 mt-md-0 gap-2">
+                    <button class="btn btn-outline-dark btn-sm border" @click="openDetailsModal(request.descripcion)">
                       Detalles
                     </button>
-                    <span
-                      class="badge badge-status"
-                      :class="getStatusClass(request.estadosolicitud.descripcion)"
-                    >
+                    <span class="badge badge-status" :class="getStatusClass(request.estadosolicitud.descripcion)">
                       {{ request.estadosolicitud.descripcion }}
                     </span>
                   </div>
@@ -186,12 +127,8 @@
         </div>
       </div>
       <!-- Modal reutilizable para mostrar detalles de la solicitud -->
-      <ReusableModal
-        :show="showDetailsModal"
-        title="Detalles de la Solicitud"
-        :message="currentRequestDescription"
-        @close="showDetailsModal = false"
-      />
+      <ReusableModal :show="showDetailsModal" title="Detalles de la Solicitud" :message="currentRequestDescription"
+        @close="showDetailsModal = false" />
     </main>
   </div>
 </template>
@@ -232,6 +169,7 @@ export default {
     const searchDate = ref("");
     const searchEstado = ref("");
     const estados = ref([]); // Store estados here
+    const notificationStudentURL = "http://localhost:8000/api/v1/notificaciones/";
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -432,6 +370,7 @@ export default {
       filteredRequests,
       filterRequests,
       resetFilters,
+      notificationStudentURL,
     };
   },
 };
@@ -588,9 +527,11 @@ main {
 
 /* --- Mensaje de "no hay solicitudes" --- */
 .no-requests {
-  font-size: 1.5rem;       /* Texto más grande */
-  text-align: center;     
-  margin-top: 2rem;       /* Separación desde el bloque de filtros */
+  font-size: 1.5rem;
+  /* Texto más grande */
+  text-align: center;
+  margin-top: 2rem;
+  /* Separación desde el bloque de filtros */
 }
 
 /* --- Responsivo --- */
@@ -598,26 +539,33 @@ main {
   .header h1 {
     display: none;
   }
+
   .dashboard-title {
     font-size: 1.4em;
   }
+
   .logo {
     width: 60px;
   }
+
   .notification-button,
   .request-button,
   .logout-button {
     display: none !important;
   }
+
   main {
     height: 89vh;
   }
+
   .request-card {
     padding: 1rem;
   }
+
   .request-card h5 {
     font-size: 1rem;
   }
+
   .request-card p {
     font-size: 0.9rem;
   }
@@ -628,28 +576,34 @@ main {
     flex-wrap: wrap;
     padding: 10px;
   }
+
   .tittle-container h1 {
     font-size: 1.5em;
     flex-basis: 100%;
     text-align: center;
     margin: 10px 0;
   }
+
   .logo {
     width: 70px;
     margin: 0 10px;
   }
+
   .dashboard-title {
     font-size: 1.2em;
   }
+
   .dashboard-container {
     margin: 0 5px;
     height: auto;
   }
+
   .notification-button,
   .request-button,
   .logout-button {
     display: none;
   }
+
   main {
     height: 87vh;
   }
