@@ -53,7 +53,7 @@
   
       const retrieveNotifications = async () => {
         try {
-          const response = await axios.get("http://localhost:8000/api/v1/notificaciones", {
+          const response = await axios.get("http://localhost:8000/api/v1/notificaciones/admin/", {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
           });
           notifications.value = response.data;
