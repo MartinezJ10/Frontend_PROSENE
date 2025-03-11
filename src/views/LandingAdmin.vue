@@ -57,11 +57,7 @@
     
         <!-- Área principal de contenido -->
         <div class="container-fluid p-4 main-content">
-          <!-- Mostrar mensaje de bienvenida solo en la ruta '/landingAdmin' -->
-          <div v-if="isLandingAdminPage" class="welcome-message">
-            <h2>Bienvenido al Panel de Super Administrador</h2>
-            <p>Selecciona una opción del menú para comenzar.</p>
-          </div>
+          <!-- Se carga la vista según la ruta (por ejemplo, WelcomeMessage.vue para '/landingAdmin') -->
           <router-view></router-view>
         </div>
       </div>
@@ -70,16 +66,12 @@
   
   <script>
   import { ref } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  import { useRouter } from 'vue-router';
   
   export default {
     name: 'LandingAdmin',
     setup() {
       const router = useRouter();
-      const route = useRoute();
-  
-      // Mostrar el mensaje de bienvenida solo en '/landingAdmin'
-      const isLandingAdminPage = route.path === '/landingAdmin';
   
       // Funcionalidad para cerrar sesión
       const handleExit = () => {
@@ -93,12 +85,14 @@
         isSidebarOpen.value = !isSidebarOpen.value;
       };
   
-      return { router, isLandingAdminPage, handleExit, isSidebarOpen, toggleSidebar };
+      return { router, handleExit, isSidebarOpen, toggleSidebar };
     }
   };
   </script>
   
   <style scoped>
+  /* Aquí se mantienen los estilos originales de LandingAdmin.vue */
+  
   /* Contenedor raíz: ocupa el 100% de la ventana y organiza en columna */
   .superadmin {
     display: flex;
@@ -246,10 +240,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 20px !important;
-    padding-bottom: 20px !important;
-    padding-right: 20px !important;
-    padding-top: 0px !important;
+    padding: 20px 20px 20px 20px;
     overflow: hidden;
     box-sizing: border-box;
     background-color: #f9f9f9;
@@ -258,28 +249,6 @@
   
   .title-page {
     color: white;
-  }
-  
-  /* Estilos del mensaje de bienvenida */
-  .welcome-message {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .welcome-message h2 {
-    color: #002D62;
-  }
-  
-  .welcome-message p {
-    color: #6c757d;
   }
   
   /* Botón de notificaciones */

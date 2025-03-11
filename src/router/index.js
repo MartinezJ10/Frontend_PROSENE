@@ -10,6 +10,7 @@ import DetailsSolicitud from '../views/DetailsSolicitud.vue';
 import UserView from '../views/UserView.vue';
 import ChangePasswordView from '../views/ChangePasswordView.vue';
 import EnrollmentDetails from '../views/EnrollmentDetails.vue';
+import WelcomeMessage from '../views/WelcomeMessage.vue';
 
 const routes = [
   { path: '/', redirect: '/login' }, 
@@ -46,7 +47,10 @@ const routes = [
         path: '/enrollmentDetails/:idusuario',
         component: EnrollmentDetails,
       },
-     
+      {
+        path: '/WelcomeMessage',
+        component: WelcomeMessage
+      },
     ]
   },
   {path: '/userView', component: UserView},
