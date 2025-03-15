@@ -7,28 +7,18 @@
           <button class="btn btn-white me-2 d-lg-none" @click="toggleSidebar">
             <i class="bi bi-list"></i>
           </button>
-  
-          <!-- Logo UNAH -->
           <div class="d-flex align-items-center">
-            <img
-              src="@/assets/logo_unah.png"
-              alt="Logo UNAH"
-              width="80"
-              height="50"
-              class="d-inline-block align-top"
-            />
+            <img src="@/assets/logo_unah.png" alt="Logo UNAH" width="80" height="50" class="d-inline-block align-top">
           </div>
-  
-          <!-- Título centrado -->
           <div class="d-flex flex-grow-1 justify-content-center">
             <span class="h4 mb-0 title-page">Sistema de Gestión Universitaria</span>
           </div>
-  
-          <!-- Botones a la derecha (Notificaciones y Cerrar sesión) -->
           <div class="d-flex align-items-center">
-            <button class="btn btn-white me-2">
+            <button class="btn btn-white me-2 border notification-button" @click="toggleNotificationPanel">
               <i class="bi bi-bell"></i> Notificaciones
             </button>
+            <NotificationPanel :isAdmin="true" :url="notificationAdminUrl" v-if="isNotificationPanelVisible"
+              @close="toggleNotificationPanel" />
             <button class="btn btn-danger" @click="handleExit">
               <i class="bi bi-box-arrow-right"></i> Cerrar sesión
             </button>
@@ -50,18 +40,23 @@
           <h4 class="text-dark menu-header">Menú</h4>
           <ul class="nav flex-column">
             <li class="nav-item">
+              <button class="nav-link" @click="router.push('/CreateUser')">
+                <i class="bi bi-person-plus"></i><span class="menu-text">Creacion de usuarios</span>
+              </button>
+            </li>
+            <li class="nav-item" v-if="currentUserRole !== 2">
               <button class="nav-link" @click="router.push('/manageUsers')">
-                <i class="bi bi-people"></i><span class="menu-text">Usuarios/Empleados</span>
+                <i class="bi bi-people"></i><span class="menu-text">Empleados</span>
               </button>
             </li>
             <li class="nav-item">
-              <button class="nav-link" @click="router.push('/studentEnrollment')">
-                <i class="bi bi-person"></i><span class="menu-text">Estudiantes</span>
+              <button class="nav-link" @click="router.push('/StudentList')">
+                <i class="bi bi-mortarboard"></i><span class="menu-text">Estudiantes</span>
               </button>
             </li>
             <li class="nav-item">
               <button class="nav-link" @click="router.push('/solicitudes')">
-                <i class="bi bi-bar-chart"></i><span class="menu-text">Solicitudes</span>
+                <i class="bi bi-bar-chart"></i><span class="menu-text">Dashboard de Solicitudes</span>
               </button>
             </li>
           </ul>
@@ -69,13 +64,6 @@
   
         <!-- Área principal de contenido -->
         <div class="container-fluid p-4 main-content">
-          <!-- Mensaje de bienvenida solo si estamos en /landingAdmin -->
-          <div v-if="isLandingAdminPage" class="welcome-message">
-            <h2>Bienvenido al Panel de Super Administrador</h2>
-            <p>Selecciona una opción del menú para comenzar.</p>
-          </div>
-  
-          <!-- Vistas dinámicas (por ejemplo, Lista de Usuarios) -->
           <router-view></router-view>
         </div>
       </div>
@@ -83,43 +71,81 @@
   </template>
   
   <script>
-  import { ref } from 'vue'
-  import { useRouter, useRoute } from 'vue-router'
+  import NotificationPanel from '@/components/NotificationPanel.vue';
+  import { ref, onMounted } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
   
   export default {
     name: 'LandingAdmin',
+    components: {
+      NotificationPanel
+    },
     setup() {
-      const router = useRouter()
-      const route = useRoute()
+      const router = useRouter();
+      const route = useRoute();
+      const isNotificationPanelVisible = ref(false);
+      const notificationAdminUrl = "http://localhost:8000/api/v1/notificaciones/admin/";
   
-      // Mostrar el mensaje de bienvenida solo en '/landingAdmin'
-      const isLandingAdminPage = route.path === '/landingAdmin'
+      const currentUserRole = ref(null); // Variable para almacenar el rol del usuario
   
-      // Funcionalidad para cerrar sesión
+      // Función para obtener el rol del usuario desde el token
+      const getCurrentUserRole = () => {
+        const token = localStorage.getItem("jwt");
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            currentUserRole.value = payload.role_id;
+          } catch (error) {
+            console.error("Error al decodificar el token:", error);
+            currentUserRole.value = null;
+          }
+        }
+      };
+  
+      // Llamamos a la función cuando el componente se monta
+      onMounted(getCurrentUserRole);
+  
+      const isLandingAdminPage = route.path === '/landingAdmin';
+  
+      const toggleNotificationPanel = () => {
+        isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
+      };
+  
       const handleExit = () => {
-        localStorage.setItem('jwt', '')
-        router.push('/login')
-      }
+        localStorage.removeItem("jwt"); // Eliminamos el JWT al cerrar sesión
+        router.push("/login");
+      };
   
-      // Controla la visibilidad del menú lateral en móviles
-      const isSidebarOpen = ref(false)
+      const isSidebarOpen = ref(false);
       const toggleSidebar = () => {
-        isSidebarOpen.value = !isSidebarOpen.value
-      }
+        isSidebarOpen.value = !isSidebarOpen.value;
+      };
   
       return {
+        notificationAdminUrl,
         router,
         isLandingAdminPage,
         handleExit,
         isSidebarOpen,
-        toggleSidebar
-      }
+        toggleSidebar,
+        isNotificationPanelVisible,
+        toggleNotificationPanel,
+        currentUserRole
+      };
     }
-  }
+  };
   </script>
   
+  
   <style scoped>
-  /* --- Ajustes generales --- */
+  /* Contenedor raíz: ocupa el 100% de la ventana y organiza en columna */
+  .superadmin {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  /* Aseguramos que html y body ocupen el 100% sin scroll */
   html,
   body {
     height: 100%;
@@ -128,48 +154,41 @@
     overflow: hidden;
   }
   
-  .superadmin {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  body {
     background-color: #f8f9fa;
   }
   
-  /* --- Navbar superior --- */
+  /* Navbar superior con altura fija */
   .navbar-top {
-    background-color: #002d62;
+    background-color: #002D62;
     flex: 0 0 auto;
   }
   
-  .title-page {
-    color: white;
-  }
-  
-  /* --- Contenedor principal (sidebar + contenido) --- */
+  /* Contenedor principal: ocupa el resto de la ventana sin scroll */
   .content-wrapper {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
   
-  /* --- Menú lateral --- */
+  /* Menú lateral para escritorio */
   .navbar-left {
     height: 100%;
-    width: 60px; /* Anchura inicial en escritorio */
+    width: 60px;
     background: url('Background-Lateral.avif') no-repeat center center;
     background-size: cover;
     transition: width 0.5s ease-in-out;
     overflow: hidden;
-    padding-top: 1rem;
   }
   
+  /* Expansión del menú lateral en escritorio al hacer hover */
   @media (min-width: 769px) {
     .navbar-left:hover {
-      width: 300px; /* Se expande al hacer hover en escritorio */
+      width: 300px;
     }
   }
   
-  /* --- Sidebar en móviles --- */
+  /* Menú lateral para móviles */
   @media (max-width: 768px) {
     .navbar-left {
       position: fixed;
@@ -178,26 +197,31 @@
       width: 250px;
       height: 100%;
       z-index: 1050;
+      background: url('Background-Lateral.avif') no-repeat center center;
+      background-size: cover;
       transition: left 0.3s ease;
     }
+  
     .navbar-left.sidebar-open {
       left: 0;
     }
+  
+    /* Evitar efecto hover en móviles */
     .navbar-left:hover {
       width: 250px;
     }
   }
   
-  /* --- Botones de menú --- */
+  /* Botones del menú */
   .nav-link {
     width: 100%;
     min-height: 50px;
-    color: #002d62;
+    color: #002D62;
     font-weight: bold;
     padding: 10px 15px;
     border-radius: 10px;
     margin-bottom: 10px;
-    background: #ffcc00;
+    background: #FFCC00;
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     align-items: center;
@@ -206,7 +230,7 @@
   }
   
   .nav-link:hover {
-    background-color: #ffd700;
+    background-color: #FFD700;
     color: #000;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -214,19 +238,19 @@
   
   .menu-text {
     opacity: 0;
-    margin-left: 10px;
     transition: opacity 0.3s ease;
+    margin-left: 10px;
     white-space: nowrap;
   }
   
-  /* Texto visible en escritorio al hacer hover */
+  /* Mostrar el texto del menú en escritorio al hacer hover */
   @media (min-width: 769px) {
     .navbar-left:hover .menu-text {
       opacity: 1;
     }
   }
   
-  /* Texto siempre visible en móviles cuando el menú está abierto */
+  /* Mostrar siempre el texto del menú en móviles cuando esté abierto */
   @media (max-width: 768px) {
     .sidebar-open .menu-text {
       opacity: 1;
@@ -235,8 +259,8 @@
   
   .menu-header {
     opacity: 0;
-    margin-bottom: 20px;
     transition: opacity 0.3s ease;
+    margin-bottom: 20px;
     white-space: nowrap;
   }
   
@@ -252,63 +276,74 @@
     }
   }
   
-  /* --- Botón para cerrar el menú lateral en móviles --- */
+  /* Botón para cerrar el menú lateral en móviles */
   .close-sidebar {
     font-size: 1.5rem;
-    color: #002d62;
+    color: #002D62;
     margin-bottom: 1rem;
   }
   
-  /* --- Área principal de contenido --- */
+  /* Área principal de contenido: se adapta al espacio restante sin scroll */
   .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    overflow: auto; /* para scroll vertical */
+    padding-left: 20px !important;
+    padding-bottom: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 0px !important;
+    overflow: hidden;
     box-sizing: border-box;
     background-color: #f9f9f9;
+    overflow-y: auto;
   }
   
-  /* --- Mensaje de bienvenida --- */
+  .title-page {
+    color: white;
+  }
+  
+  /* Estilos del mensaje de bienvenida */
   .welcome-message {
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
   }
   
   .welcome-message h2 {
-    color: #002d62;
+    color: #002D62;
   }
+  
   .welcome-message p {
     color: #6c757d;
   }
   
-  /* --- Botón de notificaciones (blanco) --- */
+  /* Botón de notificaciones */
   .btn-white {
     background-color: white;
-    color: #002d62;
-    border: 1px solid #002d62;
+    color: #002D62;
+    border: 1px solid #002D62;
   }
   
   .btn-white:hover {
     background-color: #f0f0f0;
     color: #000;
-    border-color: #002d62;
+    border-color: #002D62;
   }
   
-  /* --- Overlay para cerrar menú lateral en móviles --- */
+  /* Overlay para el menú lateral en móviles */
   .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1040;
   }
   </style>
-  

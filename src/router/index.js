@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
 import LandingAdmin from '../views/LandingAdmin.vue';
 import ManageUsers from '../views/ManageUsers.vue';
-import CreateUsers from '../views/CreateUsers.vue';
 import DetailsUser from '../views/DetailsUser.vue';
 import CreateStudent from '../views/CreateStudent.vue';
 import Solicitudes from '../views/Solicitudes.vue';
@@ -11,6 +10,8 @@ import UserView from '../views/UserView.vue';
 import ChangePasswordView from '../views/ChangePasswordView.vue';
 import EnrollmentDetails from '../views/EnrollmentDetails.vue';
 import WelcomeMessage from '../views/WelcomeMessage.vue';
+import CreateUser from '../views/CreateUser.vue';
+import StudentsList from '../views/StudentsList.vue';
 
 const routes = [
   { path: '/', redirect: '/login' }, 
@@ -36,10 +37,6 @@ const routes = [
         component: DetailsSolicitud,
       },
       {
-        path: '/createUsers',
-        component: CreateUsers
-      },
-      {
         path: '/detailsUser/:id',
         component: DetailsUser,
       },
@@ -50,6 +47,14 @@ const routes = [
       {
         path: '/WelcomeMessage',
         component: WelcomeMessage
+      },
+      {
+        path: '/CreateUser',
+        component: CreateUser
+      },
+      {
+        path: '/StudentList',
+        component: StudentsList
       },
     ]
   },

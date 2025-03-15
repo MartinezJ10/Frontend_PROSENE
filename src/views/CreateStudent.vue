@@ -35,7 +35,6 @@
         <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
             @update:visible="showMessage = false" />
     </div>
-
 </template>
 
 <script>
@@ -49,7 +48,6 @@ import StepServicio from '../components/StepServicio.vue';
 import Mensaje from '../components/Mensaje.vue';
 
 import axios from 'axios';
-
 import { onMounted, ref } from 'vue';
 
 export default {
@@ -356,10 +354,16 @@ export default {
 }
 </script>
 
-
 <style>
 :root {
     --fk-max-width-input: none;
+    --tab-bg: #f1f1f1;
+    --tab-border: 1px solid #ccc;
+    --tab-border-radius: 4px;
+    --tab-padding: 10px 15px;
+    --tab-color: #333;
+    --tab-active-bg: #007bff;
+    --tab-active-color: #fff;
 }
 
 label {
@@ -380,11 +384,34 @@ label {
     min-width: 800px;
     width: 100%;
     margin: 0 auto;
-
 }
 
 .formkit-steps {
     border: none !important;
     box-shadow: none !important;
+}
+
+/* Mejoras estéticas para las pestañas */
+.formkit-tab {
+    background-color: var(--tab-bg);
+    border: var(--tab-border);
+    border-radius: var(--tab-border-radius);
+    padding: var(--tab-padding);
+    color: var(--tab-color);
+    margin-right: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.formkit-tab:hover {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+}
+
+.formkit-tab-active {
+    background-color: var(--tab-active-bg);
+    color: var(--tab-active-color);
+    border-color: var(--tab-active-bg);
+    transform: scale(1.05);
 }
 </style>

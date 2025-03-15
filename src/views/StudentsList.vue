@@ -1,12 +1,15 @@
 <template>
   <div class="manage-users-page">
-    <!-- Encabezado: Título y selector de centro regional -->
+    <!-- Encabezado: Título y filtro con iconos -->
     <div class="page-header">
-      <h1 class="page-title">Lista de Empleados</h1>
-      <!-- Se agrega clase dinámica según el estado del navbar -->
-      <div :class="'filter-container'">
+      <h1 class="page-title">Lista de Estudiantes</h1>
+      <div class="filter-container">
         <i class="bi bi-search"></i>
-        <select v-model="selectedCentroRegional" class="filter-select">
+        <select 
+          v-model="selectedCentroRegional" 
+          class="filter-select"
+          @change="onCentroChange"
+        >
           <option value="">Todos los Centros</option>
           <option v-for="centro in centrosRegionales" :key="centro.value" :value="centro.value">
             {{ centro.label }}
@@ -78,10 +81,10 @@ export default {
     const messageContent = ref("");
     const messageType = ref("");
     const userInfo = ref([]);
+    
+    // Abstracción de centros regionales
     const centrosRegionales = ref([]);
     const selectedCentroRegional = ref("");
-    // Variable que indica el estado del navbar. Debes actualizarla según tu lógica.
-    const isNavbarExpanded = ref(false);
 
     const errorLog = async (err) => {
       console.error("ERROR IN REQUEST:", {
@@ -105,6 +108,7 @@ export default {
       }
     };
 
+    // Carga de centros regionales (abstracción igual que en ManageUsers.vue)
     const retrieveCentrosRegionales = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
@@ -121,41 +125,39 @@ export default {
       }
     };
 
+    const onCentroChange = () => {
+      // Aquí puedes agregar lógica adicional al cambiar de centro regional si es necesario.
+    };
+
     onMounted(async () => {
       await retrieveUsers();
       await retrieveCentrosRegionales();
-      // Aquí podrías vincular isNavbarExpanded al estado real de tu navbar
     });
 
-    // Propiedad computada que filtra usuarios según el centro regional seleccionado
+    // Filtro de usuarios: solo se muestran estudiantes y se filtra por centro regional
     const filteredUserInfo = computed(() => {
-      if (!selectedCentroRegional.value) {
-        return userInfo.value.filter(user => user.role_id === 1 || user.role_id === 2);
-      }
-      return userInfo.value.filter(
-        user =>
-          (user.role_id === 1 || user.role_id === 2) &&
-          user.centroregional.idcentroregional === selectedCentroRegional.value
+      return userInfo.value.filter(user => 
+        user.role_id === 3 &&
+        (selectedCentroRegional.value === "" ||
+          user.centroregional.idcentroregional === selectedCentroRegional.value)
       );
     });
 
     return {
       router,
       userInfo,
+      centrosRegionales,
       filteredUserInfo,
+      selectedCentroRegional,
       showMessage,
       messageContent,
-      messageType,
-      centrosRegionales,
-      selectedCentroRegional,
-      isNavbarExpanded
+      messageType
     };
   }
 };
 </script>
 
 <style scoped>
-/* Contenedor principal */
 .manage-users-page {
   display: flex;
   flex-direction: column;
@@ -164,7 +166,6 @@ export default {
   padding: 0;
 }
 
-/* Encabezado: Título + selector de centro regional */
 .page-header {
   flex-shrink: 0;
   display: flex;
@@ -174,7 +175,7 @@ export default {
   background-color: #fff;
   padding: 1rem 2rem;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .page-title {
@@ -183,7 +184,6 @@ export default {
   color: #002D62;
 }
 
-/* Contenedor del filtro, adaptado al estilo de la página */
 .filter-container {
   display: flex;
   align-items: center;
@@ -195,18 +195,16 @@ export default {
   transition: width 0.3s ease;
 }
 
-/* Cuando el navbar está expandido, se reduce el ancho */
+/* Se puede ajustar el ancho dinámicamente si se necesita expandir el navbar */
 .filter-container.navbar-expanded {
   width: 200px;
 }
 
-/* Estilo para el icono de búsqueda */
 .bi-search {
   color: #002D62;
   font-size: 1.2rem;
 }
 
-/* Selector de centro regional */
 .filter-select {
   background-color: #fff;
   color: #002D62;
@@ -230,7 +228,6 @@ export default {
   box-shadow: 0 0 0 2px rgba(0, 45, 98, 0.2);
 }
 
-/* Contenedor de tarjetas de usuarios */
 .card-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -238,7 +235,6 @@ export default {
   padding: 1rem 2rem 2rem;
 }
 
-/* Tarjeta individual */
 .user-card {
   background-color: #FFFBCC;
   border: 2px solid #FFCC00;
@@ -246,14 +242,14 @@ export default {
   padding: 1rem 1.5rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   text-align: left;
   max-height: 25vh;
 }
 
 .user-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
 }
 
 .user-card-header {
@@ -285,6 +281,7 @@ export default {
 .status-active .status-circle {
   background-color: green;
 }
+
 .status-inactive .status-circle {
   background-color: red;
 }
@@ -306,21 +303,9 @@ export default {
   font-weight: 600;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .card-container {
     grid-template-columns: 1fr;
-  }
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .filter-container {
-    width: 100%;
-    margin-top: 1rem;
-  }
-  .filter-select {
-    width: 100%;
   }
 }
 </style>

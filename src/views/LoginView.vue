@@ -119,7 +119,7 @@ export default {
         if (response.data.role_id === 3) {
           router.push("/userView");
         } else {
-          router.push("/landingAdmin");
+          router.push("/WelcomeMessage");
         }
       } catch (err) {
         console.error("Login failed:", err.message);
