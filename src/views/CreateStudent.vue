@@ -2,6 +2,10 @@
     <div class="form-block">
         <FormKit allow-incomplete use-local-storage type="multi-step" tab-style="progress" hide-navigation="true">
 
+            <FormKit type="step" name="Usuario">
+                <StepUsuario v-model:formData="formData.usuario" />
+            </FormKit>
+
             <FormKit type="step" name="inscripcion">
                 <StepInscripcion v-model:formData="formData.inscripcion" />
             </FormKit>
@@ -45,6 +49,7 @@ import StepDiscapacidad from '../components/StepDiscapacidad.vue';
 import StepInscripcion from '../components/StepInscripcion.vue';
 import StepMovilizacion from '../components/StepMovilizacion.vue';
 import StepServicio from '../components/StepServicio.vue';
+import StepUsuario from '../components/StepUsuario.vue';
 import Mensaje from '../components/Mensaje.vue';
 
 import axios from 'axios';
@@ -60,12 +65,15 @@ export default {
         StepDiscapacidad,
         StepMovilizacion,
         StepServicio,
+        StepUsuario,
         Mensaje
     },
     setup() {
         const formularioId = ref();
+        const userID = ref('');
 
         const formData = ref({
+            usuario: {},
             inscripcion: {
                 perteneceaasociacion: false,
                 tienetrabajo: false
@@ -100,16 +108,17 @@ export default {
                 adecuaciondeaccesoalentorno: false
             },
         });
+
         const showMessage = ref(false);
         const messageContent = ref('');
         const messageType = ref('');
 
-        // Submit handler
         const submitForm = async () => {
             try {
                 console.log('Form Data:', formData.value);
+                await submitUsuario();
+                await submitDetallesPersonales();
                 await submitFormulario();
-
                 await submitEducacion();
                 await submitComunicacion();
                 await submitDeficiencia();
@@ -124,36 +133,27 @@ export default {
                 showMessage.value = true;
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 messageContent.value = 'Error al enviar el formulario';
                 messageType.value = 'error';
                 showMessage.value = true;
             }
         };
 
-        const submitFormulario = async () => {
-            const formulario = { ...formData.value.inscripcion };
-
-            // Handle fields dependent on perteneceaasociacion
-            if (!formulario.perteneceaasociacion) {
-                formulario.nombreasociacion = null;
-                formulario.rolenlaasociacion = null;
-            }
-
-            // Handle fields dependent on tienetrabajo
-            if (!formulario.tienetrabajo) {
-                formulario.lugartrabajo = null;
-                formulario.puestotrabajo = null;
-                formulario.direcciontrabajo = null;
-                formulario.telefonotrabajo = null;
-            }
+        const submitUsuario = async () => {
 
             try {
 
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/inscripcion`,
+                    `http://localhost:8000/api/v1/users/create`,
                     {
-                        ...formulario
+                        email: formData.value.usuario.email,
+                        password: formData.value.usuario.password,
+                        idcentroregional: formData.value.usuario.idcentroregional,
+                        role_id: 3,
+                        isactive: true,
+                        correoverificado: false,
+                        primeracceso: true
                     },
                     {
                         headers: {
@@ -162,15 +162,87 @@ export default {
                     }
                 );
 
-                formularioId.value = response.data.idformulario
-                localStorage.setItem("id_formulario", formularioId.value)
-                console.log("FORMULARIO INSERTADO CON EXITO")
+                userID.value = response.data.idusuario;
+                
+                //localStorage.setItem("userID", userID.value);
+                console.log("USER CREATED SUCCESSFULLY");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
+
+        const submitDetallesPersonales = async () => {
+            try {
+
+                const response = await axios.post(
+                    `http://localhost:8000/api/v1/users/detalles_personales`,
+                    {
+                        idusuario: userID.value,
+                        numeroidentidad: formData.value.usuario.numeroidentidad,
+                        primernombre: formData.value.usuario.primernombre,
+                        segundonombre: formData.value.usuario.segundonombre,
+                        primerapellido: formData.value.usuario.primerapellido,
+                        segundoapellido: formData.value.usuario.segundoapellido,
+                        direccion: formData.value.usuario.direccion,
+                        telefono: formData.value.usuario.telefono,
+                        fechanacimiento: formData.value.usuario.fechanacimiento,
+                        sexo: formData.value.usuario.sexo,
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+
+                console.log("PERSONAL DETAILS CREATED SUCCESSFULLY");
+
+            } catch (error) {
+                errorLog(error);
+                throw error;
+            }
+        };
+
+        const submitFormulario = async () => {
+            const formulario = { ...formData.value.inscripcion };
+
+            if (!formulario.perteneceaasociacion) {
+                formulario.nombreasociacion = null;
+                formulario.rolenlaasociacion = null;
+            }
+
+            if (!formulario.tienetrabajo) {
+                formulario.lugartrabajo = null;
+                formulario.puestotrabajo = null;
+                formulario.direcciontrabajo = null;
+                formulario.telefonotrabajo = null;
+            }
+
+            try {
+                const response = await axios.post(
+                    `http://localhost:8000/api/v1/form/inscripcion`,
+                    {
+                        ...formulario,
+                        idusuario: userID.value
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+
+                formularioId.value = response.data.idformulario;
+                localStorage.setItem("id_formulario", formularioId.value);
+                console.log("FORMULARIO INSERTADO CON EXITO");
+
+            } catch (error) {
+                errorLog(error);
+                throw error;
+            }
+        };
 
         const submitEducacion = async () => {
             const educacion = { ...formData.value.educacion };
@@ -198,14 +270,14 @@ export default {
                 console.log("CARACTERISTICAS INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
 
         const submitComunicacion = async () => {
             const formulario_id = localStorage.getItem("id_formulario");
-            const comunicacion = { ...formData.value.comunicacion }
+            const comunicacion = { ...formData.value.comunicacion };
 
             try {
                 const response = await axios.post(
@@ -221,17 +293,17 @@ export default {
                     }
                 );
 
-                console.log("EDUCACION INSERTADO CON EXITO");
+                console.log("COMUNICACION INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
 
         const submitDeficiencia = async () => {
             const formulario_id = localStorage.getItem("id_formulario");
-            const deficiencia = { ...formData.value.deficiencia }
+            const deficiencia = { ...formData.value.deficiencia };
 
             try {
                 const response = await axios.post(
@@ -250,14 +322,14 @@ export default {
                 console.log("DEFICIENCIA INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
 
         const submitDiscapacidad = async () => {
             const formulario_id = localStorage.getItem("id_formulario");
-            const discapacidad = { ...formData.value.discapacidad }
+            const discapacidad = { ...formData.value.discapacidad };
 
             try {
                 const response = await axios.post(
@@ -276,14 +348,14 @@ export default {
                 console.log("DISCAPACIDAD INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
 
         const submitMovilizacion = async () => {
             const formulario_id = localStorage.getItem("id_formulario");
-            const movilizacion = { ...formData.value.movilizacion }
+            const movilizacion = { ...formData.value.movilizacion };
 
             try {
                 const response = await axios.post(
@@ -302,15 +374,14 @@ export default {
                 console.log("MOVILIZACION INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
-
+        };
 
         const submitServicio = async () => {
             const formulario_id = localStorage.getItem("id_formulario");
-            const servicio = { ...formData.value.servicio }
+            const servicio = { ...formData.value.servicio };
 
             try {
                 const response = await axios.post(
@@ -329,19 +400,19 @@ export default {
                 console.log("SERVICIO INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error)
+                errorLog(error);
                 throw error;
             }
-        }
+        };
 
         const errorLog = async (err) => {
             console.error("ERROR IN REQUEST:", {
                 message: err.message,
-                response: err.response, // Full response from the server
-                request: err.request,   // Request details
-                config: err.config      // Axios request configuration
+                response: err.response,
+                request: err.request,
+                config: err.config
             });
-        }
+        };
 
         return {
             formData,
@@ -349,9 +420,9 @@ export default {
             showMessage,
             messageContent,
             messageType,
-        }
+        };
     },
-}
+};
 </script>
 
 <style>

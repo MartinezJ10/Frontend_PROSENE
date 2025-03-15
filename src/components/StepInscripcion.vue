@@ -1,11 +1,7 @@
 <template>
 
-  <!-- ID USUARIO -->
-  <FormKit type="select" :options="userInfo" name="idusuario" label="Usuario" validation="required"
-    v-model="formData.idusuario" />
-
   <!-- ID Condición Médica -->
-  <FormKit type="select" :options="condicionesMedicas" name="condicionMedica" label="ID Condición Médica"
+  <FormKit type="select" :options="condicionesMedicas" name="condicionMedica" label="Condición Médica"
     validation="required" v-model="formData.idcondicionmedica" />
 
   <!-- ID Nacionalidad -->
