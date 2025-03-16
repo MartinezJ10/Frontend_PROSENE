@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted} from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import ReusableForm from '@/components/ReusableForm.vue';
@@ -29,20 +29,32 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const token = route.params.jwt;
+    const token = ref(null);
+    
 
     const fields = ref([
       { name: 'newPassword', label: 'Nueva Contraseña', type: 'password', placeholder: 'Ingrese su nueva contraseña' },
       { name: 'confirmPassword', label: 'Confirmar Nueva Contraseña', type: 'password', placeholder: 'Confirme su nueva contraseña' }
     ]);
 
+
+        // Guardar el token al montar el componente
+        onMounted(() => {
+      if (route.query.jwt) {
+        token.value = route.query.jwt;
+        localStorage.setItem("jwt", token.value);
+        console.log("Token guardado en localStorage:", token.value);
+      } else {
+        console.warn("No se encontró el token en la URL");
+      }
+    });
+
     const handleChangePassword = async (formData) => {
       try {
-        await axios.post(`http://localhost:8000/api/v1/users/password/${token}`, {
-          token: token,
+        await axios.post(`http://localhost:8000/api/v1/users/password/${token.value}`, {
+          email: 'example@gmail.com',
           password: formData.newPassword
         });
-        
         router.push('/login');
       } catch (err) {
         console.error("La contraseña no pudo ser cambiada:", err.message);

@@ -1,6 +1,6 @@
 <template>
   <div class="welcome-message">
-    <h2>Bienvenido al Panel de Super Administrador</h2>
+    <h2>Bienvenido al Panel de Manejo de Solicitudes</h2>
     <p>Selecciona una opción del menú para comenzar.</p>
   </div>
 </template>
