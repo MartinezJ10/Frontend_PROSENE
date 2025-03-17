@@ -68,6 +68,9 @@
         </div>
       </div>
     </div>
+
+    <WelcomeMessage :role_id="userRole" />
+
   </template>
   
   <script>

@@ -59,7 +59,7 @@ const routes = [
     ]
   },
   {path: '/userView', component: UserView},
-  {path: '/usuario/cambiopass/:jwt', component: ChangePasswordView}
+  {path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView}
 ];
 
 const router = createRouter({
@@ -76,10 +76,13 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
   const isAuthenticated = localStorage.getItem('jwt');
 
-  if (!isAuthenticated && to.path !== '/login') {
-    // redirect the user to the login page
-    return { path: '/login' }
+  // Verificamos si es la ruta de cambio de contraseña
+  const isChangePasswordRoute = to.path.startsWith('/usuario/cambiopass/');
+
+  if (!isAuthenticated && to.path !== '/login' && !isChangePasswordRoute) {
+    return { path: '/login' };
   }
-})
+});
+
 
 export default router;
