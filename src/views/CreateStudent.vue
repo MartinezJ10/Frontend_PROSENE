@@ -1,6 +1,6 @@
 <template>
     <div class="form-block">
-        <FormKit allow-incomplete use-local-storage type="multi-step" tab-style="progress" hide-navigation="true">
+        <FormKit type="multi-step" tab-style="progress" hide-navigation="true">
 
             <FormKit type="step" name="Usuario">
                 <StepUsuario v-model:formData="formData.usuario" />
