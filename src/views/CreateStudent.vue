@@ -1,6 +1,6 @@
 <template>
     <div class="form-block">
-        <FormKit allow-incomplete use-local-storage type="multi-step" tab-style="progress" hide-navigation="true">
+        <FormKit allow-incomplete type="multi-step" tab-style="progress" hide-navigation="true">
 
             <FormKit type="step" name="Usuario">
                 <StepUsuario v-model:formData="formData.usuario" />
@@ -141,7 +141,7 @@ export default {
         };
 
         const submitUsuario = async () => {
-
+                 
             try {
 
                 const response = await axios.post(

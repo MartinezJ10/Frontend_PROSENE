@@ -1,269 +1,403 @@
 <template>
-    <div class="container my-4">
-      <!-- Título y Filtros -->
-      <div class="row mb-4 align-items-end">
-        <div class="col-12 col-md-6">
-          <h1 class="mb-0 text-primary">Lista de Solicitudes</h1>
-        </div>
-        <div class="col-12 col-md-6 mt-3 mt-md-0">
-          <div class="row g-2">
-            <!-- Filtro por fecha -->
-            <div class="col-12 col-sm-6">
-              <label for="dateFilter" class="form-label fw-semibold">Fecha</label>
-              <input
-                id="dateFilter"
-                type="date"
-                class="form-control"
-                v-model="searchDate"
-                @input="filterSolicitudes"
-              />
-            </div>
-            <!-- Filtro por estado -->
-            <div class="col-12 col-sm-6">
-              <label for="estadoFilter" class="form-label fw-semibold">Estado</label>
-              <select
-                id="estadoFilter"
-                class="form-select"
-                v-model="searchEstado"
-                @change="filterSolicitudes"
-              >
-                <option value="">Todos los estados</option>
-                <option
-                  v-for="estado in estados"
-                  :key="estado.idestadosolicitud"
-                  :value="estado.idestadosolicitud"
-                >
-                  {{ estado.descripcion }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Tabla de Solicitudes -->
-      <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-          <thead>
-            <tr>
-              <th scope="col">Usuario</th>
-              <th scope="col">
-                Fecha
-                <button
-                  class="btn btn-sm btn-outline-primary ms-2 arrow-button"
-                  @click="toggleDateSort"
-                >
-                  {{ dateSortOrder === 'asc' ? '↑' : '↓' }}
-                </button>
-              </th>
-              <th scope="col">Centro Regional</th>
-              <th scope="col">Estado</th>
-              <th scope="col" class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(solicitud, index) in sortedSolicitudes"
-              :key="index"
-            >
-              <td>{{ solicitud.email }}</td>
-              <td>{{ formatDate(solicitud.fecha) }}</td>
-              <td>{{ solicitud.centro }}</td>
-              <td>
-  <span
-    class="badge d-inline-block w-100 text-center"
-    :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
-    style="max-width: 150px;"
-  >
-    {{ getStatusText(solicitud.estado) }}
-  </span>
-</td>
-              <td class="text-center">
-                <button
-                  class="btn btn-sm btn-primary"
-                  @click="goToDetails(solicitud.idsolicitud)"
-                >
-                  Ver Detalles
-                </button>
-              </td>
-            </tr>
-            <tr v-if="sortedSolicitudes.length === 0">
-              <td colspan="5" class="text-center text-muted">
-                No se encontraron solicitudes.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-      </div>
-  
-      <!-- Mensaje de retroalimentación -->
-      <Mensaje
-        v-if="showMessage"
-        :mensaje="messageContent"
-        :tipo="messageType"
-        :visible="showMessage"
-        @update:visible="showMessage = false"
-      />
+  <div class="container my-4">
+    <!-- Encabezado con el mismo diseño de ManageUser -->
+    <div class="page-header mb-4">
+      <h1 class="page-title">Lista de Solicitudes</h1>
+      <button class="btn btn-unah" @click="toggleFilters">
+        <i class="bi bi-funnel-fill me-2"></i>
+        {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
+      </button>
     </div>
-  </template>
-  
-  <script>
-  import axios from "axios";
-  import { onMounted, ref, computed } from "vue";
-  import { useRouter } from "vue-router";
-  import Mensaje from "../components/Mensaje.vue";
-  
-  export default {
-    name: "Solicitudes",
-    components: { Mensaje },
-    setup() {
-      const router = useRouter();
-  
-      const showMessage = ref(false);
-      const messageContent = ref("");
-      const messageType = ref("");
-  
-      const solicitudes = ref([]);
-      const searchDate = ref("");
-      const searchEstado = ref("");
-      const estados = ref([]);
-  
-      // Estado para ordenar la fecha
-      const dateSortOrder = ref("asc");
-  
-      // Obtener solicitudes desde la API
-      const retrieveSolicitudes = async () => {
-        try {
-          const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-          });
-          solicitudes.value = response.data.map((solicitud) => ({
-            idsolicitud: solicitud.idsolicitud,
-            email: solicitud.usuariosolicitante.email,
-            centro: solicitud.usuariosolicitante.centroregional.centroregional,
-            estado: solicitud.estadosolicitud.idestadosolicitud,
-            fecha: solicitud.fechacreacion,
-          }));
-        } catch (err) {
-          console.error("Failed to retrieve Solicitudes:", err.message);
-        }
-      };
-  
-      const retrieveEstados = async () => {
-        try {
-          const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-          });
-          estados.value = response.data;
-        } catch (err) {
-          console.error("Failed to retrieve estados:", err.message);
-        }
-      };
-  
-      const getStatusText = (estado) => {
-        const estadoObj = estados.value.find((e) => e.idestadosolicitud === estado);
-        return estadoObj ? estadoObj.descripcion : "Desconocido";
-      };
-  
-      const getStatusColor = (estado) => {
-      switch (estado) {
-        case 1: // Recibida
-          return '#17a2b8'; // Azul claro
-        case 2: // En proceso
-          return '#FFCC00'; // Amarillo
-        case 3: // Finalizada
-          return '#1E7E34'; // Verde
-        case 4: // Cancelada
-          return '#6c757d'; // Naranja
-        case 5: // Rechazada
-          return '#B22222'; // Rojo
-        default:
-          return '#6c757d'; // Gris para estados desconocidos
+
+    <!-- Sección de filtros con animación -->
+    <transition name="slide-fade">
+      <div v-if="showFilters" class="row mb-4">
+        <!-- Filtro por Usuario -->
+        <div class="col-12 col-sm-3">
+          <label for="userFilter" class="form-label fw-semibold">Usuario</label>
+          <input
+            id="userFilter"
+            type="text"
+            class="form-control"
+            v-model="searchUsername"
+            placeholder="Buscar usuario..."
+            @input="filterSolicitudes"
+          />
+        </div>
+        <!-- Filtro por Centro Regional -->
+        <div class="col-12 col-sm-3">
+          <label for="centroFilter" class="form-label fw-semibold">Centro Regional</label>
+          <select
+            id="centroFilter"
+            class="form-select"
+            v-model="searchCentro"
+            @change="filterSolicitudes"
+          >
+            <option value="">Todos los centros</option>
+            <option
+              v-for="centro in centros"
+              :key="centro.idcentroregional"
+              :value="centro.centroregional"
+            >
+              {{ centro.centroregional }}
+            </option>
+          </select>
+        </div>
+        <!-- Filtro por Estado -->
+        <div class="col-12 col-sm-3">
+          <label for="estadoFilter" class="form-label fw-semibold">Estado</label>
+          <select
+            id="estadoFilter"
+            class="form-select"
+            v-model="searchEstado"
+            @change="filterSolicitudes"
+          >
+            <option value="">Todos los estados</option>
+            <option
+              v-for="estado in estados"
+              :key="estado.idestadosolicitud"
+              :value="estado.idestadosolicitud"
+            >
+              {{ estado.descripcion }}
+            </option>
+          </select>
+        </div>
+        <!-- Filtro por Tipo de Solicitud -->
+        <div class="col-12 col-sm-3">
+          <label for="tipoFilter" class="form-label fw-semibold">Tipo de Solicitud</label>
+          <select
+            id="tipoFilter"
+            class="form-select"
+            v-model="searchTipo"
+            @change="filterSolicitudes"
+          >
+            <option value="">Todos los tipos</option>
+            <option
+              v-for="tipo in tiposSolicitud"
+              :key="tipo.idtiposolicitud"
+              :value="tipo.descripcion"
+            >
+              {{ tipo.descripcion }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Tabla de Solicitudes -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Usuario</th>
+            <th scope="col">Tipo de Solicitud</th>
+            <th scope="col">
+              Fecha
+              <button
+                class="btn btn-sm btn-outline-primary ms-2 arrow-button"
+                @click="toggleDateSort"
+              >
+                {{ dateSortOrder === 'asc' ? '↑' : '↓' }}
+              </button>
+            </th>
+            <th scope="col">Centro Regional</th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(solicitud, index) in sortedSolicitudes" :key="index">
+            <td>{{ solicitud.fullName }}</td>
+            <td>{{ solicitud.tipo }}</td>
+            <td>{{ formatDate(solicitud.fecha) }}</td>
+            <td>{{ solicitud.centro }}</td>
+            <td>
+              <span
+                class="badge d-inline-block w-100 text-center"
+                :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
+                style="max-width: 150px;"
+              >
+                {{ getStatusText(solicitud.estado) }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button
+                class="btn btn-sm btn-primary"
+                @click="goToDetails(solicitud.idsolicitud)"
+              >
+                Ver Detalles
+              </button>
+            </td>
+          </tr>
+          <tr v-if="sortedSolicitudes.length === 0">
+            <td colspan="6" class="text-center text-muted">
+              No se encontraron solicitudes.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje de retroalimentación -->
+    <Mensaje
+      v-if="showMessage"
+      :mensaje="messageContent"
+      :tipo="messageType"
+      :visible="showMessage"
+      @update:visible="showMessage = false"
+    />
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import { onMounted, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import Mensaje from "../components/Mensaje.vue";
+
+export default {
+  name: "Solicitudes",
+  components: { Mensaje },
+  setup() {
+    const router = useRouter();
+
+    const showMessage = ref(false);
+    const messageContent = ref("");
+    const messageType = ref("");
+
+    const solicitudes = ref([]);
+    const searchEstado = ref("");
+    const searchUsername = ref("");
+    const searchTipo = ref("");
+    const searchCentro = ref(""); // Variable para el filtro de Centro Regional
+
+    const estados = ref([]);
+    const tiposSolicitud = ref([]);
+    const centros = ref([]); // Variable para almacenar los centros regionales
+
+    // Control de filtros
+    const showFilters = ref(false);
+    const toggleFilters = () => {
+      showFilters.value = !showFilters.value;
+    };
+
+    // Estado para ordenar la fecha
+    const dateSortOrder = ref("asc");
+
+    // Obtener solicitudes desde la API
+    const retrieveSolicitudes = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        });
+        solicitudes.value = response.data.map((solicitud) => ({
+          idsolicitud: solicitud.idsolicitud,
+          fullName: `${solicitud.usuariosolicitante.persona.primernombre || ''} ${solicitud.usuariosolicitante.persona.primerapellido || ''}`.trim(),
+          email: solicitud.usuariosolicitante.email,
+          centro: solicitud.usuariosolicitante.centroregional.centroregional,
+          estado: solicitud.estadosolicitud.idestadosolicitud,
+          fecha: solicitud.fechacreacion,
+          tipo: solicitud.tiposolicitud.descripcion,
+        }));
+      } catch (err) {
+        console.error("Failed to retrieve Solicitudes:", err.message);
       }
     };
 
-  
-      const formatDate = (dateString) => {
-        const options = { year: "numeric", month: "long", day: "numeric" };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-      };
-  
-      const isSameDate = (date1, date2) => {
-        const d1 = new Date(date1);
-        const d2 = new Date(date2);
-        return d1.toISOString().split("T")[0] === d2.toISOString().split("T")[0];
-      };
-  
-      // Filtrar solicitudes
-      const filteredSolicitudes = computed(() => {
-        return solicitudes.value.filter((solicitud) => {
-          const matchesDate = searchDate.value
-            ? isSameDate(solicitud.fecha, searchDate.value)
-            : true;
-          const matchesEstado = searchEstado.value
-            ? solicitud.estado === parseInt(searchEstado.value)
-            : true;
-          return matchesDate && matchesEstado;
+    const retrieveCentros = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-      });
-  
-      // Ordenar solicitudes
-      const sortedSolicitudes = computed(() => {
-        return [...filteredSolicitudes.value].sort((a, b) => {
-          return dateSortOrder.value === "asc"
-            ? new Date(a.fecha) - new Date(b.fecha)
-            : new Date(b.fecha) - new Date(a.fecha);
+        centros.value = response.data;
+      } catch (err) {
+        console.error("Failed to retrieve centros:", err.message);
+      }
+    };
+
+    const retrieveEstados = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-      });
-  
-      // Alternar el orden de fecha
-      const toggleDateSort = () => {
-        dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
-      };
-  
-      const goToDetails = (id) => {
-        router.push(`/detailsSolicitud/${id}`);
-      };
+        estados.value = response.data;
+      } catch (err) {
+        console.error("Failed to retrieve estados:", err.message);
+      }
+    };
 
-      
-  
-      onMounted(async () => {
-        await retrieveSolicitudes();
-        await retrieveEstados();
-      });
-  
-      return {
-        showMessage,
-        messageContent,
-        messageType,
-        solicitudes,
-        searchDate,
-        searchEstado,
-        estados,
-        sortedSolicitudes,
-        dateSortOrder,
-        toggleDateSort,
-        goToDetails,
-        getStatusText,
-        getStatusColor,
-        formatDate,
-      };
-    },
-  };
-  </script>
-  
-  
-  <style scoped>
-  /* Ajustes menores para la tabla */
-  .table th,
-  .table td {
-    vertical-align: middle; /* Centra el contenido verticalmente */
-  }
+    const retrieveTipos = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/varios/tipos", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        });
+        tiposSolicitud.value = response.data;
+      } catch (err) {
+        console.error("Failed to retrieve tipos de solicitud:", err.message);
+      }
+    };
 
-  .arrow-button {
-    border: none;
-    color: black;
-  }
-  </style>
-  
+    const getStatusText = (estado) => {
+      const estadoObj = estados.value.find((e) => e.idestadosolicitud === estado);
+      return estadoObj ? estadoObj.descripcion : "Desconocido";
+    };
+
+    const getStatusColor = (estado) => {
+      switch (estado) {
+        case 1:
+          return '#17a2b8';
+        case 2:
+          return '#FFCC00';
+        case 3:
+          return '#1E7E34';
+        case 4:
+          return '#6c757d';
+        case 5:
+          return '#B22222';
+        default:
+          return '#6c757d';
+      }
+    };
+
+    const formatDate = (dateString) => {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const isSameDate = (date1, date2) => {
+      const d1 = new Date(date1);
+      const d2 = new Date(date2);
+      return d1.toISOString().split("T")[0] === d2.toISOString().split("T")[0];
+    };
+
+    const filterSolicitudes = () => {};
+
+    const filteredSolicitudes = computed(() => {
+      return solicitudes.value.filter((solicitud) => {
+        const matchesCentro = searchCentro.value
+          ? solicitud.centro === searchCentro.value
+          : true;
+        const matchesEstado = searchEstado.value
+          ? solicitud.estado === parseInt(searchEstado.value)
+          : true;
+        const matchesUsername = searchUsername.value
+          ? solicitud.fullName.toLowerCase().includes(searchUsername.value.toLowerCase())
+          : true;
+        const matchesTipo = searchTipo.value
+          ? solicitud.tipo === searchTipo.value
+          : true;
+        return matchesCentro && matchesEstado && matchesUsername && matchesTipo;
+      });
+    });
+
+    const sortedSolicitudes = computed(() => {
+      return [...filteredSolicitudes.value].sort((a, b) => {
+        return dateSortOrder.value === "asc"
+          ? new Date(a.fecha) - new Date(b.fecha)
+          : new Date(b.fecha) - new Date(a.fecha);
+      });
+    });
+
+    const toggleDateSort = () => {
+      dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
+    };
+
+    const goToDetails = (id) => {
+      router.push(`/detailsSolicitud/${id}`);
+    };
+
+    onMounted(async () => {
+      await retrieveSolicitudes();
+      await retrieveEstados();
+      await retrieveTipos();
+      await retrieveCentros(); // Llamamos la función para obtener centros
+    });
+
+    return {
+      showMessage,
+      messageContent,
+      messageType,
+      solicitudes,
+      searchEstado,
+      searchUsername,
+      searchTipo,
+      searchCentro,
+      centros,
+      estados,
+      sortedSolicitudes,
+      dateSortOrder,
+      toggleDateSort,
+      goToDetails,
+      getStatusText,
+      getStatusColor,
+      formatDate,
+      filterSolicitudes,
+      showFilters,
+      toggleFilters,
+    };
+  },
+};
+</script>
+
+
+<style scoped>
+/* Estilo para la cabecera con el mismo diseño de ManageUser */
+.page-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #002D62;
+}
+
+/* Estilo para el botón con los colores de la UNAH */
+.btn-unah {
+  background-color: #002f6c;
+  color: white;
+  font-weight: bold;
+  border: none;
+}
+
+.btn-unah:hover {
+  background-color: #ffcc00;
+  color: #002f6c;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.arrow-button {
+  border: none;
+  color: black;
+}
+
+/* Animación de despliegue para los filtros */
+.slide-fade-enter-active {
+  transition: all 0.5s ease;
+}
+.slide-fade-enter-from {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Estilo para el título del header (si es necesario) */
+h1 {
+  color: #002D62;
+}
+</style>
