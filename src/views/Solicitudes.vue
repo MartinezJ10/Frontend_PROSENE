@@ -169,11 +169,11 @@ export default {
     const searchEstado = ref("");
     const searchUsername = ref("");
     const searchTipo = ref("");
-    const searchCentro = ref(""); // Variable para el filtro de Centro Regional
+    const searchCentro = ref("");
 
     const estados = ref([]);
     const tiposSolicitud = ref([]);
-    const centros = ref([]); // Variable para almacenar los centros regionales
+    const centros = ref([]);
 
     // Control de filtros
     const showFilters = ref(false);
@@ -184,7 +184,6 @@ export default {
     // Estado para ordenar la fecha
     const dateSortOrder = ref("asc");
 
-    // Obtener solicitudes desde la API
     const retrieveSolicitudes = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
@@ -264,12 +263,6 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const isSameDate = (date1, date2) => {
-      const d1 = new Date(date1);
-      const d2 = new Date(date2);
-      return d1.toISOString().split("T")[0] === d2.toISOString().split("T")[0];
-    };
-
     const filterSolicitudes = () => {};
 
     const filteredSolicitudes = computed(() => {
@@ -310,7 +303,7 @@ export default {
       await retrieveSolicitudes();
       await retrieveEstados();
       await retrieveTipos();
-      await retrieveCentros(); // Llamamos la función para obtener centros
+      await retrieveCentros();
     });
 
     return {
@@ -334,14 +327,13 @@ export default {
       filterSolicitudes,
       showFilters,
       toggleFilters,
+      tiposSolicitud
     };
   },
 };
 </script>
 
-
 <style scoped>
-/* Estilo para la cabecera con el mismo diseño de ManageUser */
 .page-header {
   flex-shrink: 0;
   display: flex;
@@ -359,7 +351,6 @@ export default {
   color: #002D62;
 }
 
-/* Estilo para el botón con los colores de la UNAH */
 .btn-unah {
   background-color: #002f6c;
   color: white;
@@ -382,7 +373,6 @@ export default {
   color: black;
 }
 
-/* Animación de despliegue para los filtros */
 .slide-fade-enter-active {
   transition: all 0.5s ease;
 }
@@ -396,7 +386,6 @@ export default {
   opacity: 1;
 }
 
-/* Estilo para el título del header (si es necesario) */
 h1 {
   color: #002D62;
 }
