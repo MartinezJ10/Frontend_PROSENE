@@ -33,16 +33,22 @@
                     <span class="info-value">{{ formatDate(solicitud.fechacreacion) }}</span>
                 </div>
             </div>
-            <button class="assign-button" @click="assignSolicitud">ASIGNAR</button>
+            <button 
+            class="assign-button" 
+            @click="assignSolicitud" 
+            v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
+            ASIGNAR
+            </button> 
         </div>
         <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
-    </div>
+    </div> 
 </template>
 
 <script>
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode'; // Importa jwt-decode para decodificar el token JWT
 import Mensaje from '../components/Mensaje.vue'; // Importa el componente
 
 export default {
@@ -85,18 +91,30 @@ export default {
 
         const assignSolicitud = async () => {
             try {
-                const response = await axios.put(
-                    'http://localhost:8000/api/v1/solicitudes/atender', // Aquí se usa el método PUT
-                    { id: solicitud_id },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                const token = localStorage.getItem("jwt");
+                if (token) {
+                    const decodedToken = jwtDecode(token); 
+                    const idresponsablesolicitud = decodedToken.idusuario; // Obtén el id del usuario del token
+
+                    const payloadData = {
+                        idsolicitud: solicitud_id,
+                        idresponsablesolicitud: idresponsablesolicitud,
+                        idestadosolicitud: 2 // Cambia el estado de la solicitud a 2
+                    };
+
+                    const response = await axios.put(
+                        'http://localhost:8000/api/v1/solicitudes/atender',
+                        payloadData,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
                         }
-                    }
-                );
-                messageContent.value = 'Solicitud asignada con éxito';
-                messageType.value = 'exito';
-                showMessage.value = true;
+                    );
+                    messageContent.value = 'Solicitud asignada con éxito';
+                    messageType.value = 'exito';
+                    showMessage.value = true;
+                }
             } catch (err) {
                 messageContent.value = 'Error al asignar la solicitud';
                 messageType.value = 'error';
