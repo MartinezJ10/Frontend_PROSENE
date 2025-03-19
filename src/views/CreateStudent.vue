@@ -1,6 +1,6 @@
 <template>
     <div class="form-block">
-        <FormKit type="multi-step" tab-style="progress" hide-navigation="true">
+        <FormKit allow-incomplete type="multi-step" tab-style="progress" hide-navigation="true">
 
             <FormKit type="step" name="Usuario">
                 <StepUsuario v-model:formData="formData.usuario" />
@@ -54,6 +54,7 @@ import Mensaje from '../components/Mensaje.vue';
 
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import utils from '../utils';
 
 export default {
     name: "CreateStudent",
@@ -133,7 +134,7 @@ export default {
                 showMessage.value = true;
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 messageContent.value = 'Error al enviar el formulario';
                 messageType.value = 'error';
                 showMessage.value = true;
@@ -141,7 +142,7 @@ export default {
         };
 
         const submitUsuario = async () => {
-
+                 
             try {
 
                 const response = await axios.post(
@@ -168,7 +169,7 @@ export default {
                 console.log("USER CREATED SUCCESSFULLY");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -200,7 +201,7 @@ export default {
                 console.log("PERSONAL DETAILS CREATED SUCCESSFULLY");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -239,7 +240,7 @@ export default {
                 console.log("FORMULARIO INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -270,7 +271,7 @@ export default {
                 console.log("CARACTERISTICAS INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -296,7 +297,7 @@ export default {
                 console.log("COMUNICACION INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -322,7 +323,7 @@ export default {
                 console.log("DEFICIENCIA INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -348,7 +349,7 @@ export default {
                 console.log("DISCAPACIDAD INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -374,7 +375,7 @@ export default {
                 console.log("MOVILIZACION INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
         };
@@ -400,18 +401,9 @@ export default {
                 console.log("SERVICIO INSERTADO CON EXITO");
 
             } catch (error) {
-                errorLog(error);
+                utils.errorLog(error);
                 throw error;
             }
-        };
-
-        const errorLog = async (err) => {
-            console.error("ERROR IN REQUEST:", {
-                message: err.message,
-                response: err.response,
-                request: err.request,
-                config: err.config
-            });
         };
 
         return {

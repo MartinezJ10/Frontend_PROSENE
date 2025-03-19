@@ -1,8 +1,8 @@
 <template>
     <!-- User Authentication Details -->
-    <FormKit type="email" name="email" label="Email" validation="required|email" v-model="formData.email" />
+    <FormKit type="email" name="email" label="Email" validation="required|email" autocomplete="new-password" v-model="formData.email"/>
 
-    <FormKit type="password" name="password" label="Password" validation="required" v-model="formData.password" />
+    <FormKit type="password" name="password" label="Password" validation="required" autocomplete="new-password" v-model="formData.password"/>
 
     <FormKit type="select" name="idcentroregional" label="Centro Regional" :options="centrosRegionales" validation="required" v-model="formData.idcentroregional" />
 

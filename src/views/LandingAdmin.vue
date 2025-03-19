@@ -69,7 +69,7 @@
       </div>
     </div>
 
-    <WelcomeMessage :role_id="userRole" />
+    <WelcomeMessage :role_id="currentUserRole" />
 
   </template>
   
@@ -77,7 +77,8 @@
   import NotificationPanel from '@/components/NotificationPanel.vue';
   import { ref, onMounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  
+  import utils from '../utils';
+
   export default {
     name: 'LandingAdmin',
     components: {
@@ -89,24 +90,7 @@
       const isNotificationPanelVisible = ref(false);
       const notificationAdminUrl = "http://localhost:8000/api/v1/notificaciones/admin/";
   
-      const currentUserRole = ref(null); // Variable para almacenar el rol del usuario
-  
-      // Función para obtener el rol del usuario desde el token
-      const getCurrentUserRole = () => {
-        const token = localStorage.getItem("jwt");
-        if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            currentUserRole.value = payload.role_id;
-          } catch (error) {
-            console.error("Error al decodificar el token:", error);
-            currentUserRole.value = null;
-          }
-        }
-      };
-  
-      // Llamamos a la función cuando el componente se monta
-      onMounted(getCurrentUserRole);
+      const currentUserRole = utils.getCurrentUserRole(); // Variable para almacenar el rol del usuario
   
       const isLandingAdminPage = route.path === '/landingAdmin';
   

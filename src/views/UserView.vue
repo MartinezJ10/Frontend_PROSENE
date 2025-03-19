@@ -143,6 +143,7 @@
   import MensajeRetroalimentacion from "../components/Mensaje.vue";
   import NotificationPanel from "../components/NotificationPanel.vue";
   import ReusableModal from "../components/ReusableModal.vue";
+  import utils from "../utils";
   
   export default {
     name: "UserView",
@@ -171,7 +172,8 @@
       const searchEstado = ref("");
       const estados = ref([]);
       const notificationStudentURL = "http://localhost:8000/api/v1/notificaciones/";
-  
+      const usertID = ref(utils.getCurrentUserID());
+
       const toggleNotificationPanel = () => {
         isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
       };
@@ -199,7 +201,7 @@
             label: tipoSolicitud.descripcion,
           }));
         } catch (err) {
-          errorLog(err);
+          utils.errorLog(err);
         }
       };
   
@@ -210,7 +212,7 @@
           });
           requests.value = response.data;
         } catch (err) {
-          errorLog(err);
+          utils.utils.errorLog(err);
         }
       };
   
@@ -230,7 +232,7 @@
           await axios.post(
             "http://localhost:8000/api/v1/solicitudes/nueva",
             {
-              idusuariosolicitante: localStorage.getItem("user_id"),
+              idusuariosolicitante: usertID.value,
               idresponsablesolicitud: 3,
               idtiposolicitud: formData.requestType,
               idestadosolicitud: 1,

@@ -8,21 +8,15 @@
   
           <!-- Sección de información del usuario -->
           <div class="mb-4">
-            <h2 class="h5 fw-bold">Información del Usuario</h2>
-            <p class="mb-1">
-              <strong>Email:</strong> {{ userFound.email }}
-            </p>
-            <p class="mb-1">
-              <strong>Rol:</strong>
-              <span v-if="userFound.role_id === 1">Administrador</span>
-              <span v-else-if="userFound.role_id === 2">Empleado/Colaborador</span>
-              <span v-else-if="userFound.role_id === 3">Estudiante</span>
-            </p>
-            <p class="mb-1">
-              <strong>Centro Regional:</strong>
-              {{ userFound.centroregional?.centroregional }}
-            </p>
-          </div>
+          <h2 class="h5 fw-bold">Información Personal</h2>
+          <p class="mb-1"><strong>Nombre:</strong> {{ fullName }}</p>
+          <p class="mb-1"><strong>Número de Identidad:</strong> {{ userFound.persona?.numeroidentidad || 'N/A' }}</p>
+          <p class="mb-1"><strong>Edad:</strong> {{ edad }}</p>
+          <p class="mb-1"><strong>Sexo:</strong> {{ userFound.persona?.sexo || 'N/A' }}</p>
+          <p class="mb-1"><strong>Dirección:</strong> {{ userFound.persona?.direccion || 'N/A' }}</p>
+          <p class="mb-1"><strong>Teléfono:</strong> {{ userFound.persona?.telefono || 'N/A' }}</p>
+          <p class="mb-1"><strong>Correo:</strong> {{ userFound?.email || 'N/A' }}</p>
+        </div>
   
           <!-- Sección de acciones (botones) -->
           <div class="d-flex flex-wrap gap-2 justify-content-center">
@@ -85,7 +79,7 @@
   </template>
   
   <script>
-  import { onMounted, ref, watch } from 'vue';
+  import { onMounted, ref, watch, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
   import FormModal from '../components/FormModal.vue';
@@ -137,6 +131,25 @@
           console.error('ERROR FINDING USER:', err.message || err);
         }
       };
+
+      
+      const fullName = computed(() => {
+        if (!userFound.value.persona) return 'N/A';
+        return `${userFound.value.persona.primernombre || ''} ${userFound.value.persona.primerapellido || ''}`.trim();
+      });
+
+
+    const edad = computed(() => {
+      if (!userFound.value.persona?.fechanacimiento) return 'N/A';
+      const birthDate = new Date(userFound.value.persona.fechanacimiento);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    });
   
       // --- Eliminar usuario ---
       const deleteSingleUser = async () => {
@@ -347,6 +360,8 @@
         showMessage,
         messageContent,
         messageType,
+        fullName,
+        edad
       };
     },
   };

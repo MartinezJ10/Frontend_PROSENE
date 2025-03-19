@@ -66,6 +66,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { onMounted, ref, computed } from "vue";
 import Mensaje from "../components/Mensaje.vue";
+import utils from "../utils";
 
 export default {
   name: "ManageUsers",
@@ -117,7 +118,7 @@ export default {
           label: centro.centroregional
         }));
       } catch (err) {
-        errorLog(err);
+        utils.errorLog(err);
       }
     };
 

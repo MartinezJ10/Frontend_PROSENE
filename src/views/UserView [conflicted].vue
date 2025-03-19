@@ -160,6 +160,7 @@ import ReusableForm from "../components/ReusableForm.vue";
 import MensajeRetroalimentacion from "../components/Mensaje.vue";
 import NotificationPanel from "../components/NotificationPanel.vue";
 import ReusableModal from "../components/ReusableModal.vue";
+import utils from "../utils";
 
 export default {
   name: "UserView",
@@ -187,6 +188,8 @@ export default {
     const searchDate = ref('');
     const searchEstado = ref('');
     const estados = ref([]); // Store estados here
+
+    const userId = ref(utils.getUserId());
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -246,7 +249,7 @@ export default {
         await axios.post(
           "http://localhost:8000/api/v1/solicitudes/nueva",
           {
-            idusuariosolicitante: localStorage.getItem("user_id"),
+            idusuariosolicitante: userId.value,
             idresponsablesolicitud: 3,
             idtiposolicitud: formData.requestType,
             idestadosolicitud: 1,

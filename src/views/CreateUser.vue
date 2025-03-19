@@ -34,6 +34,7 @@
 // Asegúrate de que las rutas sean correctas según tu estructura de carpetas
 import EstudianteForm from "@/views/CreateStudent.vue";
 import EmpleadoForm from "@/views/CreateEmployee.vue";
+import utils from "../utils";
 
 export default {
   data() {
@@ -43,12 +44,8 @@ export default {
     };
   },
   created() {
-    // Función para obtener el role_id desde el JWT
-    const token = localStorage.getItem("jwt");
-    if (token) {
       try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        this.currentUserRole = payload.role_id;
+        this.currentUserRole = utils.getCurrentUserRole
         // Si el role_id es 2, se fuerza la pestaña activa a 'estudiantes'
         if (this.currentUserRole === 2) {
           this.activeTab = 'estudiantes';
@@ -56,7 +53,6 @@ export default {
       } catch (error) {
         console.error("Error al decodificar el token:", error);
       }
-    }
   },
   components: {
     EstudianteForm,

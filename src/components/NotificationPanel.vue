@@ -1,28 +1,45 @@
 <template>
   <div class="notification-panel" v-click-outside="closePanel">
-    <!-- Notification Content -->
-    <div v-if="notifications.length === 0" class="text-muted p-3">
-      There are no messages.
+    <!-- Header del panel -->
+    <div class="panel-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Notificaciones</h5>
+      <button class="close-btn" @click="closePanel">&times;</button>
     </div>
-    <div v-else>
-      <div v-for="notification in notifications" :key="notification.idnotificacion" class="notification-card mb-3 p-3"
-        :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }">
+
+    <!-- Contenido del panel -->
+    <div v-if="notifications.length === 0" class="text-muted p-3 text-center">
+      No hay notificaciones.
+    </div>
+    <div v-else class="panel-body">
+      <div
+        v-for="notification in sortedNotifications"
+        :key="notification.idnotificacion"
+        class="notification-card mb-3 p-3"
+        :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }"
+      >
         <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="mb-1 fw-bold">{{ notification.solicitudes.tiposolicitud.descripcion }}</h6>
-            <p class="mb-1 text-muted">{{ notification.solicitudes.descripcion }}</p>
-            <small class="text-muted">{{ formatDate(notification.create_date) }}</small>
-          </div>
-          <div>
-            <button v-if="!notification.isread" @click="markAsRead(notification.idnotificacion)"
-              class="btn btn-sm mark-as-read-btn">
-              Mark as Read
-            </button>
-            <!-- Conditionally render the Delete button for admins -->
-            <button v-if="isAdmin" @click="deleteNotification(notification.idnotificacion)" class="btn btn-sm btn-danger ms-2">
-              Delete
-            </button>
-          </div>
+          <h6 class="mb-1 fw-bold">
+            {{ notification.solicitudes.tiposolicitud.descripcion }}
+          </h6>
+          <small class="text-muted">
+            {{ formatDate(notification.create_date) }}
+          </small>
+        </div>
+        <div class="d-flex justify-content-end mt-2">
+          <button
+            v-if="!notification.isread"
+            @click="markAsRead(notification.idnotificacion)"
+            class="btn btn-sm mark-as-read-btn me-2"
+          >
+            Marcar como leído
+          </button>
+          <button
+            v-if="isAdmin"
+            @click="deleteNotification(notification.idnotificacion)"
+            class="btn btn-sm btn-danger"
+          >
+            Eliminar
+          </button>
         </div>
       </div>
     </div>
@@ -31,95 +48,92 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from "vue";
 
 export default {
   name: "NotificationPanel",
   props: {
-    url: {
-      type: String,
-      required: true
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false // Default to false (student)
-    }
+    url: { type: String, required: true },
+    isAdmin: { type: Boolean, default: false }
   },
-  
-  emits: ['close'], // Emit close event
+  emits: ["close"],
   setup(props, { emit }) {
     const notifications = ref([]);
-    console.log(props.isAdmin);
-    const closePanel = () => {
-      emit('close'); // Emit close event to parent
-    };
+
+    const closePanel = () => emit("close");
 
     const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString();
+      const date = new Date(dateString);
+      const day = String(date.getUTCDate()).padStart(2, '0'); // Asegura que siempre tenga dos dígitos
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() devuelve 0-11, por lo que sumamos 1
+      const year = date.getUTCFullYear();
+      return `${day}/${month}/${year}`;
     };
-
-    const errorLog = async (err) => {
-      console.error("ERROR IN REQUEST:", {
-        message: err.message,
-        response: err.response,
-        request: err.request,
-        config: err.config
-      });
-    };
+    
+    
 
     const retrieveNotifications = async () => {
       try {
         const response = await axios.get(props.url, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`
+          }
         });
-
-        // Check if the response contains the "detail" key and handle it
-        if (response.data.detail === "No tienes notificaciones") {
-          notifications.value = []; // Set notifications to an empty array
-        } else {
-          notifications.value = response.data; // Set notifications to the response data
-        }
+        notifications.value =
+          response.data.detail === "No tienes notificaciones"
+            ? []
+            : response.data;
       } catch (err) {
-        // Only log errors that are not the specific "No tienes notificaciones" response
-        if (err.response && err.response.data.detail !== "No tienes notificaciones") {
-          errorLog(err); // Log actual errors
-        }
-        notifications.value = []; // Set notifications to an empty array in case of an error
+        notifications.value = [];
       }
     };
 
     const markAsRead = async (id) => {
       try {
-        await axios.put(`http://localhost:8000/api/v1/notificaciones/${id}`, {}, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
-        });
-        const notification = notifications.value.find(n => n.idnotificacion === id);
-        if (notification) {
-          notification.isread = true;
-        }
-      } catch (err) {
-        errorLog(err);
-      }
+        await axios.put(
+          `http://localhost:8000/api/v1/notificaciones/${id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`
+            }
+          }
+        );
+        const notification = notifications.value.find(
+          (n) => n.idnotificacion === id
+        );
+        if (notification) notification.isread = true;
+      } catch (err) {}
     };
 
     const deleteNotification = async (id) => {
       try {
-        await axios.delete(`http://localhost:8000/api/v1/notificaciones/delete/${id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem("jwt")}` }
-        });
-        // Remove the deleted notification from the list
-        notifications.value = notifications.value.filter(n => n.idnotificacion !== id);
-      } catch (err) {
-        errorLog(err);
-      }
+        await axios.delete(
+          `http://localhost:8000/api/v1/notificaciones/delete/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`
+            }
+          }
+        );
+        notifications.value = notifications.value.filter(
+          (n) => n.idnotificacion !== id
+        );
+      } catch (err) {}
     };
 
-    onMounted(async () => {
-      await retrieveNotifications();
-    });
+    onMounted(retrieveNotifications);
+
+    // Computed para ordenar las notificaciones de la más reciente a la más antigua
+    const sortedNotifications = computed(() =>
+      notifications.value.slice().sort(
+        (a, b) => new Date(b.create_date).getTime() - new Date(a.create_date).getTime()
+      )
+    );
 
     return {
       notifications,
+      sortedNotifications,
       formatDate,
       markAsRead,
       deleteNotification,
@@ -130,16 +144,13 @@ export default {
 </script>
 
 <style scoped>
-/* Your existing styles here */
-</style>
-<style scoped>
 :root {
-  --main-yellow: #FFCC00;
-  --main-blue: #091C5A;
+  --main-yellow: #ffcc00;
+  --main-blue: #091c5a;
   --accent-blue: rgba(9, 28, 90, 0.35);
-  --obscure: #000000;
-  --white: #FFFFFF;
-  --accent-yellow: #FEFEC6;
+  --white: #ffffff;
+  --accent-yellow: #fefec6;
+  --bg-panel: #f7f7f7;
 }
 
 .notification-panel {
@@ -147,51 +158,49 @@ export default {
   top: 60px;
   right: 20px;
   width: 350px;
-  /* Default width for larger screens */
   background-color: var(--white);
   border: 1px solid var(--accent-blue);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  padding: 10px;
-  max-height: 400px;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--accent-blue);
+  background-color: var(--bg-panel);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--main-blue);
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: var(--accent-blue);
+}
+
+.panel-body {
+  padding: 10px 15px;
+  max-height: 350px;
   overflow-y: auto;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .notification-panel {
-    width: 300px;
-    /* Slightly smaller for tablets */
-    right: 10px;
-  }
-}
-
-@media (max-width: 576px) {
-  .notification-panel {
-    width: 100%;
-    /* Full width on mobile */
-    right: 0;
-    top: 50px;
-    /* Adjust top position for mobile header */
-    border-radius: 0;
-    /* Remove border radius for full-width */
-    box-shadow: none;
-    /* Remove shadow for a cleaner look */
-    border: none;
-    /* Remove border for full-width */
-  }
 }
 
 .notification-card {
   border-radius: 8px;
-  transition: all 0.3s ease;
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-left: 4px solid transparent;
 }
 
 .notification-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .notification-unread {
@@ -205,24 +214,13 @@ export default {
   opacity: 0.8;
 }
 
-.notification-card h6 {
-  color: var(--main-blue);
-}
-
-.notification-card p {
-  color: var(--obscure);
-}
-
-.notification-card small {
-  color: var(--accent-blue);
-}
-
 .mark-as-read-btn {
   background-color: var(--main-yellow);
   color: var(--main-blue);
   border: none;
   padding: 5px 10px;
   font-size: 0.875rem;
+  border-radius: 4px;
 }
 
 .mark-as-read-btn:hover {
@@ -231,11 +229,10 @@ export default {
 }
 
 .btn-danger {
-  background-color: #dc3545;
-  color: white;
   border: none;
   padding: 5px 10px;
   font-size: 0.875rem;
+  border-radius: 4px;
 }
 
 .btn-danger:hover {
