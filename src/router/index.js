@@ -12,54 +12,29 @@ import EnrollmentDetails from '../views/EnrollmentDetails.vue';
 import WelcomeMessage from '../views/WelcomeMessage.vue';
 import CreateUser from '../views/CreateUser.vue';
 import StudentsList from '../views/StudentsList.vue';
+import utils from '../utils';
 
 const routes = [
-  { path: '/', redirect: '/login' }, 
+  { path: '/', redirect: '/login' },
   { path: '/login', component: LoginView },
   {
     path: '/landingAdmin',
     component: LandingAdmin,
+    meta: { requiresAuth: true, allowedRoleIds: [1] }, // Only admins (role ID 1) can access
     children: [
-      {
-        path: '/manageUsers',
-        component: ManageUsers
-      },
-      {
-        path: '/studentEnrollment', 
-        component: CreateStudent , 
-      },
-      {
-        path: '/solicitudes',
-        component: Solicitudes,
-      }, 
-      {
-        path: '/detailsSolicitud/:id',
-        component: DetailsSolicitud,
-      },
-      {
-        path: '/detailsUser/:id',
-        component: DetailsUser,
-      },
-      {
-        path: '/enrollmentDetails/:idusuario',
-        component: EnrollmentDetails,
-      },
-      {
-        path: '/WelcomeMessage',
-        component: WelcomeMessage
-      },
-      {
-        path: '/CreateUser',
-        component: CreateUser
-      },
-      {
-        path: '/StudentList',
-        component: StudentsList
-      },
-    ]
+      { path: '/manageUsers', component: ManageUsers, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/studentEnrollment', component: CreateStudent, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/solicitudes', component: Solicitudes, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/detailsSolicitud/:id', component: DetailsSolicitud, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/detailsUser/:id', component: DetailsUser, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/enrollmentDetails/:idusuario', component: EnrollmentDetails, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/WelcomeMessage', component: WelcomeMessage, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/CreateUser', component: CreateUser, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+      { path: '/StudentList', component: StudentsList, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
+    ],
   },
-  {path: '/userView', component: UserView},
-  {path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView}
+  { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [2, 3] } }, 
+  { path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } }, 
 ];
 
 const router = createRouter({
@@ -67,22 +42,20 @@ const router = createRouter({
   routes,
 });
 
-/**
- * This function is called every time the user navigates to a new page.
- * Router Navigation Guard 
- */
-
-
 router.beforeEach(async (to, from) => {
   const isAuthenticated = localStorage.getItem('jwt');
+  const userRoleId = utils.getCurrentUserRole();
 
-  // Verificamos si es la ruta de cambio de contraseña
-  const isChangePasswordRoute = to.path.startsWith('/usuario/cambiopass/');
-
-  if (!isAuthenticated && to.path !== '/login' && !isChangePasswordRoute) {
+  // Check if the route requires authentication
+  if (to.meta.requiresAuth && !isAuthenticated) {
     return { path: '/login' };
   }
-});
 
+  // Check if the user has the required role ID to access the route
+  if (to.meta.allowedRoleIds && !to.meta.allowedRoleIds.includes(Number(userRoleId))) {
+    // Redirect to a "not authorized" page or the login page
+    return { path: '/login' }; // Or a custom "403 Forbidden" page
+  }
+});
 
 export default router;
