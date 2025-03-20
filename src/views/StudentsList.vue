@@ -1,10 +1,6 @@
 <template>
   <div class="manage-users-page">
-    <!-- Aquí podría ir la sección izquierda (sidebar) si la tuvieras -->
-    
-    <!-- Contenedor de la sección de la derecha -->
     <div class="right-container">
-      <!-- Encabezado con el título y filtro -->
       <div class="page-header">
         <h1 class="page-title">Lista de Estudiantes</h1>
         <div class="filter-container">
@@ -27,7 +23,6 @@
         </div>
       </div>
 
-      <!-- Tabla para mostrar estudiantes -->
       <div class="table-responsive">
         <table class="table table-striped">
           <thead>
@@ -36,7 +31,6 @@
               <th>Email</th>
               <th>Centro Regional</th>
               <th>Estado</th>
-              <th>Rol</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -57,11 +51,6 @@
                 </span>
               </td>
               <td>
-                <span v-if="user.role_id === 1">Administrador</span>
-                <span v-else-if="user.role_id === 2">Empleado/Colaborador</span>
-                <span v-else-if="user.role_id === 3">Estudiante</span>
-              </td>
-              <td>
                 <button 
                   class="btn btn-sm btn-primary" 
                   @click.stop="router.push(`/detailsUser/${user.idusuario}`)"
@@ -71,20 +60,18 @@
               </td>
             </tr>
             <tr v-if="paginatedUsers.length === 0">
-              <td colspan="6" class="text-center">No se encontraron estudiantes.</td>
+              <td colspan="5" class="text-center">No se encontraron estudiantes.</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Controles de paginación fijos en el pie del contenedor derecho -->
       <div class="pagination-container">
         <button :disabled="currentPage === 1" @click="prevPage">Anterior</button>
         <span>Página {{ currentPage }} de {{ totalPages }}</span>
         <button :disabled="currentPage === totalPages" @click="nextPage">Siguiente</button>
       </div>
 
-      <!-- Mensaje de notificación -->
       <Mensaje
         v-if="showMessage"
         :mensaje="messageContent"

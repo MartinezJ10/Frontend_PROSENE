@@ -508,4 +508,36 @@ h1 {
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* Media queries para hacer la vista responsiva */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .filters-overlay {
+    top: 60px;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .right-container {
+    height: calc(100vh - 150px);
+  }
+  .table th,
+  .table td {
+    padding: 8px;
+  }
+  .pagination-container {
+    position: static;
+    margin-top: 1rem;
+    box-shadow: none;
+    border: none;
+  }
+}
 </style>

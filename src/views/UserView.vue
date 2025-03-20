@@ -89,39 +89,49 @@
           </div>
   
           <!-- Si existen solicitudes, se itera sobre ellas -->
-          <div v-if="filteredRequests.length > 0">
-            <ul class="list-group">
-              <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
-                <!-- Tarjeta interna -->
-                <div class="request-card p-3">
-                  <div class="row align-items-center">
-                    <!-- ID: en móviles col-12, en md col-2 -->
-                    <div class="col-12 col-md-2">
-                      <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
-                    </div>
-  
-                    <!-- Tipo de solicitud: en móviles col-12, en md col-6 -->
-                    <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
-                      <p class="mb-0 text-muted">
-                        {{ request.tiposolicitud.descripcion }}
-                      </p>
-                    </div>
-  
-                    <!-- Botones + Estado: en móviles col-12, en md col-4 -->
-                    <div
-                      class="col-12 col-md-4 d-flex justify-content-between justify-content-md-end align-items-center mt-2 mt-md-0 gap-2">
-                      <button class="btn btn-outline-dark btn-sm border" @click="openDetailsModal(request.descripcion)">
-                        Detalles
-                      </button>
-                      <span class="badge badge-status" :class="getStatusClass(request.estadosolicitud.descripcion)">
-                        {{ request.estadosolicitud.descripcion }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            </ul>
+<div v-if="filteredRequests.length > 0">
+  <ul class="list-group">
+    <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
+      <div class="request-card p-3">
+        <div class="row align-items-center">
+          <!-- Columna ID -->
+          <div class="col-12 col-md-2">
+            <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
           </div>
+
+          <!-- Columna Tipo -->
+          <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
+            <p class="mb-0 text-muted">
+              {{ request.tiposolicitud.descripcion }}
+            </p>
+          </div>
+
+          <!-- Columna Derecha: Fecha + Botones -->
+          <div class="col-12 col-md-4 mt-2 mt-md-0">
+            <!-- Fecha alineada a la derecha -->
+            <div class="text-md-end">
+              <p class="mb-0 text-muted">
+                <strong>Fecha de creación:</strong> {{ formatDate(request.fechacreacion) }}
+              </p>
+            </div>
+            
+            <!-- Contenedor de botones debajo de la fecha -->
+            <div class="d-flex justify-content-end gap-2 mt-2">
+              <button class="btn btn-outline-dark btn-sm border" @click="openDetailsModal(request.descripcion)">
+                Detalles
+              </button>
+              <span class="badge badge-status" :class="getStatusClass(request.estadosolicitud.descripcion)">
+                {{ request.estadosolicitud.descripcion }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+<!-- ... código posterior ... -->
+
           <!-- Si no hay solicitudes, se muestra un mensaje -->
           <div v-else class="no-requests">
             No hay solicitudes registradas.
@@ -325,6 +335,15 @@
         searchEstado.value = "";
         filterRequests();
       };
+
+      const formatDate = (date) => {
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, "0");
+        const month = (d.getMonth() + 1).toString().padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+    
   
       onMounted(async () => {
         checkScreenSize();
@@ -374,6 +393,7 @@
         filterRequests,
         resetFilters,
         notificationStudentURL,
+        formatDate,
       };
     },
   };
@@ -466,6 +486,7 @@
     border-radius: 8px;
     background-color: #fff;
     transition: background-color 0.2s ease;
+    position: relative;
   }
   
   .request-card:hover {
@@ -482,6 +503,7 @@
     font-size: 0.9rem;
     min-width: 90px;
     text-align: center;
+    padding: 0.5em;
   }
   
   .badge-status.recibida {
@@ -610,6 +632,14 @@
     main {
       height: 87vh;
     }
+
+    .text-md-end {
+      text-align: left !important;
+    }
+    .justify-content-end {
+      justify-content: flex-start !important;
+    }
+  
   }
   
   @media (min-width: 768px) {

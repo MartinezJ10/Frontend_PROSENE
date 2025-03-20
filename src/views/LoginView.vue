@@ -86,6 +86,7 @@ import { useRouter } from 'vue-router';
 import FormModal from '@/components/FormModal.vue';
 import ReusableForm from '@/components/ReusableForm.vue';
 import MensajeRetroalimentacion from '@/components/Mensaje.vue';
+import utils from '../utils';
 
 export default {
   name: 'LoginView',
@@ -114,9 +115,11 @@ export default {
       try {
         const response = await axios.post("http://localhost:8000/api/v1/auth/login", loginForm.value);
         localStorage.setItem("jwt", response.data.token);
-        localStorage.setItem("user_id", response.data.idusuario);
         
-        if (response.data.role_id === 3) {
+        const role_id = utils.getCurrentUserRole();
+
+        if (role_id === 3) {
+          console.log("Redireccionando...");
           router.push("/userView");
         } else {
           router.push("/WelcomeMessage");

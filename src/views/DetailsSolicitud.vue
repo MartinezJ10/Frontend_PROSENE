@@ -14,11 +14,15 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">Email del Responsable:</span>
-                    <span class="info-value">{{ solicitud.responsablesolicitud?.email }}</span>
+                    <span class="info-value">
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.email }}
+                    </span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Centro Regional del Responsable:</span>
-                    <span class="info-value">{{ solicitud.responsablesolicitud?.centroregional?.centroregional }}</span>
+                    <span class="info-value">
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.centroregional?.centroregional }}
+                    </span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Estado de la Solicitud:</span>
@@ -32,12 +36,16 @@
                     <span class="info-label">Fecha de Creación:</span>
                     <span class="info-value">{{ formatDate(solicitud.fechacreacion) }}</span>
                 </div>
+                <div class="info-item">
+                    <span class="info-label">Descripcion:</span>
+                    <span class="info-value description-text">{{ solicitud.descripcion }}</span>
+                </div>
             </div>
             <button 
             class="assign-button" 
             @click="assignSolicitud" 
             v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
-            ASIGNAR
+            Atender
             </button> 
         </div>
         <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
@@ -194,5 +202,9 @@ export default {
 
 .assign-button:hover {
     background-color: #0056b3;
+}
+
+.description-text{
+    text-align: center;
 }
 </style>

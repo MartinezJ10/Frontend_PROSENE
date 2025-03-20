@@ -33,7 +33,7 @@ const routes = [
       { path: '/StudentList', component: StudentsList, meta: { requiresAuth: true, allowedRoleIds: [1,2] } },
     ],
   },
-  { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [2, 3] } }, 
+  { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [3] } }, 
   { path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } }, 
 ];
 
@@ -42,20 +42,35 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from) => {
-  const isAuthenticated = localStorage.getItem('jwt');
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('jwt');
   const userRoleId = utils.getCurrentUserRole();
 
-  // Check if the route requires authentication
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    return { path: '/login' };
+  // Si la ruta requiere autenticación y no hay token, redirigir al login
+  if (to.meta.requiresAuth && !token) {
+    next('/login');
+    return;
   }
 
-  // Check if the user has the required role ID to access the route
+  // Decodificar el JWT (si es un JWT válido y no encriptado)
+  const expiresToken = utils.getExpires();
+  const currentTime = Date.now() / 1000; // Obtener el tiempo actual en segundos
+
+    // Verificar si el token ha expirado
+    if (expiresToken < currentTime) {
+      localStorage.removeItem('jwt'); // Eliminar el token del localStorage
+      next('/login'); // Redirigir al login
+      return;
+    }
+
+  // Si el usuario no tiene el rol permitido, redirigir al login
   if (to.meta.allowedRoleIds && !to.meta.allowedRoleIds.includes(Number(userRoleId))) {
-    // Redirect to a "not authorized" page or the login page
-    return { path: '/login' }; // Or a custom "403 Forbidden" page
+    next('/login');
+    return;
   }
+
+  next(); // Permitir la navegación si pasa las validaciones
 });
+
 
 export default router;

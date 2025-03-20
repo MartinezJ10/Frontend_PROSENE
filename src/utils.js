@@ -28,6 +28,21 @@ const getCurrentUserID = () => {
     return user_id;
 };
 
+const getExpires = () => {
+  let expires;
+  const token = localStorage.getItem("jwt");
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      expires = payload.expires;
+    } catch (error) {
+      console.error("Error al decodificar el token:", error);
+      expires = null;
+    }
+  }
+  return expires;
+};
+
 const errorLog = async (err) => {
     console.error("ERROR IN REQUEST:", {
         message: err.message,
@@ -40,5 +55,6 @@ const errorLog = async (err) => {
 export default{
     getCurrentUserRole,
     getCurrentUserID,
+    getExpires,
     errorLog
 }
