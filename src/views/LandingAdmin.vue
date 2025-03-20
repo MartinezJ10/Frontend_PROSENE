@@ -3,10 +3,6 @@
       <!-- Navbar superior -->
       <nav class="navbar navbar-expand-lg navbar-dark navbar-top">
         <div class="container-fluid">
-          <!-- Botón hamburguesa para móviles -->
-          <button class="btn btn-white me-2 d-lg-none" @click="toggleSidebar">
-            <i class="bi bi-list"></i>
-          </button>
           <div class="d-flex align-items-center">
             <img src="@/assets/logo_unah.png" alt="Logo UNAH" width="80" height="50" class="d-inline-block align-top">
           </div>
@@ -26,17 +22,10 @@
         </div>
       </nav>
   
-      <!-- Overlay para cerrar menú lateral en móviles -->
-      <div v-if="isSidebarOpen" class="overlay d-lg-none" @click="toggleSidebar"></div>
-  
       <!-- Contenedor principal: menú lateral y área de contenido -->
       <div class="content-wrapper">
         <!-- Menú lateral -->
         <div :class="['navbar-left', { 'sidebar-open': isSidebarOpen }]" class="p-3">
-          <!-- Botón para cerrar menú lateral en móviles -->
-          <button class="btn btn-link close-sidebar d-lg-none" @click="toggleSidebar">
-            <i class="bi bi-x-lg"></i>
-          </button>
           <h4 class="text-dark menu-header">Menú</h4>
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -175,30 +164,6 @@
     }
   }
   
-  /* Menú lateral para móviles */
-  @media (max-width: 768px) {
-    .navbar-left {
-      position: fixed;
-      top: 0;
-      left: -250px;
-      width: 250px;
-      height: 100%;
-      z-index: 1050;
-      background: url('Background-Lateral.avif') no-repeat center center;
-      background-size: cover;
-      transition: left 0.3s ease;
-    }
-  
-    .navbar-left.sidebar-open {
-      left: 0;
-    }
-  
-    /* Evitar efecto hover en móviles */
-    .navbar-left:hover {
-      width: 250px;
-    }
-  }
-  
   /* Botones del menú */
   .nav-link {
     width: 100%;
@@ -237,13 +202,6 @@
     }
   }
   
-  /* Mostrar siempre el texto del menú en móviles cuando esté abierto */
-  @media (max-width: 768px) {
-    .sidebar-open .menu-text {
-      opacity: 1;
-    }
-  }
-  
   .menu-header {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -257,11 +215,6 @@
     }
   }
   
-  @media (max-width: 768px) {
-    .sidebar-open .menu-header {
-      opacity: 1;
-    }
-  }
   
   /* Botón para cerrar el menú lateral en móviles */
   .close-sidebar {

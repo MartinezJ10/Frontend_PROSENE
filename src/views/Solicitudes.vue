@@ -1,5 +1,5 @@
 <template>
-  <div class="container my-4">
+  <div class="container my-4 relative-container">
     <!-- Encabezado con el mismo diseño de ManageUser -->
     <div class="page-header mb-4">
       <h1 class="page-title">Lista de Solicitudes</h1>
@@ -9,9 +9,9 @@
       </button>
     </div>
 
-    <!-- Sección de filtros con animación -->
+    <!-- Sección de filtros superpuesta (overlay) -->
     <transition name="slide-fade">
-      <div v-if="showFilters" class="row mb-4">
+      <div v-if="showFilters" class="filters-overlay">
         <!-- Filtro por Usuario -->
         <div class="col-12 col-sm-3">
           <label for="userFilter" class="form-label fw-semibold">Usuario</label>
@@ -84,58 +84,68 @@
       </div>
     </transition>
 
-    <!-- Tabla de Solicitudes -->
-    <div class="table-responsive">
-      <table class="table table-striped table-hover align-middle">
-        <thead>
-          <tr>
-            <th scope="col">Usuario</th>
-            <th scope="col">Tipo de Solicitud</th>
-            <th scope="col">
-              Fecha
-              <button
-                class="btn btn-sm btn-outline-primary ms-2 arrow-button"
-                @click="toggleDateSort"
-              >
-                {{ dateSortOrder === 'asc' ? '↑' : '↓' }}
-              </button>
-            </th>
-            <th scope="col">Centro Regional</th>
-            <th scope="col">Estado</th>
-            <th scope="col" class="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(solicitud, index) in sortedSolicitudes" :key="index">
-            <td>{{ solicitud.fullName }}</td>
-            <td>{{ solicitud.tipo }}</td>
-            <td>{{ formatDate(solicitud.fecha) }}</td>
-            <td>{{ solicitud.centro }}</td>
-            <td>
-              <span
-                class="badge d-inline-block w-100 text-center"
-                :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
-                style="max-width: 150px;"
-              >
-                {{ getStatusText(solicitud.estado) }}
-              </span>
-            </td>
-            <td class="text-center">
-              <button
-                class="btn btn-sm btn-primary"
-                @click="goToDetails(solicitud.idsolicitud)"
-              >
-                Ver Detalles
-              </button>
-            </td>
-          </tr>
-          <tr v-if="sortedSolicitudes.length === 0">
-            <td colspan="6" class="text-center text-muted">
-              No se encontraron solicitudes.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Contenedor derecho que envuelve la tabla y la paginación -->
+    <div class="right-container">
+      <!-- Tabla de Solicitudes -->
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Usuario</th>
+              <th scope="col">Tipo de Solicitud</th>
+              <th scope="col">
+                Fecha
+                <button
+                  class="btn btn-sm btn-outline-primary ms-2 arrow-button"
+                  @click="toggleDateSort"
+                >
+                  {{ dateSortOrder === 'asc' ? '↑' : '↓' }}
+                </button>
+              </th>
+              <th scope="col">Centro Regional</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(solicitud, index) in paginatedSolicitudes" :key="index">
+              <td>{{ solicitud.fullName }}</td>
+              <td>{{ solicitud.tipo }}</td>
+              <td>{{ formatDate(solicitud.fecha) }}</td>
+              <td>{{ solicitud.centro }}</td>
+              <td>
+                <span
+                  class="badge d-inline-block w-100 text-center"
+                  :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
+                  style="max-width: 150px;"
+                >
+                  {{ getStatusText(solicitud.estado) }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-sm btn-primary"
+                  @click="goToDetails(solicitud.idsolicitud)"
+                >
+                  Ver Detalles
+                </button>
+              </td>
+            </tr>
+            <tr v-if="paginatedSolicitudes.length === 0">
+              <td colspan="6" class="text-center text-muted">
+                No se encontraron solicitudes.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card de paginación al pie del contenedor derecho -->
+      <div class="pagination-container">
+        <button :disabled="currentPage === 1" @click="prevPage">Anterior</button>
+        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+        <button :disabled="currentPage === totalPages" @click="nextPage">Siguiente</button>
+      </div>
     </div>
 
     <!-- Mensaje de retroalimentación -->
@@ -189,11 +199,11 @@ export default {
         const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        console.log(response.data);
-        
         solicitudes.value = response.data.map((solicitud) => ({
           idsolicitud: solicitud.idsolicitud,
-          fullName: solicitud.usuariosolicitante.email,
+          fullName: solicitud.usuariosolicitante.persona
+            ? `${solicitud.usuariosolicitante.persona.primernombre} ${solicitud.usuariosolicitante.persona.primerapellido}`
+            : solicitud.usuariosolicitante.email,
           email: solicitud.usuariosolicitante.email,
           centro: solicitud.usuariosolicitante.centroregional.centroregional,
           estado: solicitud.estadosolicitud.idestadosolicitud,
@@ -246,17 +256,17 @@ export default {
     const getStatusColor = (estado) => {
       switch (estado) {
         case 1:
-          return '#17a2b8';
+          return "#17a2b8";
         case 2:
-          return '#FFCC00';
+          return "#FFCC00";
         case 3:
-          return '#1E7E34';
+          return "#1E7E34";
         case 4:
-          return '#6c757d';
+          return "#6c757d";
         case 5:
-          return '#B22222';
+          return "#B22222";
         default:
-          return '#6c757d';
+          return "#6c757d";
       }
     };
 
@@ -265,7 +275,10 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const filterSolicitudes = () => {};
+    const filterSolicitudes = () => {
+      // Reinicia a la primera página al filtrar
+      currentPage.value = 1;
+    };
 
     const filteredSolicitudes = computed(() => {
       return solicitudes.value.filter((solicitud) => {
@@ -293,12 +306,35 @@ export default {
       });
     });
 
+    // Variables de paginación
+    const currentPage = ref(1);
+    const pageSize = ref(5);
+    const totalPages = computed(() => {
+      return Math.ceil(sortedSolicitudes.value.length / pageSize.value) || 1;
+    });
+    const paginatedSolicitudes = computed(() => {
+      const start = (currentPage.value - 1) * pageSize.value;
+      return sortedSolicitudes.value.slice(start, start + pageSize.value);
+    });
+
     const toggleDateSort = () => {
       dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
     };
 
     const goToDetails = (id) => {
       router.push(`/detailsSolicitud/${id}`);
+    };
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
     };
 
     onMounted(async () => {
@@ -319,6 +355,7 @@ export default {
       searchCentro,
       centros,
       estados,
+      tiposSolicitud,
       sortedSolicitudes,
       dateSortOrder,
       toggleDateSort,
@@ -329,13 +366,27 @@ export default {
       filterSolicitudes,
       showFilters,
       toggleFilters,
-      tiposSolicitud
+      // Paginación
+      currentPage,
+      pageSize,
+      totalPages,
+      paginatedSolicitudes,
+      nextPage,
+      prevPage
     };
   },
 };
 </script>
 
 <style scoped>
+/* Para que el contenedor principal permita posicionamiento absoluto en sus hijos */
+.relative-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .page-header {
   flex-shrink: 0;
   display: flex;
@@ -370,6 +421,19 @@ export default {
   vertical-align: middle;
 }
 
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th, .table td {
+  border: 1px solid #dee2e6;
+  padding: 10px;
+}
+
+
 .arrow-button {
   border: none;
   color: black;
@@ -388,7 +452,60 @@ export default {
   opacity: 1;
 }
 
+/* Contenedor derecho similar a StudentList.vue */
+.right-container {
+  position: relative;
+  height: calc(100vh - 120px); /* Ajusta según la altura del header */
+  overflow-y: auto;
+  padding-bottom: 80px; /* Espacio para la paginación */
+}
+
+/* Card de paginación al pie del contenedor derecho */
+.pagination-container {
+  position: absolute;
+  top: 55vh;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #dee2e6;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-container button {
+  padding: 0.5rem 1rem;
+  background-color: #002D62;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 h1 {
   color: #002D62;
+}
+
+/* Estilos para el overlay de filtros */
+.filters-overlay {
+  position: absolute;
+  top: 70px; /* Ajusta este valor según la altura de tu header */
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #fff;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 </style>

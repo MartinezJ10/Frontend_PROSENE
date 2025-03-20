@@ -1,6 +1,6 @@
 <template>
     <div id="app" class="app">
-      <header class="header d-flex justify-content-between align-items-center px-3">
+      <header class="header-page d-flex justify-content-between align-items-center px-3">
         <div class="d-flex align-items-center">
           <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
         </div>
@@ -397,9 +397,8 @@
     overflow: hidden;
   }
   
-  .header {
+  .header-page {
     background-color: #003366;
-    color: white;
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -417,6 +416,7 @@
     letter-spacing: 1px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     margin: 0;
+    color: white
   }
   
   .request-button {

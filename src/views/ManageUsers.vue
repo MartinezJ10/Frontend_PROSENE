@@ -29,12 +29,12 @@
           <div
             class="status"
             :class="{
-              'status-active': user.isActive,
-              'status-inactive': !user.isActive
+              'status-active': user.isactive,
+              'status-inactive': !user.isactive
             }"
           >
             <div class="status-circle"></div>
-            <span v-if="user.isActive">Activo</span>
+            <span v-if="user.isactive">Activo</span>
             <span v-else>Inactivo</span>
           </div>
         </div>

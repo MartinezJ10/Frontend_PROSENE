@@ -50,8 +50,29 @@
 import axios from "axios";
 import { ref, onMounted, computed } from "vue";
 
+// Directiva personalizada para detectar clics fuera del elemento.
+// Se utiliza setTimeout para retrasar la adición del listener y evitar que el clic que abre el panel lo cierre inmediatamente.
+const clickOutsideDirective = {
+  beforeMount(el, binding) {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value(event);
+      }
+    };
+    setTimeout(() => {
+      document.addEventListener("click", el.clickOutsideEvent);
+    }, 0);
+  },
+  unmounted(el) {
+    document.removeEventListener("click", el.clickOutsideEvent);
+  }
+};
+
 export default {
   name: "NotificationPanel",
+  directives: {
+    "click-outside": clickOutsideDirective
+  },
   props: {
     url: { type: String, required: true },
     isAdmin: { type: Boolean, default: false }
@@ -64,13 +85,11 @@ export default {
 
     const formatDate = (dateString) => {
       const date = new Date(dateString);
-      const day = String(date.getUTCDate()).padStart(2, '0'); // Asegura que siempre tenga dos dígitos
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() devuelve 0-11, por lo que sumamos 1
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
       const year = date.getUTCFullYear();
       return `${day}/${month}/${year}`;
     };
-    
-    
 
     const retrieveNotifications = async () => {
       try {
@@ -103,7 +122,9 @@ export default {
           (n) => n.idnotificacion === id
         );
         if (notification) notification.isread = true;
-      } catch (err) {}
+      } catch (err) {
+        // Manejo de error si es necesario
+      }
     };
 
     const deleteNotification = async (id) => {
@@ -119,15 +140,17 @@ export default {
         notifications.value = notifications.value.filter(
           (n) => n.idnotificacion !== id
         );
-      } catch (err) {}
+      } catch (err) {
+        // Manejo de error si es necesario
+      }
     };
 
     onMounted(retrieveNotifications);
 
-    // Computed para ordenar las notificaciones de la más reciente a la más antigua
     const sortedNotifications = computed(() =>
       notifications.value.slice().sort(
-        (a, b) => new Date(b.create_date).getTime() - new Date(a.create_date).getTime()
+        (a, b) =>
+          new Date(b.create_date).getTime() - new Date(a.create_date).getTime()
       )
     );
 

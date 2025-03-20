@@ -1,66 +1,98 @@
 <template>
   <div class="manage-users-page">
-    <!-- Encabezado: Título y filtro con iconos -->
-    <div class="page-header">
-      <h1 class="page-title">Lista de Estudiantes</h1>
-      <div class="filter-container">
-        <i class="bi bi-search"></i>
-        <select 
-          v-model="selectedCentroRegional" 
-          class="filter-select"
-          @change="onCentroChange"
-        >
-          <option value="">Todos los Centros</option>
-          <option v-for="centro in centrosRegionales" :key="centro.value" :value="centro.value">
-            {{ centro.label }}
-          </option>
-        </select>
-        <i class="bi bi-chevron-down select-icon"></i>
-      </div>
-    </div>
-
-    <!-- Contenedor de tarjetas de usuarios -->
-    <div class="card-container">
-      <div
-        v-for="(user, index) in filteredUserInfo"
-        :key="index"
-        class="user-card"
-        @click="router.push(`/detailsUser/${user.idusuario}`)"
-      >
-        <div class="user-card-header">
-          <p class="user-email"><strong>{{ user.email }}</strong></p>
-          <div
-            class="status"
-            :class="{
-              'status-active': user.isActive,
-              'status-inactive': !user.isActive
-            }"
+    <!-- Aquí podría ir la sección izquierda (sidebar) si la tuvieras -->
+    
+    <!-- Contenedor de la sección de la derecha -->
+    <div class="right-container">
+      <!-- Encabezado con el título y filtro -->
+      <div class="page-header">
+        <h1 class="page-title">Lista de Estudiantes</h1>
+        <div class="filter-container">
+          <i class="bi bi-search"></i>
+          <select 
+            v-model="selectedCentroRegional" 
+            class="filter-select"
+            @change="onCentroChange"
           >
-            <div class="status-circle"></div>
-            <span v-if="user.isActive">Activo</span>
-            <span v-else>Inactivo</span>
-          </div>
-        </div>
-        <div class="user-card-body">
-          <p class="user-role">
-            Rol:
-            <span v-if="user.role_id === 1">Administrador</span>
-            <span v-else-if="user.role_id === 2">Empleado/Colaborador</span>
-            <span v-else-if="user.role_id === 3">Estudiante</span>
-          </p>
-          <p class="user-center">{{ user.centroregional.centroregional }}</p>
+            <option value="">Todos los Centros</option>
+            <option 
+              v-for="centro in centrosRegionales" 
+              :key="centro.value" 
+              :value="centro.value"
+            >
+              {{ centro.label }}
+            </option>
+          </select>
+          <i class="bi bi-chevron-down select-icon"></i>
         </div>
       </div>
-    </div>
 
-    <!-- Mensaje de notificación -->
-    <Mensaje
-      v-if="showMessage"
-      :mensaje="messageContent"
-      :tipo="messageType"
-      :visible="showMessage"
-      @update:visible="showMessage = false"
-    />
+      <!-- Tabla para mostrar estudiantes -->
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Centro Regional</th>
+              <th>Estado</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              v-for="user in paginatedUsers" 
+              :key="user.idusuario"
+            >
+              <td>
+                {{ user.persona ? user.persona.primernombre + " " + user.persona.primerapellido : "Sin datos" }}
+              </td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.centroregional.centroregional }}</td>
+              <td>
+                <span :class="{'status-active': user.isactive, 'status-inactive': !user.isactive}">
+                  <span class="status-circle"></span>
+                  {{ user.isactive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <span v-if="user.role_id === 1">Administrador</span>
+                <span v-else-if="user.role_id === 2">Empleado/Colaborador</span>
+                <span v-else-if="user.role_id === 3">Estudiante</span>
+              </td>
+              <td>
+                <button 
+                  class="btn btn-sm btn-primary" 
+                  @click.stop="router.push(`/detailsUser/${user.idusuario}`)"
+                >
+                  Ver Detalles
+                </button>
+              </td>
+            </tr>
+            <tr v-if="paginatedUsers.length === 0">
+              <td colspan="6" class="text-center">No se encontraron estudiantes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Controles de paginación fijos en el pie del contenedor derecho -->
+      <div class="pagination-container">
+        <button :disabled="currentPage === 1" @click="prevPage">Anterior</button>
+        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+        <button :disabled="currentPage === totalPages" @click="nextPage">Siguiente</button>
+      </div>
+
+      <!-- Mensaje de notificación -->
+      <Mensaje
+        v-if="showMessage"
+        :mensaje="messageContent"
+        :tipo="messageType"
+        :visible="showMessage"
+        @update:visible="showMessage = false"
+      />
+    </div>
   </div>
 </template>
 
@@ -72,20 +104,20 @@ import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 
 export default {
-  name: "ManageUsers",
-  components: {
-    Mensaje
-  },
+  name: "StudentList",
+  components: { Mensaje },
   setup() {
     const router = useRouter();
     const showMessage = ref(false);
     const messageContent = ref("");
     const messageType = ref("");
     const userInfo = ref([]);
-    
-    // Abstracción de centros regionales
     const centrosRegionales = ref([]);
     const selectedCentroRegional = ref("");
+
+    // Variables de paginación
+    const currentPage = ref(1);
+    const pageSize = ref(5); // cantidad fija de usuarios por página
 
     const errorLog = async (err) => {
       console.error("ERROR IN REQUEST:", {
@@ -99,9 +131,7 @@ export default {
     const retrieveUsers = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/users/all", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`
-          }
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
         userInfo.value = response.data;
       } catch (err) {
@@ -109,13 +139,10 @@ export default {
       }
     };
 
-    // Carga de centros regionales (abstracción igual que en ManageUsers.vue)
     const retrieveCentrosRegionales = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`
-          }
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
         centrosRegionales.value = response.data.map((centro) => ({
           value: centro.idcentroregional,
@@ -126,8 +153,9 @@ export default {
       }
     };
 
+    // Reinicia la paginación cuando se cambia el filtro
     const onCentroChange = () => {
-      // Aquí puedes agregar lógica adicional al cambiar de centro regional si es necesario.
+      currentPage.value = 1;
     };
 
     onMounted(async () => {
@@ -135,14 +163,37 @@ export default {
       await retrieveCentrosRegionales();
     });
 
-    // Filtro de usuarios: solo se muestran estudiantes y se filtra por centro regional
+    // Se filtran solo los estudiantes y se aplica el filtro por centro regional
     const filteredUserInfo = computed(() => {
-      return userInfo.value.filter(user => 
+      return userInfo.value.filter(user =>
         user.role_id === 3 &&
         (selectedCentroRegional.value === "" ||
           user.centroregional.idcentroregional === selectedCentroRegional.value)
       );
     });
+
+    // Total de páginas para la paginación
+    const totalPages = computed(() => {
+      return Math.ceil(filteredUserInfo.value.length / pageSize.value) || 1;
+    });
+
+    // Usuarios paginados según la página actual
+    const paginatedUsers = computed(() => {
+      const start = (currentPage.value - 1) * pageSize.value;
+      return filteredUserInfo.value.slice(start, start + pageSize.value);
+    });
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
+    };
 
     return {
       router,
@@ -150,6 +201,12 @@ export default {
       centrosRegionales,
       filteredUserInfo,
       selectedCentroRegional,
+      currentPage,
+      pageSize,
+      totalPages,
+      paginatedUsers,
+      nextPage,
+      prevPage,
       showMessage,
       messageContent,
       messageType
@@ -161,10 +218,17 @@ export default {
 <style scoped>
 .manage-users-page {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
+  height: 100%; /* Importante para ocupar todo el alto */
+}
+
+
+/* Contenedor de la sección derecha */
+.right-container {
+  flex: 1;
+  position: relative; /* Permite posicionar elementos hijos de forma absoluta */
+  margin: 1rem;
+  padding-bottom: 80px; /* Espacio para que la paginación no tape el contenido */
+  overflow-y: none;
 }
 
 .page-header {
@@ -172,11 +236,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem;
   background-color: #fff;
   padding: 1rem 2rem;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
 }
 
 .page-title {
@@ -193,12 +257,6 @@ export default {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: width 0.3s ease;
-}
-
-/* Se puede ajustar el ancho dinámicamente si se necesita expandir el navbar */
-.filter-container.navbar-expanded {
-  width: 200px;
 }
 
 .bi-search {
@@ -215,98 +273,70 @@ export default {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   appearance: none;
+}
+
+.table-responsive {
+  margin: 0 0 1rem 0;
+}
+
+.table {
   width: 100%;
+  border-collapse: collapse;
 }
 
-.filter-select:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.filter-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 45, 98, 0.2);
-}
-
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  padding: 1rem 2rem 2rem;
-}
-
-.user-card {
-  background-color: #FFFBCC;
-  border: 2px solid #FFCC00;
-  border-radius: 10px;
-  padding: 1rem 1.5rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+.table th,
+.table td {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
   text-align: left;
-  max-height: 25vh;
 }
 
-.user-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-}
-
-.user-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.user-email {
-  font-weight: 600;
-  color: #333;
-}
-
-.status {
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  color: #333;
-}
-
-.status-circle {
+.status-active .status-circle {
+  display: inline-block;
   width: 10px;
   height: 10px;
+  background-color: green;
   border-radius: 50%;
   margin-right: 5px;
 }
 
-.status-active .status-circle {
-  background-color: green;
-}
-
 .status-inactive .status-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
   background-color: red;
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
-.user-card-body {
+/* Paginación fija en el pie del contenedor derecho */
+.pagination-container {
+  position: absolute;
+  top: 74vh; /* Ajusta este valor según la altura de tu contenedor */
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 1rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #dee2e6;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
 
-.user-role,
-.user-center {
-  margin: 0;
-  color: #555;
+.pagination-container button {
+  padding: 0.5rem 1rem;
+  background-color: #002D62;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.user-role span {
-  color: #002D62;
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .card-container {
-    grid-template-columns: 1fr;
-  }
+.pagination-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
