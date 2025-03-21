@@ -33,13 +33,8 @@ const routes = [
       { path: '/StudentList', component: StudentsList, meta: { requiresAuth: true, allowedRoleIds: [1, 2] } },
     ],
   },
-<<<<<<< Updated upstream
   { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [3] } }, 
   { path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } }, 
-=======
-  { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [2, 3] } },
-  { path: '/usuario/cambiopass', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } },
->>>>>>> Stashed changes
 ];
 
 const router = createRouter({
@@ -70,13 +65,8 @@ router.beforeEach((to, from, next) => {
 
   // Si el usuario no tiene el rol permitido, redirigir al login
   if (to.meta.allowedRoleIds && !to.meta.allowedRoleIds.includes(Number(userRoleId))) {
-<<<<<<< Updated upstream
     next('/login');
     return;
-=======
-    // Redirect to a "not authorized" page or the login page
-    return { path: '/login' }; // future custom "403 Forbidden" page
->>>>>>> Stashed changes
   }
 
   next(); // Permitir la navegación si pasa las validaciones
