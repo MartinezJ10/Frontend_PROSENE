@@ -43,13 +43,18 @@ export default {
       if (route.query.jwt) {
         token.value = route.query.jwt;
         localStorage.setItem("jwt", token.value);
-        console.log("Token guardado en localStorage:", token.value);
       } else {
         console.warn("No se encontró el token en la URL");
       }
     });
 
     const handleChangePassword = async (formData) => {
+      // Validar que ambas contraseñas sean iguales
+      if (formData.newPassword !== formData.confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return; // Evitar enviar el formulario si no coinciden
+      }
+      
       try {
         await axios.post(`http://localhost:8000/api/v1/users/password/${token.value}`, {
           email: 'example@gmail.com',
