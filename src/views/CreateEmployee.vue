@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import ReusableForm from '../components/ReusableForm2.vue';

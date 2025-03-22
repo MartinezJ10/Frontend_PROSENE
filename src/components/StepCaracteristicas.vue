@@ -69,7 +69,7 @@
       />
   </template>
   
-  <script setup>
+  <script>
   import { ref,defineProps } from 'vue';
   
   defineProps({

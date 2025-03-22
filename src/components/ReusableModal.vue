@@ -98,8 +98,8 @@
     padding: 1rem 1.5rem;
   }
   .header-unah {
-    background-color: #003366; /* Azul UNAH */
-    color: #ffffff;            /* Texto blanco */
+    background-color: var(--primary-color); /* Azul UNAH */
+    color: var(--background-color);            /* Texto blanco */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -109,10 +109,13 @@
   .btn-close {
     background: none;
     border: none;
-    color: #ffffff;
+    color: var(--brat);;
     font-size: 1.5rem; /* Tamaño ligeramente menor para mayor sutileza */
     cursor: pointer;
     line-height: 1;
+  }
+  .btn-close:hover {
+    color: var(--brat) !important;
   }
   
   /* Cuerpo del modal */
@@ -133,7 +136,7 @@
   
   /* Botón de acción principal */
   .btn-unah {
-    background-color: #ffd100; /* Amarillo UNAH */
+    background-color: var(--modal-btn-bg-color); /* Amarillo UNAH */
     border: none;
     padding: 0.6rem 1.2rem;
     border-radius: 5px;

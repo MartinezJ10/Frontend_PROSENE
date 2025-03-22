@@ -34,7 +34,7 @@
     ]" validation="required" v-model="formData.sexo" />
 </template>
 
-<script setup>
+<script >
 import { defineProps,ref, onMounted } from 'vue';
 import axios from 'axios';
 

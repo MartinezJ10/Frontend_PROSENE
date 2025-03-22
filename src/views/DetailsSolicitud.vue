@@ -56,7 +56,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importa jwt-decode para decodificar el token JWT
 import Mensaje from '../components/Mensaje.vue'; // Importa el componente
 
 export default {
@@ -160,10 +159,10 @@ export default {
 }
 
 .details-solicitud-info {
-    background-color: #f9f9f9;
+    background-color: var(--background-color);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--text-shadow-color);
     width: 100%;
     max-width: 600px;
 }
@@ -190,8 +189,8 @@ export default {
 }
 
 .assign-button {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--text-color);
     padding: 10px 20px;
     border: none;
     border-radius: 5px;

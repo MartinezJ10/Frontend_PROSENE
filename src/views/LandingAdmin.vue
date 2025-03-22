@@ -10,6 +10,7 @@
             <span class="h4 mb-0 title-page">Sistema de Gestión Universitaria</span>
           </div>
           <div class="d-flex align-items-center">
+            
             <button class="btn btn-white me-2 border notification-button" @click="toggleNotificationPanel">
               <i class="bi bi-bell"></i> Notificaciones
             </button>
