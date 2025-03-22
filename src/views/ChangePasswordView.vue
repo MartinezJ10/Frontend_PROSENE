@@ -16,10 +16,11 @@
 </template>
 
 <script>
-import { ref, onMounted} from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import ReusableForm from '@/components/ReusableForm.vue';
+import utils from '../utils.js';
 
 export default {
   name: 'ChangePasswordView',
@@ -30,21 +31,27 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const token = ref(null);
-    
 
     const fields = ref([
       { name: 'newPassword', label: 'Nueva Contraseña', type: 'password', placeholder: 'Ingrese su nueva contraseña' },
       { name: 'confirmPassword', label: 'Confirmar Nueva Contraseña', type: 'password', placeholder: 'Confirme su nueva contraseña' }
     ]);
 
-
-        // Guardar el token al montar el componente
-        onMounted(() => {
+    // Extraer y validar el token al montar el componente
+    onMounted(async () => {
       if (route.query.jwt) {
         token.value = route.query.jwt;
         localStorage.setItem("jwt", token.value);
+        const expiresToken = utils.getExpires();
+          const currentTime = Date.now() / 1000; // Tiempo actual en segundos
+          if (expiresToken < currentTime) {
+            localStorage.removeItem('jwt');
+            router.push('/login');
+            return;
+          }
       } else {
         console.warn("No se encontró el token en la URL");
+        router.push('/login');
       }
     });
 
@@ -159,4 +166,3 @@ button:hover {
   }
 }
 </style>
-  

@@ -559,6 +559,7 @@
     /* Separación desde el bloque de filtros */
   }
   
+  
   /* --- Responsivo --- */
   @media (max-width: 576px) {
     .header h1 {
