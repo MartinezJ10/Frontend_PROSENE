@@ -92,10 +92,11 @@ export default {
         const currentUserRole = utils.getCurrentUserRole();
         const reusableFormComponent = ReusableForm
 
-        const solicitud_id = route.params.id;
+        const solicitud_id = parseInt(route.params.id,10);
 
         const asignToEmployeeFields = ref([])
         const allEmployees = ref([])
+        const solicitud_estado = ref()
 
         const getSolicitudDetails = async (solicitud_id) => {
             try {
@@ -109,6 +110,8 @@ export default {
                 );
 
                 solicitud.value = response.data;
+                
+                solicitud_estado.value = response.data.estadosolicitud.idestadosolicitud
             } catch (err) {
                 console.error("ERROR FINDING SOLICITUD:", err.message);
             }
@@ -157,8 +160,25 @@ export default {
                 console.log({
                     idsolicitud: solicitud_id,
                     idresponsablesolicitud: formData.idresponsablesolicitud,
+                    
                 });
-
+                console.log("estado", solicitud_estado.value);
+                
+                if (solicitud_estado.value === 1) {
+                        const response = await axios.put(
+                        'http://localhost:8000/api/v1/solicitudes/atender',
+                        {
+                            idsolicitud: solicitud_id,
+                            idresponsablesolicitud: formData.idresponsablesolicitud,
+                            idestadosolicitud: 2 //cambio a en proceso
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                            }
+                        }
+                    );
+                }
                 const response = await axios.put(
                     'http://localhost:8000/api/v1/solicitudes/asignar',
                     {
@@ -171,6 +191,7 @@ export default {
                         }
                     }
                 );
+
                 messageContent.value = 'Solicitud asignada con éxito';
                 messageType.value = 'exito';
                 showMessage.value = true;
