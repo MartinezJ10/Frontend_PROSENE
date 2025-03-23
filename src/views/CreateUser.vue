@@ -31,7 +31,6 @@
 </template>
 
 <script>
-// Asegúrate de que las rutas sean correctas según tu estructura de carpetas
 import EstudianteForm from "@/views/CreateStudent.vue";
 import EmpleadoForm from "@/views/CreateEmployee.vue";
 import utils from "../utils";
@@ -39,20 +38,19 @@ import utils from "../utils";
 export default {
   data() {
     return {
-      activeTab: 'empleados',
-      currentUserRole: null
+      currentUserRole: null,
+      activeTab: 'estudiantes' // Se asegura que la pestaña inicial sea correcta
     };
   },
   created() {
-      try {
-        this.currentUserRole = utils.getCurrentUserRole
-        // Si el role_id es 2, se fuerza la pestaña activa a 'estudiantes'
-        if (this.currentUserRole === 2) {
-          this.activeTab = 'estudiantes';
-        }
-      } catch (error) {
-        console.error("Error al decodificar el token:", error);
+    try {
+      this.currentUserRole = utils.getCurrentUserRole(); // Asegurar llamada correcta
+      if (this.currentUserRole !== 2) {
+        this.activeTab = 'empleados';
       }
+    } catch (error) {
+      console.error("Error al obtener el rol del usuario:", error);
+    }
   },
   components: {
     EstudianteForm,
@@ -60,6 +58,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .container {

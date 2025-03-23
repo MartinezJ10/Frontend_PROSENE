@@ -387,6 +387,14 @@ export default {
   box-sizing: border-box;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+
 .page-header {
   flex-shrink: 0;
   display: flex;
@@ -455,9 +463,8 @@ export default {
 /* Contenedor derecho similar a StudentList.vue */
 .right-container {
   position: relative;
-  height: calc(100vh - 120px); /* Ajusta según la altura del header */
-  overflow-y: auto;
   padding-bottom: 80px; /* Espacio para la paginación */
+  flex-grow: 1;
 }
 
 /* Card de paginación al pie del contenedor derecho */

@@ -45,6 +45,7 @@
               :placeholder="field.placeholder"
               @blur="validateField(field)"
               required
+              autocomplete="new-password"
             />
   
             <!-- Select con ícono de flecha -->

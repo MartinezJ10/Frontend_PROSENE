@@ -115,8 +115,14 @@ const retrieveUsers = async () => {
 const setNacionalidadesOptions = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:8000/api/v1/varios/nacionalidades`
+      `http://localhost:8000/api/v1/varios/nacionalidades`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+        }
+      }
     )
+    
 
     nacionalidades.value = response.data.map((nacionalidad) => ({
       label: nacionalidad.nacionalidad,
@@ -132,7 +138,12 @@ const setNacionalidadesOptions = async () => {
 const setCondicionesMedicas = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:8000/api/v1/varios/condiciones`
+      `http://localhost:8000/api/v1/varios/condiciones`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+        }
+      }
     )
 
     condicionesMedicas.value = response.data.map((condicion) => ({

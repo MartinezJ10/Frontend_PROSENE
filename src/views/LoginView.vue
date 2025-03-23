@@ -119,7 +119,6 @@ export default {
         const role_id = utils.getCurrentUserRole();
 
         if (role_id === 3) {
-          console.log("Redireccionando...");
           router.push("/userView");
         } else {
           router.push("/WelcomeMessage");

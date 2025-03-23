@@ -210,6 +210,17 @@
             value: tipoSolicitud.idtiposolicitud,
             label: tipoSolicitud.descripcion,
           }));
+
+            // 🚀 ACTUALIZA createRequestFields después de obtener los datos
+            createRequestFields.value = [
+              {
+                name: "requestType",
+                label: "Tipo de Solicitud",
+                type: "select",
+                options: tipoSolicitudes.value,
+              },
+              { name: "description", label: "Descripción", type: "text-area" },
+            ];
         } catch (err) {
           utils.errorLog(err);
         }

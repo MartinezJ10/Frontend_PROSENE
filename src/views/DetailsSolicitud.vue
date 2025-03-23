@@ -5,6 +5,10 @@
             <div class="details-solicitud-info">
                 <h2>Información de la Solicitud</h2>
                 <div class="info-item">
+                    <span class="info-label">ID de la Solicitud:</span>
+                    <span class="info-value">{{ solicitud.idsolicitud }}</span>
+                </div>
+                <div class="info-item">
                     <span class="info-label">Email del Solicitante:</span>
                     <span class="info-value">{{ solicitud.usuariosolicitante?.email }}</span>
                 </div>
