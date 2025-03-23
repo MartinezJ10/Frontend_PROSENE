@@ -1,5 +1,4 @@
 <template>
-  <div id="app" class="app">
     <header class="header-page d-flex justify-content-between align-items-center px-3">
       <div class="d-flex align-items-center">
         <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
@@ -135,7 +134,6 @@
             </li>
           </ul>
         </div>
-        <!-- ... código posterior ... -->
 
         <!-- Si no hay solicitudes, se muestra un mensaje -->
         <div v-else class="no-requests">
@@ -146,7 +144,6 @@
       <ReusableModal :show="showDetailsModal" title="Detalles de la Solicitud" :message="currentRequestDescription"
         @close="showDetailsModal = false" />
     </main>
-  </div>
 </template>
 
 <script>

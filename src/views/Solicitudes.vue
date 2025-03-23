@@ -1,12 +1,13 @@
 <template>
   <div class="container my-4 relative-container">
-    <!-- Encabezado con el mismo diseño de ManageUser -->
-    <div class="page-header mb-4">
+    <div class="page-header mb-4 ">
       <h1 class="page-title">Lista de Solicitudes</h1>
+
       <button class="btn btn-unah" @click="toggleFilters">
         <i class="bi bi-funnel-fill me-2"></i>
         {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
       </button>
+
     </div>
 
     <!-- Sección de filtros superpuesta (overlay) -->
@@ -164,10 +165,12 @@ import axios from "axios";
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Mensaje from "../components/Mensaje.vue";
+import ReusableForm from "../components/ReusableForm.vue";
+import ReusableModal from "../components/ReusableModal.vue";
 
 export default {
   name: "Solicitudes",
-  components: { Mensaje },
+  components: { Mensaje,ReusableForm, ReusableModal},
   setup() {
     const router = useRouter();
 

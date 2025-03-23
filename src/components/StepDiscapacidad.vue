@@ -82,7 +82,7 @@
     />
 </template>
 
-<script>
+<script setup>
 import { ref,defineProps } from 'vue';
 
 // Opciones para los select

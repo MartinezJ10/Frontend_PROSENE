@@ -71,7 +71,7 @@
     v-model="formData.ingresomensualfamiliar" />
 </template>
 
-<script>
+<script setup>
 import { ref, defineProps, onMounted } from 'vue';
 import axios from 'axios';
 

@@ -15,13 +15,15 @@
                 <div class="info-item">
                     <span class="info-label">Email del Responsable:</span>
                     <span class="info-value">
-                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.email }}
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
+                            solicitud.responsablesolicitud?.email }}
                     </span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Centro Regional del Responsable:</span>
                     <span class="info-value">
-                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.centroregional?.centroregional }}
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
+                            solicitud.responsablesolicitud?.centroregional?.centroregional }}
                     </span>
                 </div>
                 <div class="info-item">
@@ -41,15 +43,25 @@
                     <span class="info-value description-text">{{ solicitud.descripcion }}</span>
                 </div>
             </div>
-            <button 
-            class="assign-button" 
-            @click="assignSolicitud" 
-            v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
-            Atender
-            </button> 
+            <button class="assign-button" @click="assignSolicitud"
+                v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
+                Atender
+            </button>
+            <button class="btn btn-outline-primary" v-if="currentUserRole === 1" @click="showModal = true">
+                <i class="bi bi-person-badge me-2"></i>
+                Asignar a Empleado
+            </button>
+            <FormModal title="Asignar a Empleado" v-model="showModal" :reusableForm="reusableFormComponent" :formProps="{
+                fields: asignToEmployeeFields,
+                submitButtonText: 'Asignar a Empleado',
+                onSubmit: asignToEmployee
+            }" />
+
+
         </div>
-        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
-    </div> 
+        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
+            @update:visible="showMessage = false" />
+    </div>
 </template>
 
 <script>
@@ -57,22 +69,33 @@ import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import Mensaje from '../components/Mensaje.vue'; // Importa el componente
+import utils from '../utils';
+
+import ReusableForm from "../components/ReusableForm.vue";
+import FormModal from "../components/FormModal.vue";
+
 
 export default {
     name: "DetailsSolicitud",
     components: {
-        Mensaje,
+        Mensaje, FormModal
     },
     setup() {
         const showMessage = ref(false); // Controla la visibilidad del mensaje
         const messageContent = ref(''); // Contenido del mensaje
         const messageType = ref(''); // Tipo de mensaje (éxito o error)
+        const showModal = ref(false)
 
         const solicitud = ref({});
         const router = useRouter();
         const route = useRoute();
+        const currentUserRole = utils.getCurrentUserRole();
+        const reusableFormComponent = ReusableForm
 
         const solicitud_id = route.params.id;
+
+        const asignToEmployeeFields = ref([])
+        const allEmployees = ref([])
 
         const getSolicitudDetails = async (solicitud_id) => {
             try {
@@ -100,12 +123,9 @@ export default {
             try {
                 const token = localStorage.getItem("jwt");
                 if (token) {
-                    const decodedToken = jwtDecode(token); 
-                    const idresponsablesolicitud = decodedToken.idusuario; // Obtén el id del usuario del token
-
                     const payloadData = {
                         idsolicitud: solicitud_id,
-                        idresponsablesolicitud: idresponsablesolicitud,
+                        idresponsablesolicitud: utils.getCurrentUserID(),
                         idestadosolicitud: 2 // Cambia el estado de la solicitud a 2
                     };
 
@@ -121,6 +141,8 @@ export default {
                     messageContent.value = 'Solicitud asignada con éxito';
                     messageType.value = 'exito';
                     showMessage.value = true;
+
+                    await getSolicitudDetails(solicitud_id);
                 }
             } catch (err) {
                 messageContent.value = 'Error al asignar la solicitud';
@@ -130,8 +152,69 @@ export default {
             }
         };
 
+        const asignToEmployee = async (formData) => {
+            try {
+                console.log({
+                    idsolicitud: solicitud_id,
+                    idresponsablesolicitud: formData.idresponsablesolicitud,
+                });
+
+                const response = await axios.put(
+                    'http://localhost:8000/api/v1/solicitudes/asignar',
+                    {
+                        idsolicitud: solicitud_id,
+                        idresponsablesolicitud: formData.idresponsablesolicitud,
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+                messageContent.value = 'Solicitud asignada con éxito';
+                messageType.value = 'exito';
+                showMessage.value = true;
+                showModal.value = false;
+
+                await getSolicitudDetails(solicitud_id);
+            } catch (err) {
+                messageContent.value = 'Error al asignar la solicitud';
+                messageType.value = 'error';
+                showMessage.value = true;
+                console.error("ERROR ASSIGNING SOLICITUD:", err.message);
+            }
+        }
+
+        const retrieveEmployees = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwt")}`
+                    }
+                });
+
+                allEmployees.value = response.data.filter(user => user.role_id === 2).map(user => ({
+                    value: user.idusuario,
+                    label: user.email
+                }));
+
+            } catch (err) {
+                console.error("User Listing Failed:", err.message);
+            }
+        }
+
         onMounted(async () => {
             await getSolicitudDetails(solicitud_id);
+            await retrieveEmployees();
+            asignToEmployeeFields.value = [
+                {
+                    name: 'idresponsablesolicitud',
+                    label: 'Empleado',
+                    type: 'select',
+                    options: allEmployees.value,
+                },
+            ];
+
         });
 
         return {
@@ -141,6 +224,11 @@ export default {
             showMessage, // Añade la referencia de visibilidad del mensaje
             messageContent, // Añade la referencia del contenido del mensaje
             messageType, // Añade la referencia del tipo de mensaje
+            currentUserRole,
+            reusableFormComponent,
+            showModal,
+            asignToEmployee,
+            asignToEmployeeFields
         };
     },
 };
@@ -203,7 +291,7 @@ export default {
     background-color: #0056b3;
 }
 
-.description-text{
+.description-text {
     text-align: center;
 }
 </style>
