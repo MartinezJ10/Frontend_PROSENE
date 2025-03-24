@@ -20,7 +20,7 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-  height: 100%; /* Cambiado de 100vh a 100% */
+  height: 100%; 
   background-color: transparent;
 }
 

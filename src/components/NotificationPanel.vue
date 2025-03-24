@@ -8,37 +8,48 @@
 
     <!-- Contenido del panel -->
     <div v-if="notifications.length === 0" class="text-muted p-3 text-center">
-      No hay notificaciones.
+      <div class="empty-state">
+        <i class="bi bi-bell-slash mb-2"></i>
+        <p>No hay notificaciones.</p>
+      </div>
     </div>
     <div v-else class="panel-body">
       <div
         v-for="notification in sortedNotifications"
         :key="notification.idnotificacion"
-        class="notification-card mb-3 p-3"
+        class="notification-card mb-3"
         :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }"
       >
-        <div class="d-flex justify-content-between align-items-center">
-          <h6 class="mb-1 fw-bold">
-            {{ notification.solicitudes.tiposolicitud.descripcion }}
-          </h6>
-          <small class="text-muted">
-            {{ formatDate(notification.create_date) }}
-          </small>
+        <div class="notification-content p-3">
+          <div class="notification-header mb-2">
+            <div class="type-badge">
+              {{ notification.solicitudes.tiposolicitud.descripcion }}
+            </div>
+            <div class="date-container">
+              {{ formatDate(notification.create_date) }}
+            </div>
+          </div>
+          
+          <div class="id-container mt-2">
+            <span class="id-label me-2">ID Solicitud:</span>
+            <span class="id-value">{{ notification.solicitudes.idsolicitud }}</span>
+          </div>
         </div>
-        <div class="d-flex justify-content-end mt-2">
+
+        <div class="notification-actions">
           <button
             v-if="!notification.isread"
             @click="markAsRead(notification.idnotificacion)"
-            class="btn btn-sm mark-as-read-btn me-2"
+            class="action-btn mark-read-btn"
           >
-            Marcar como leído
+            <i class="bi bi-check-circle me-1"></i> Marcar como leído
           </button>
           <button
             v-if="isAdmin"
             @click="deleteNotification(notification.idnotificacion)"
-            class="btn btn-sm btn-danger"
+            class="action-btn delete-btn"
           >
-            Eliminar
+            <i class="bi bi-trash me-1"></i> Eliminar
           </button>
         </div>
       </div>
@@ -174,13 +185,14 @@ export default {
   --white: #ffffff;
   --accent-yellow: #fefec6;
   --bg-panel: #f7f7f7;
+  --light-border: #e0e0e0;
 }
 
 .notification-panel {
   position: fixed;
   top: 60px;
   right: 20px;
-  width: 350px;
+  width: 380px;
   background-color: var(--white);
   border: 1px solid var(--accent-blue);
   border-radius: 8px;
@@ -190,7 +202,7 @@ export default {
 }
 
 .panel-header {
-  padding: 12px 15px;
+  padding: 15px;
   border-bottom: 1px solid var(--accent-blue);
   background-color: var(--bg-panel);
 }
@@ -201,24 +213,26 @@ export default {
   font-size: 1.25rem;
   color: var(--main-blue);
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
 .close-btn:hover {
   color: var(--accent-blue);
+  transform: scale(1.1);
 }
 
 .panel-body {
-  padding: 10px 15px;
-  max-height: 350px;
+  padding: 15px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
 .notification-card {
   border-radius: 8px;
-  background-color: var(--white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--accent-yellow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-left: 4px solid transparent;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .notification-card:hover {
@@ -227,38 +241,119 @@ export default {
 }
 
 .notification-unread {
-  border-left-color: var(--main-blue);
   background-color: var(--accent-yellow);
+  border-left: 4px solid var(--main-blue);
 }
 
 .notification-read {
-  border-left-color: var(--accent-blue);
   background-color: var(--white);
-  opacity: 0.8;
+  border-left: 4px solid var(--accent-blue);
+  opacity: 0.85;
 }
 
-.mark-as-read-btn {
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.type-badge {
+  font-size: 1.0rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.date-container {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.id-container {
+  display: flex;
+  align-items: center;
+}
+
+.id-label {
+  font-weight: bold;
+  color: var(--main-blue);
+  font-size: 0.9rem;
+}
+
+.id-value {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.notification-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.action-btn {
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.mark-read-btn {
   background-color: var(--main-yellow);
   color: var(--main-blue);
-  border: none;
-  padding: 5px 10px;
-  font-size: 0.875rem;
-  border-radius: 4px;
+  font-weight: 500;
 }
 
-.mark-as-read-btn:hover {
-  background-color: var(--accent-yellow);
-  color: var(--main-blue);
+.mark-read-btn:hover {
+  background-color: #e6b800;
+  transform: translateY(-1px);
 }
 
-.btn-danger {
-  border: none;
-  padding: 5px 10px;
-  font-size: 0.875rem;
-  border-radius: 4px;
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
 }
 
-.btn-danger:hover {
+.delete-btn:hover {
   background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  color: #666;
+}
+
+.empty-state i {
+  font-size: 2rem;
+  opacity: 0.7;
+}
+
+/* Estilo para la barra de desplazamiento */
+.panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+  background: var(--accent-blue);
+  border-radius: 10px;
+}
+
+.panel-body::-webkit-scrollbar-thumb:hover {
+  background: var(--main-blue);
 }
 </style>

@@ -19,13 +19,15 @@
                 <div class="info-item">
                     <span class="info-label">Email del Responsable:</span>
                     <span class="info-value">
-                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.email }}
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
+                            solicitud.responsablesolicitud?.email }}
                     </span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Centro Regional del Responsable:</span>
                     <span class="info-value">
-                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" : solicitud.responsablesolicitud?.centroregional?.centroregional }}
+                        {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
+                            solicitud.responsablesolicitud?.centroregional?.centroregional }}
                     </span>
                 </div>
                 <div class="info-item">
@@ -45,39 +47,63 @@
                     <span class="info-value description-text">{{ solicitud.descripcion }}</span>
                 </div>
             </div>
-            <button 
-            class="assign-button" 
-            @click="assignSolicitud" 
-            v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
-            Atender
-            </button> 
+            
+            <div class="buttons-container">
+                <button class="btn btn-outline-primary" @click="assignSolicitud"
+                    v-if="solicitud.estadosolicitud?.idestadosolicitud === 1">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Atender
+                </button>
+                <button class="btn btn-outline-primary" v-if="currentUserRole === 1" @click="showModal = true">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Asignar a Empleado
+                </button>
+            </div>
+            
+            <FormModal title="Asignar a Empleado" v-model="showModal" :reusableForm="reusableFormComponent" :formProps="{
+                fields: asignToEmployeeFields,
+                submitButtonText: 'Asignar a Empleado',
+                onSubmit: asignToEmployee
+            }" />
         </div>
-        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage" @update:visible="showMessage = false" />
-    </div> 
+        <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
+            @update:visible="showMessage = false" />
+    </div>
 </template>
 
 <script>
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importa jwt-decode para decodificar el token JWT
 import Mensaje from '../components/Mensaje.vue'; // Importa el componente
+import utils from '../utils';
+
+import ReusableForm from "../components/ReusableForm.vue";
+import FormModal from "../components/FormModal.vue";
+
 
 export default {
     name: "DetailsSolicitud",
     components: {
-        Mensaje,
+        Mensaje, FormModal
     },
     setup() {
         const showMessage = ref(false); // Controla la visibilidad del mensaje
         const messageContent = ref(''); // Contenido del mensaje
         const messageType = ref(''); // Tipo de mensaje (éxito o error)
+        const showModal = ref(false)
 
         const solicitud = ref({});
         const router = useRouter();
         const route = useRoute();
+        const currentUserRole = utils.getCurrentUserRole();
+        const reusableFormComponent = ReusableForm
 
-        const solicitud_id = route.params.id;
+        const solicitud_id = parseInt(route.params.id,10);
+
+        const asignToEmployeeFields = ref([])
+        const allEmployees = ref([])
+        const solicitud_estado = ref()
 
         const getSolicitudDetails = async (solicitud_id) => {
             try {
@@ -91,6 +117,8 @@ export default {
                 );
 
                 solicitud.value = response.data;
+                
+                solicitud_estado.value = response.data.estadosolicitud.idestadosolicitud
             } catch (err) {
                 console.error("ERROR FINDING SOLICITUD:", err.message);
             }
@@ -105,12 +133,9 @@ export default {
             try {
                 const token = localStorage.getItem("jwt");
                 if (token) {
-                    const decodedToken = jwtDecode(token); 
-                    const idresponsablesolicitud = decodedToken.idusuario; // Obtén el id del usuario del token
-
                     const payloadData = {
                         idsolicitud: solicitud_id,
-                        idresponsablesolicitud: idresponsablesolicitud,
+                        idresponsablesolicitud: utils.getCurrentUserID(),
                         idestadosolicitud: 2 // Cambia el estado de la solicitud a 2
                     };
 
@@ -126,6 +151,8 @@ export default {
                     messageContent.value = 'Solicitud asignada con éxito';
                     messageType.value = 'exito';
                     showMessage.value = true;
+
+                    await getSolicitudDetails(solicitud_id);
                 }
             } catch (err) {
                 messageContent.value = 'Error al asignar la solicitud';
@@ -135,8 +162,87 @@ export default {
             }
         };
 
+        const asignToEmployee = async (formData) => {
+            try {
+                console.log({
+                    idsolicitud: solicitud_id,
+                    idresponsablesolicitud: formData.idresponsablesolicitud,
+                    
+                });
+                console.log("estado", solicitud_estado.value);
+                
+                if (solicitud_estado.value === 1) {
+                        const response = await axios.put(
+                        'http://localhost:8000/api/v1/solicitudes/atender',
+                        {
+                            idsolicitud: solicitud_id,
+                            idresponsablesolicitud: formData.idresponsablesolicitud,
+                            idestadosolicitud: 2 //cambio a en proceso
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                            }
+                        }
+                    );
+                }
+                const response = await axios.put(
+                    'http://localhost:8000/api/v1/solicitudes/asignar',
+                    {
+                        idsolicitud: solicitud_id,
+                        idresponsablesolicitud: formData.idresponsablesolicitud,
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                        }
+                    }
+                );
+
+                messageContent.value = 'Solicitud asignada con éxito';
+                messageType.value = 'exito';
+                showMessage.value = true;
+                showModal.value = false;
+
+                await getSolicitudDetails(solicitud_id);
+            } catch (err) {
+                messageContent.value = 'Error al asignar la solicitud';
+                messageType.value = 'error';
+                showMessage.value = true;
+                console.error("ERROR ASSIGNING SOLICITUD:", err.message);
+            }
+        }
+
+        const retrieveEmployees = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwt")}`
+                    }
+                });
+
+                allEmployees.value = response.data.filter(user => user.role_id === 2).map(user => ({
+                    value: user.idusuario,
+                    label: user.email
+                }));
+
+            } catch (err) {
+                console.error("User Listing Failed:", err.message);
+            }
+        }
+
         onMounted(async () => {
             await getSolicitudDetails(solicitud_id);
+            await retrieveEmployees();
+            asignToEmployeeFields.value = [
+                {
+                    name: 'idresponsablesolicitud',
+                    label: 'Empleado',
+                    type: 'select',
+                    options: allEmployees.value,
+                },
+            ];
+
         });
 
         return {
@@ -146,6 +252,11 @@ export default {
             showMessage, // Añade la referencia de visibilidad del mensaje
             messageContent, // Añade la referencia del contenido del mensaje
             messageType, // Añade la referencia del tipo de mensaje
+            currentUserRole,
+            reusableFormComponent,
+            showModal,
+            asignToEmployee,
+            asignToEmployeeFields
         };
     },
 };
@@ -164,10 +275,10 @@ export default {
 }
 
 .details-solicitud-info {
-    background-color: #f9f9f9;
+    background-color: var(--background-color);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--text-shadow-color);
     width: 100%;
     max-width: 600px;
 }
@@ -193,22 +304,32 @@ export default {
     color: #333;
 }
 
-.assign-button {
-    background-color: #007bff;
-    color: white;
+/* Nuevo contenedor para los botones */
+.buttons-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn {
     padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-.assign-button:hover {
-    background-color: #0056b3;
+.btn-outline-primary {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+    border-radius: 5px;
 }
 
-.description-text{
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.description-text {
     text-align: center;
 }
 </style>
