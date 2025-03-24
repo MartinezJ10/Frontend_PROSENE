@@ -1,43 +1,45 @@
 <template>
-    <div class="form-block">
-        <FormKit allow-incomplete type="multi-step" tab-style="progress" hide-navigation="true">
-
-            <FormKit type="step" name="Usuario">
+    <!-- role="main" define el contenido principal para NVDA -->
+    <div class="form-block" role="main">
+        <!-- role="form" identifica el formulario multi-step para NVDA -->
+        <FormKit allow-incomplete type="multi-step" tab-style="progress" hide-navigation="true" role="form" aria-label="Formulario de creación de estudiante">
+            <!-- aria-label describe cada paso para NVDA -->
+            <FormKit type="step" name="Usuario" aria-label="Paso 1: Información del usuario">
                 <StepUsuario v-model:formData="formData.usuario" />
             </FormKit>
 
-            <FormKit type="step" name="inscripcion">
+            <FormKit type="step" name="inscripcion" aria-label="Paso 2: Información de inscripción">
                 <StepInscripcion v-model:formData="formData.inscripcion" />
             </FormKit>
 
-            <FormKit type="step" name="educacion">
+            <FormKit type="step" name="educacion" aria-label="Paso 3: Información educativa">
                 <StepCaracteristicas v-model:formData="formData.educacion" />
             </FormKit>
 
-            <FormKit type="step" name="comunicacion">
+            <FormKit type="step" name="comunicacion" aria-label="Paso 4: Métodos de comunicación">
                 <StepComunicacion v-model:formData="formData.comunicacion" />
             </FormKit>
 
-            <FormKit type="step" name="deficiencia">
+            <FormKit type="step" name="deficiencia" aria-label="Paso 5: Deficiencias">
                 <StepDeficiencia v-model:formData="formData.deficiencia" />
             </FormKit>
 
-            <FormKit type="step" name="discapacidad">
+            <FormKit type="step" name="discapacidad" aria-label="Paso 6: Discapacidades">
                 <StepDiscapacidad v-model:formData="formData.discapacidad" />
             </FormKit>
 
-            <FormKit type="step" name="movilizacion">
+            <FormKit type="step" name="movilizacion" aria-label="Paso 7: Movilización">
                 <StepMovilizacion v-model:formData="formData.movilizacion" />
             </FormKit>
 
-            <FormKit type="step" name="servicio">
+            <FormKit type="step" name="servicio" aria-label="Paso 8: Servicios requeridos">
                 <StepServicio v-model:formData="formData.servicio" :submitForm="submitForm" />
             </FormKit>
-
         </FormKit>
 
+        <!-- aria-live para anunciar mensajes dinámicos -->
         <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
-            @update:visible="showMessage = false" />
+            @update:visible="showMessage = false" aria-live="polite" />
     </div>
 </template>
 

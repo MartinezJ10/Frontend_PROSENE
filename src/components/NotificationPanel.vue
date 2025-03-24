@@ -1,16 +1,33 @@
 <template>
-  <div class="notification-panel" v-click-outside="closePanel">
+  <!-- role="dialog" para el panel de notificaciones -->
+  <div 
+    class="notification-panel" 
+    v-click-outside="closePanel" 
+    role="dialog" 
+    aria-label="Panel de notificaciones" 
+    aria-modal="true"
+  >
     <!-- Header del panel -->
     <div class="panel-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Notificaciones</h5>
-      <button class="close-btn" @click="closePanel">&times;</button>
+      <button 
+        class="close-btn" 
+        @click="closePanel" 
+        aria-label="Cerrar panel de notificaciones"
+      >
+        ×
+      </button>
     </div>
 
     <!-- Contenido del panel -->
-    <div v-if="notifications.length === 0" class="text-muted p-3 text-center">
+    <div 
+      v-if="notifications.length === 0" 
+      class="text-muted p-3 text-center" 
+      aria-live="polite"
+    >
       No hay notificaciones.
     </div>
-    <div v-else class="panel-body">
+    <div v-else class="panel-body" role="region" aria-label="Lista de notificaciones">
       <div
         v-for="notification in sortedNotifications"
         :key="notification.idnotificacion"
@@ -30,6 +47,7 @@
             v-if="!notification.isread"
             @click="markAsRead(notification.idnotificacion)"
             class="btn btn-sm mark-as-read-btn me-2"
+            :aria-label="`Marcar notificación ${notification.idnotificacion} como leída`"
           >
             Marcar como leído
           </button>
@@ -37,6 +55,7 @@
             v-if="isAdmin"
             @click="deleteNotification(notification.idnotificacion)"
             class="btn btn-sm btn-danger"
+            :aria-label="`Eliminar notificación ${notification.idnotificacion}`"
           >
             Eliminar
           </button>

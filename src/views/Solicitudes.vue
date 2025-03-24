@@ -1,18 +1,29 @@
 <template>
-  <div class="container my-4 relative-container">
-    <div class="page-header mb-4 ">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="container my-4 relative-container" role="main">
+    <div class="page-header mb-4">
       <h1 class="page-title">Lista de Solicitudes</h1>
 
-      <button class="btn btn-unah" @click="toggleFilters">
-        <i class="bi bi-funnel-fill me-2"></i>
+      <button 
+        class="btn btn-unah" 
+        @click="toggleFilters"
+        :aria-expanded="showFilters ? 'true' : 'false'"
+        aria-controls="filters-overlay"
+      >
+        <i class="bi bi-funnel-fill me-2" aria-hidden="true"></i>
         {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
       </button>
-
     </div>
 
     <!-- Sección de filtros superpuesta (overlay) -->
     <transition name="slide-fade">
-      <div v-if="showFilters" class="filters-overlay">
+      <div 
+        v-if="showFilters" 
+        class="filters-overlay" 
+        id="filters-overlay"
+        role="region"
+        aria-label="Filtros de búsqueda"
+      >
         <!-- Filtro por Usuario -->
         <div class="col-12 col-sm-3">
           <label for="userFilter" class="form-label fw-semibold">Usuario</label>
@@ -23,6 +34,7 @@
             v-model="searchUsername"
             placeholder="Buscar usuario..."
             @input="filterSolicitudes"
+            aria-label="Filtrar por nombre de usuario"
           />
         </div>
         <!-- Filtro por Centro Regional -->
@@ -33,6 +45,7 @@
             class="form-select"
             v-model="searchCentro"
             @change="filterSolicitudes"
+            aria-label="Filtrar por centro regional"
           >
             <option value="">Todos los centros</option>
             <option
@@ -52,6 +65,7 @@
             class="form-select"
             v-model="searchEstado"
             @change="filterSolicitudes"
+            aria-label="Filtrar por estado de solicitud"
           >
             <option value="">Todos los estados</option>
             <option
@@ -71,6 +85,7 @@
             class="form-select"
             v-model="searchTipo"
             @change="filterSolicitudes"
+            aria-label="Filtrar por tipo de solicitud"
           >
             <option value="">Todos los tipos</option>
             <option
@@ -88,7 +103,7 @@
     <!-- Contenedor derecho que envuelve la tabla y la paginación -->
     <div class="right-container">
       <!-- Tabla de Solicitudes -->
-      <div class="table-responsive">
+      <div class="table-responsive" role="region" aria-label="Lista de solicitudes">
         <table class="table table-striped table-hover align-middle">
           <thead>
             <tr>
@@ -99,6 +114,7 @@
                 <button
                   class="btn btn-sm btn-outline-primary ms-2 arrow-button"
                   @click="toggleDateSort"
+                  :aria-label="`Ordenar por fecha ${dateSortOrder === 'asc' ? 'descendente' : 'ascendente'}`"
                 >
                   {{ dateSortOrder === 'asc' ? '↑' : '↓' }}
                 </button>
@@ -127,6 +143,7 @@
                 <button
                   class="btn btn-sm btn-primary"
                   @click="goToDetails(solicitud.idsolicitud)"
+                  :aria-label="`Ver detalles de la solicitud de ${solicitud.fullName}`"
                 >
                   Ver Detalles
                 </button>
@@ -142,10 +159,24 @@
       </div>
 
       <!-- Card de paginación al pie del contenedor derecho -->
-      <div class="pagination-container">
-        <button :disabled="currentPage === 1" @click="prevPage">Anterior</button>
-        <span>Página {{ currentPage }} de {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="nextPage">Siguiente</button>
+      <div class="pagination-container" role="navigation" aria-label="Paginación de la lista de solicitudes">
+        <button 
+          :disabled="currentPage === 1" 
+          @click="prevPage"
+          aria-label="Página anterior"
+          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
+        >
+          Anterior
+        </button>
+        <span aria-live="polite">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button 
+          :disabled="currentPage === totalPages" 
+          @click="nextPage"
+          aria-label="Página siguiente"
+          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
 
@@ -156,6 +187,7 @@
       :tipo="messageType"
       :visible="showMessage"
       @update:visible="showMessage = false"
+      aria-live="polite"
     />
   </div>
 </template>
@@ -170,7 +202,7 @@ import ReusableModal from "../components/ReusableModal.vue";
 
 export default {
   name: "Solicitudes",
-  components: { Mensaje,ReusableForm, ReusableModal},
+  components: { Mensaje, ReusableForm, ReusableModal },
   setup() {
     const router = useRouter();
 
@@ -435,7 +467,6 @@ export default {
   border: 1px solid #dee2e6;
   padding: 10px;
 }
-
 
 .arrow-button {
   border: none;

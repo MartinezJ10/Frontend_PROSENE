@@ -1,6 +1,7 @@
 <template>
+  <!-- role="banner" define el encabezado para NVDA -->
   <div id="app" class="app">
-    <header class="header d-flex justify-content-between align-items-center px-3">
+    <header class="header d-flex justify-content-between align-items-center px-3" role="banner">
       <div class="d-flex align-items-center">
         <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
       </div>
@@ -8,17 +9,24 @@
         <h1 class="m-0">Solicitudes Académicas</h1>
       </div>
       <div>
+        <!-- aria-live para mensajes dinámicos -->
         <MensajeRetroalimentacion
           :mensaje="mensaje"
           :visible="visible"
           :tipo="tipo"
           @update:visible="visible = $event"
+          aria-live="polite"
         />
       </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-primary request-button" @click="showModal = true">
-          <i class="bi bi-plus-circle me-2"></i> Crear solicitud
+        <button 
+          class="btn btn-primary request-button" 
+          @click="showModal = true"
+          aria-label="Crear una nueva solicitud"
+        >
+          <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear solicitud
         </button>
+        <!-- role="dialog" para el modal -->
         <FormModal
           title="Crear Solicitud"
           v-model="showModal"
@@ -28,60 +36,101 @@
             submitButtonText: 'Crear Solicitud',
             onSubmit: handleRequestCreationSubmit
           }"
+          role="dialog"
+          aria-label="Modal para crear solicitud"
         />
         <button
           class="btn btn-light border notification-button"
           @click="toggleNotificationPanel"
+          :aria-expanded="isNotificationPanelVisible ? 'true' : 'false'"
+          aria-controls="notification-panel"
+          aria-label="Abrir panel de notificaciones"
         >
-          <i class="bi bi-bell"></i>
+          <i class="bi bi-bell" aria-hidden="true"></i>
         </button>
+        <!-- role="dialog" para el panel de notificaciones -->
         <NotificationPanel
           v-if="isNotificationPanelVisible"
           @close="toggleNotificationPanel"
+          id="notification-panel"
+          role="dialog"
+          aria-label="Panel de notificaciones"
         />
         <button
           class="btn btn-danger d-flex align-items-center logout-button"
           @click="handleExit"
+          aria-label="Cerrar sesión"
         >
-          <i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión
+          <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar sesión
         </button>
       </div>
-      <div class="mobile-dropdown dropdown">
+      <!-- role="navigation" para el menú móvil -->
+      <div class="mobile-dropdown dropdown" role="navigation" aria-label="Menú móvil">
         <button
           class="btn btn-primary dropdown-toggle"
           type="button"
           id="mobileMenu"
           data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="Abrir menú móvil"
         >
           Menú
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu" aria-labelledby="mobileMenu">
           <li>
-            <a class="dropdown-item" href="#" @click="showModal = true"
-              >Crear solicitud</a
+            <a 
+              class="dropdown-item" 
+              href="#" 
+              @click.prevent="showModal = true"
+              aria-label="Crear solicitud desde menú móvil"
             >
+              Crear solicitud
+            </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click="toggleNotificationPanel"
-              >Notificaciones</a
+            <a 
+              class="dropdown-item" 
+              href="#" 
+              @click.prevent="toggleNotificationPanel"
+              aria-label="Ver notificaciones desde menú móvil"
             >
+              Notificaciones
+            </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click="handleExit"
-              >Cerrar sesión</a
+            <a 
+              class="dropdown-item" 
+              href="#" 
+              @click.prevent="handleExit"
+              aria-label="Cerrar sesión desde menú móvil"
             >
+              Cerrar sesión
+            </a>
           </li>
         </ul>
       </div>
     </header>
 
-    <main class="container-fluid">
+    <!-- role="main" define el contenido principal -->
+    <main class="container-fluid" role="main">
       <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
       <div class="dashboard-container p-4">
-        <!-- Add filter inputs here -->
-        <div class="filters mb-4">
-          <input type="date" v-model="searchDate" @input="filterRequests" placeholder="Buscar por fecha" class="filter-input" />
-          <select v-model="searchEstado" @change="filterRequests" class="filter-select">
+        <!-- role="search" para los filtros -->
+        <div class="filters mb-4" role="search" aria-label="Filtros de solicitudes">
+          <input 
+            type="date" 
+            v-model="searchDate" 
+            @input="filterRequests" 
+            placeholder="Buscar por fecha" 
+            class="filter-input"
+            aria-label="Filtrar por fecha"
+          />
+          <select 
+            v-model="searchEstado" 
+            @change="filterRequests" 
+            class="filter-select"
+            aria-label="Filtrar por estado"
+          >
             <option value="">Todos los estados</option>
             <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
               {{ estado.descripcion }}
@@ -89,36 +138,31 @@
           </select>
         </div>
 
-        <!-- Si existen solicitudes, se itera sobre ellas -->
-        <div v-if="filteredRequests.length > 0">
+        <!-- Lista de solicitudes -->
+        <div v-if="filteredRequests.length > 0" role="region" aria-label="Lista de solicitudes">
           <ul class="list-group">
             <li
               class="list-group-item"
               v-for="(request, index) in filteredRequests"
               :key="request.id"
             >
-              <!-- Tarjeta interna -->
               <div class="request-card p-3">
                 <div class="row align-items-center">
-                  <!-- ID: en móviles col-12, en md col-2 -->
                   <div class="col-12 col-md-2">
                     <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
                   </div>
-
-                  <!-- Tipo de solicitud: en móviles col-12, en md col-6 -->
                   <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
                     <p class="mb-0 text-muted">
                       {{ request.tiposolicitud.descripcion }}
                     </p>
                   </div>
-
-                  <!-- Botones + Estado: en móviles col-12, en md col-4 -->
                   <div
                     class="col-12 col-md-4 d-flex justify-content-between justify-content-md-end align-items-center mt-2 mt-md-0 gap-2"
                   >
                     <button
                       class="btn btn-outline-dark btn-sm border"
                       @click="openDetailsModal(request.descripcion)"
+                      :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
                     >
                       Detalles
                     </button>
@@ -134,27 +178,28 @@
             </li>
           </ul>
         </div>
-        <!-- Si no hay solicitudes, se muestra un mensaje -->
+        <!-- Mensaje de no solicitudes -->
         <div v-else class="no-requests">
           No hay solicitudes registradas.
         </div>
       </div>
-      <!-- Modal reutilizable para mostrar detalles de la solicitud -->
+      <!-- role="dialog" para el modal de detalles -->
       <ReusableModal
         :show="showDetailsModal"
         title="Detalles de la Solicitud"
         :message="currentRequestDescription"
         @close="showDetailsModal = false"
+        role="dialog"
+        aria-label="Modal de detalles de la solicitud"
       />
     </main>
   </div>
 </template>
 
-
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed,onUnmounted } from "vue";
+import { onMounted, ref, computed, onUnmounted } from "vue";
 import FormModal from "../components/FormModal.vue";
 import ReusableForm from "../components/ReusableForm.vue";
 import MensajeRetroalimentacion from "../components/Mensaje.vue";
@@ -187,7 +232,7 @@ export default {
     const isMobile = ref(false);
     const searchDate = ref('');
     const searchEstado = ref('');
-    const estados = ref([]); // Store estados here
+    const estados = ref([]);
 
     const userId = ref(utils.getUserId());
 
@@ -238,7 +283,7 @@ export default {
         const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        estados.value = response.data; // Store estados
+        estados.value = response.data;
       } catch (err) {
         console.error("Failed to retrieve estados:", err.message);
       }
@@ -337,7 +382,7 @@ export default {
       window.addEventListener("resize", checkScreenSize);
       await retrieveTipoSolicitudes();
       await retrieveRequests();
-      await retrieveEstados(); // Fetch estados
+      await retrieveEstados();
       createRequestFields.value = [
         {
           name: "requestType",
@@ -375,7 +420,7 @@ export default {
       openDetailsModal,
       searchDate,
       searchEstado,
-      estados, // Return estados for use in the template
+      estados,
       filteredRequests,
       filterRequests,
     };
@@ -459,16 +504,12 @@ main {
 }
 
 /* --- Ajustes para la lista y la "tarjeta" de solicitud --- */
-
-/* Quitamos el borde y el padding por defecto de list-group-item
-   para no duplicar con el card interno */
 .list-group-item {
   border: none;
   padding: 0;
   margin-bottom: 1rem;
 }
 
-/* Tarjeta interna de cada solicitud */
 .request-card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -492,25 +533,24 @@ main {
   text-align: center;
 }
 
-/* Colores suaves para cada estado */
 .badge-status.recibida {
-  background-color: #e2e3e5; /* Gris claro */
+  background-color: #e2e3e5;
   color: #383d41;
 }
 
 .badge-status.en-proceso {
-  background-color: #fff3cd; /* Amarillo claro */
+  background-color: #fff3cd;
   color: #856404;
 }
 
 .badge-status.finalizada {
-  background-color: #d4edda; /* Verde claro */
+  background-color: #d4edda;
   color: #155724;
 }
 
 .badge-status.cancelada,
 .badge-status.rechazada {
-  background-color: #f8d7da; /* Rojo rosado */
+  background-color: #f8d7da;
   color: #721c24;
 }
 
@@ -538,8 +578,6 @@ main {
   main {
     height: 89vh;
   }
-
-  /* Ajusta la separación de la tarjeta en pantallas muy pequeñas */
   .request-card {
     padding: 1rem;
   }

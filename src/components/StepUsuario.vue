@@ -1,41 +1,135 @@
 <template>
     <!-- User Authentication Details -->
-    <FormKit type="email" name="email" label="Email" validation="required|email" autocomplete="new-password" v-model="formData.email"/>
+    <FormKit 
+        type="email" 
+        name="email" 
+        label="Email" 
+        validation="required|email" 
+        autocomplete="new-password" 
+        v-model="formData.email" 
+        aria-labelledby="emailLabel" 
+    />
+    <label id="emailLabel" class="sr-only">Email</label>
 
-    <FormKit type="password" name="password" label="Password" validation="required" autocomplete="new-password" v-model="formData.password"/>
+    <FormKit 
+        type="password" 
+        name="password" 
+        label="Password" 
+        validation="required" 
+        autocomplete="new-password" 
+        v-model="formData.password" 
+        aria-labelledby="passwordLabel" 
+    />
+    <label id="passwordLabel" class="sr-only">Password</label>
 
-    <FormKit type="select" name="idcentroregional" label="Centro Regional" :options="centrosRegionales" validation="required" v-model="formData.idcentroregional" />
+    <FormKit 
+        type="select" 
+        name="idcentroregional" 
+        label="Centro Regional" 
+        :options="centrosRegionales" 
+        validation="required" 
+        v-model="formData.idcentroregional" 
+        aria-labelledby="centroRegionalLabel" 
+    />
+    <label id="centroRegionalLabel" class="sr-only">Centro Regional</label>
 
     <!-- User Profile Details -->
-    <FormKit type="text" name="numeroidentidad" label="Número de Identidad" validation="required"
-        v-model="formData.numeroidentidad" />
+    <FormKit 
+        type="text" 
+        name="numeroidentidad" 
+        label="Número de Identidad" 
+        validation="required" 
+        v-model="formData.numeroidentidad" 
+        aria-labelledby="numeroIdentidadLabel" 
+    />
+    <label id="numeroIdentidadLabel" class="sr-only">Número de Identidad</label>
 
-    <FormKit type="text" name="primernombre" label="Primer Nombre" validation="required"
-        v-model="formData.primernombre" />
+    <FormKit 
+        type="text" 
+        name="primernombre" 
+        label="Primer Nombre" 
+        validation="required" 
+        v-model="formData.primernombre" 
+        aria-labelledby="primerNombreLabel" 
+    />
+    <label id="primerNombreLabel" class="sr-only">Primer Nombre</label>
 
-    <FormKit type="text" name="segundonombre" label="Segundo Nombre" v-model="formData.segundonombre" />
+    <FormKit 
+        type="text" 
+        name="segundonombre" 
+        label="Segundo Nombre" 
+        v-model="formData.segundonombre" 
+        aria-labelledby="segundoNombreLabel" 
+    />
+    <label id="segundoNombreLabel" class="sr-only">Segundo Nombre</label>
 
-    <FormKit type="text" name="primerapellido" label="Primer Apellido" validation="required"
-        v-model="formData.primerapellido" />
+    <FormKit 
+        type="text" 
+        name="primerapellido" 
+        label="Primer Apellido" 
+        validation="required" 
+        v-model="formData.primerapellido" 
+        aria-labelledby="primerApellidoLabel" 
+    />
+    <label id="primerApellidoLabel" class="sr-only">Primer Apellido</label>
 
-    <FormKit type="text" name="segundoapellido" label="Segundo Apellido" v-model="formData.segundoapellido" />
+    <FormKit 
+        type="text" 
+        name="segundoapellido" 
+        label="Segundo Apellido" 
+        v-model="formData.segundoapellido" 
+        aria-labelledby="segundoApellidoLabel" 
+    />
+    <label id="segundoApellidoLabel" class="sr-only">Segundo Apellido</label>
 
-    <FormKit type="text" name="direccion" label="Dirección" validation="required" v-model="formData.direccion" />
+    <FormKit 
+        type="text" 
+        name="direccion" 
+        label="Dirección" 
+        validation="required" 
+        v-model="formData.direccion" 
+        aria-labelledby="direccionLabel" 
+    />
+    <label id="direccionLabel" class="sr-only">Dirección</label>
 
-    <FormKit type="tel" name="telefono" label="Teléfono" validation="required" v-model="formData.telefono" />
+    <FormKit 
+        type="tel" 
+        name="telefono" 
+        label="Teléfono" 
+        validation="required" 
+        v-model="formData.telefono" 
+        aria-labelledby="telefonoLabel" 
+    />
+    <label id="telefonoLabel" class="sr-only">Teléfono</label>
 
-    <FormKit type="date" name="fechanacimiento" label="Fecha de Nacimiento" validation="required"
-        v-model="formData.fechanacimiento" />
+    <FormKit 
+        type="date" 
+        name="fechanacimiento" 
+        label="Fecha de Nacimiento" 
+        validation="required" 
+        v-model="formData.fechanacimiento" 
+        aria-labelledby="fechaNacimientoLabel" 
+    />
+    <label id="fechaNacimientoLabel" class="sr-only">Fecha de Nacimiento</label>
 
-    <FormKit type="select" name="sexo" label="Sexo" :options="[
-        { value: 'Hombre', label: 'Hombre' },
-        { value: 'Mujer', label: 'Mujer' },
-        { value: 'Otro', label: 'Otro' }
-    ]" validation="required" v-model="formData.sexo" />
+    <FormKit 
+        type="select" 
+        name="sexo" 
+        label="Sexo" 
+        :options="[
+            { value: 'Hombre', label: 'Hombre' },
+            { value: 'Mujer', label: 'Mujer' },
+            { value: 'Otro', label: 'Otro' }
+        ]" 
+        validation="required" 
+        v-model="formData.sexo" 
+        aria-labelledby="sexoLabel" 
+    />
+    <label id="sexoLabel" class="sr-only">Sexo</label>
 </template>
 
 <script setup>
-import { defineProps,ref, onMounted } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const centrosRegionales = ref([]);
@@ -65,7 +159,4 @@ const retrieveCentrosRegionales = async () => {
 onMounted(async () => {
     await retrieveCentrosRegionales();
 });
-
-
-
 </script>
