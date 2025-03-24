@@ -1,13 +1,17 @@
 <template>
-  <div class="change-password-container">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="change-password-container" role="main">
     <div class="container d-flex justify-content-center align-items-center vh-100">
       <div class="card shadow-lg custom-card">
         <div class="card-body">
           <h2 class="text-center mb-4">Cambiar Contraseña</h2>
+          <!-- role="form" identifica el formulario para NVDA -->
           <ReusableForm
             :fields="fields"
             :submitButtonText="'Cambiar Contraseña'"
             :onSubmit="handleChangePassword"
+            role="form"
+            aria-label="Formulario para cambiar contraseña"
           />
         </div>
       </div>
@@ -33,8 +37,21 @@ export default {
     const token = ref(null);
 
     const fields = ref([
-      { name: 'newPassword', label: 'Nueva Contraseña', type: 'password', placeholder: 'Ingrese su nueva contraseña' },
-      { name: 'confirmPassword', label: 'Confirmar Nueva Contraseña', type: 'password', placeholder: 'Confirme su nueva contraseña' }
+      { 
+        name: 'newPassword', 
+        label: 'Nueva Contraseña', 
+        type: 'password', 
+        placeholder: 'Ingrese su nueva contraseña',
+        // aria-describedby vincula el campo a posibles errores (si se implementan)
+        ariaDescribedby: 'newPassword-error' 
+      },
+      { 
+        name: 'confirmPassword', 
+        label: 'Confirmar Nueva Contraseña', 
+        type: 'password', 
+        placeholder: 'Confirme su nueva contraseña',
+        ariaDescribedby: 'confirmPassword-error' 
+      }
     ]);
 
     // Extraer y validar el token al montar el componente

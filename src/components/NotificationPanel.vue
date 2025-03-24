@@ -1,9 +1,22 @@
 <template>
-  <div class="notification-panel" v-click-outside="closePanel">
+  <!-- role="dialog" para el panel de notificaciones -->
+  <div 
+    class="notification-panel" 
+    v-click-outside="closePanel" 
+    role="dialog" 
+    aria-label="Panel de notificaciones" 
+    aria-modal="true"
+  >
     <!-- Header del panel -->
     <div class="panel-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Notificaciones</h5>
-      <button class="close-btn" @click="closePanel">&times;</button>
+      <button 
+        class="close-btn" 
+        @click="closePanel" 
+        aria-label="Cerrar panel de notificaciones"
+      >
+        ×
+      </button>
     </div>
 
     <!-- Contenido del panel -->
@@ -13,7 +26,7 @@
         <p>No hay notificaciones.</p>
       </div>
     </div>
-    <div v-else class="panel-body">
+    <div v-else class="panel-body" role="region" aria-label="Lista de notificaciones">
       <div
         v-for="notification in sortedNotifications"
         :key="notification.idnotificacion"

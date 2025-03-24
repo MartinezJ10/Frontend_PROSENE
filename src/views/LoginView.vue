@@ -1,17 +1,20 @@
 <template>
-  <div class="container-fluid m-0 p-0" :style="{ backgroundImage: 'url(${images[0]})' }">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="container-fluid m-0 p-0" :style="{ backgroundImage: 'url(${images[0]})' }" role="main">
     <div class="row login-container m-0">
       <div class="col-md-8 d-none d-md-block left-section">
-        <img :src="images[0]" alt="Imagen de fondo" class="static-background" />
+        <!-- aria-hidden en imagen decorativa para que NVDA no la anuncie -->
+        <img :src="images[0]" alt="" class="static-background" aria-hidden="true" />
       </div>
 
       <div class="col-md-4 right-section">
         <div class="login-box">
-          <img src="@/assets/top-logo.png" alt="Logo de la UNAH" class="top-logo" />
+          <img src="@/assets/top-logo.png" alt="Logo de PROSENE" class="top-logo" />
 
           <h2 class="text-center mb-4">Iniciar Sesión</h2>
           
-          <form @submit.prevent="handleLoginSubmit">
+          <!-- role="form" identifica el formulario para NVDA -->
+          <form @submit.prevent="handleLoginSubmit" role="form">
             <div class="mb-3">
               <label for="email" class="form-label">Correo Electrónico</label>
               <input 
@@ -22,7 +25,12 @@
                 id="email" 
                 placeholder="Ingrese su correo" 
                 required 
+                aria-describedby="email-error"
               />
+              <!-- aria-live para anunciar errores dinámicamente -->
+              <div v-if="errorsLogin" class="invalid-feedback" id="email-error" aria-live="polite">
+                {{ errorsLogin }}
+              </div>
             </div>
             
             <div class="mb-3">
@@ -37,21 +45,33 @@
                   placeholder="Ingrese su contraseña" 
                   required 
                   autocomplete="new-password"
+                  aria-describedby="password-error"
                 />
-                <button class="btn btn-outline-secondary" type="button" @click="togglePasswordVisibility">
+                <!-- aria-label describe el botón para NVDA -->
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  @click="togglePasswordVisibility"
+                  aria-label="Alternar visibilidad de la contraseña"
+                >
                   <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                 </button>
               </div>
-              <div v-if="errorsLogin" class="invalid-feedback">
+              <div v-if="errorsLogin" class="invalid-feedback" id="password-error" aria-live="polite">
                 {{ errorsLogin }}
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            <!-- aria-label en el botón para claridad -->
+            <button type="submit" class="btn btn-primary w-100" aria-label="Iniciar sesión">Ingresar</button>
           </form>
           
           <div class="mb-3 text-center">
-            <a href="#" class="btn btn-link" @click.prevent="showModal=true">¿Olvidaste tu contraseña?</a>
+            <!-- aria-label en el enlace para describir su función -->
+            <a href="#" class="btn btn-link" @click.prevent="showModal=true" aria-label="Recuperar contraseña">
+              ¿Olvidaste tu contraseña?
+            </a>
+            <!-- role="dialog" para el modal -->
             <FormModal 
               title="Recuperar Contraseña" 
               v-model="showModal" 
@@ -61,6 +81,8 @@
                 submitButtonText: 'Enviar Correo',
                 onSubmit: handleSendEmail
               }"
+              role="dialog"
+              aria-label="Modal de recuperación de contraseña"
             >
             </FormModal>
           </div>
@@ -71,11 +93,13 @@
     </div>
   </div>
 
+  <!-- aria-live para anunciar mensajes dinámicos -->
   <MensajeRetroalimentacion
     :mensaje="mensaje"
     :visible="visible"
     :tipo="tipo"
     @update:visible="visible = $event"
+    aria-live="polite"
   />
 </template>
 
