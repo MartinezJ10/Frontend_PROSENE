@@ -166,13 +166,13 @@ export default {
     };
 
     const mostrarExito = () => {
-      mensaje.value = 'Operación realizada con éxito.';
+      mensaje.value = 'Inicio de sesión exitoso.';
       tipo.value = 'exito';
       visible.value = true;
     };
 
     const mostrarError = () => {
-      mensaje.value = 'Ocurrió un error inesperado.';
+      mensaje.value = 'Error en el inicio de sesión.';
       tipo.value = 'error';
       visible.value = true;
     };

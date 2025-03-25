@@ -157,8 +157,7 @@ body {
 /* Menú lateral para escritorio */
 .navbar-left {
   height: 100%;
-  width: 60px;
-  background: url('Background-Lateral.avif') no-repeat center center;
+  width: 50px;
   background-size: cover;
   transition: width 0.5s ease-in-out;
   overflow: hidden;
@@ -167,25 +166,26 @@ body {
 /* Expansión del menú lateral en escritorio al hacer hover */
 @media (min-width: 769px) {
   .navbar-left:hover {
-    width: 300px;
+    width: 250px;
   }
 }
 
 /* Botones del menú */
 .nav-link {
   width: 100%;
-  min-height: 50px;
+  min-height: 40px; /* Reduced from 50px */
   color: #002D62;
   font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  padding: 8px 12px; /* Reduced padding */
+  border-radius: 8px; /* Slightly smaller border radius */
+  margin-bottom: 8px; /* Reduced margin */
   background: #FFCC00;
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   align-items: center;
   white-space: nowrap;
   border: none;
+  font-size: 0.9rem; /* Slightly smaller font size */
 }
 
 .nav-link:hover {
@@ -198,8 +198,9 @@ body {
 .menu-text {
   opacity: 0;
   transition: opacity 0.3s ease;
-  margin-left: 10px;
+  margin-left: 8px; /* Reduced margin */
   white-space: nowrap;
+  font-size: 0.85rem; /* Smaller font size for menu text */
 }
 
 /* Mostrar el texto del menú en escritorio al hacer hover */

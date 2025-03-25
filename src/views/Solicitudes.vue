@@ -1,7 +1,7 @@
 <template>
   <!-- role="main" define el contenido principal para NVDA -->
-  <div class="container my-4 relative-container" role="main">
-    <div class="page-header mb-4">
+  <div class="container my-3 relative-container" role="main">
+    <div class="page-header mb-3">
       <h1 class="page-title">Lista de Solicitudes</h1>
 
       <button 
@@ -15,7 +15,7 @@
       </button>
     </div>
 
-    <!-- Sección de filtros con el mismo código -->
+    <!-- Sección de filtros con transición -->
     <transition name="slide-fade">
       <div 
         v-if="showFilters" 
@@ -37,6 +37,7 @@
             aria-label="Filtrar por nombre de usuario"
           />
         </div>
+
         <!-- Filtro por Centro Regional -->
         <div class="col-12 col-sm-3">
           <label for="centroFilter" class="form-label fw-semibold">Centro Regional</label>
@@ -57,6 +58,7 @@
             </option>
           </select>
         </div>
+
         <!-- Filtro por Estado -->
         <div class="col-12 col-sm-3">
           <label for="estadoFilter" class="form-label fw-semibold">Estado</label>
@@ -77,6 +79,7 @@
             </option>
           </select>
         </div>
+
         <!-- Filtro por Tipo de Solicitud -->
         <div class="col-12 col-sm-3">
           <label for="tipoFilter" class="form-label fw-semibold">Tipo de Solicitud</label>
@@ -97,14 +100,50 @@
             </option>
           </select>
         </div>
+
+        <!-- Botón para limpiar filtros -->
+        <div class="col-12 col-sm-3 d-flex align-items-end">
+          <button
+            class="btn btn-secondary w-100"
+            @click="resetFilters"
+            aria-label="Limpiar todos los filtros"
+          >
+            Limpiar Filtros
+          </button>
+        </div>
       </div>
     </transition>
 
-    <!-- Contenedor de la tabla con ajustes de tamaño -->
+    <!-- Contenedor derecho -->
     <div class="right-container">
+      <!-- Paginación arriba de la tabla -->
+      <div 
+        class="pagination-container mb-2" 
+        role="navigation" 
+        aria-label="Paginación de la lista de solicitudes"
+      >
+        <button 
+          :disabled="currentPage === 1" 
+          @click="prevPage"
+          aria-label="Página anterior"
+          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
+        >
+          Anterior
+        </button>
+        <span aria-live="polite">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button 
+          :disabled="currentPage === totalPages" 
+          @click="nextPage"
+          aria-label="Página siguiente"
+          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
+        >
+          Siguiente
+        </button>
+      </div>
+
       <!-- Tabla de Solicitudes -->
       <div class="table-responsive" role="region" aria-label="Lista de solicitudes">
-        <table class="table table-striped table-hover align-middle">
+        <table class="table table-sm table-hover table-bordered text-center compact-table">
           <thead>
             <tr>
               <th scope="col">ID</th>
@@ -113,7 +152,7 @@
               <th scope="col">
                 Fecha
                 <button
-                  class="btn btn-sm btn-outline-primary ms-2 arrow-button"
+                  class="btn btn-sm arrow-button ms-1"
                   @click="toggleDateSort"
                   :aria-label="`Ordenar por fecha ${dateSortOrder === 'asc' ? 'descendente' : 'ascendente'}`"
                 >
@@ -134,15 +173,15 @@
               <td>{{ solicitud.centro }}</td>
               <td>
                 <span
-                  class="badge d-inline-block w-100 text-center status-badge"
+                  class="badge status-badge"
                   :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
                 >
                   {{ getStatusText(solicitud.estado) }}
                 </span>
               </td>
-              <td class="text-center">
+              <td>
                 <button
-                  class="btn btn-sm btn-action"
+                  class="btn btn-action btn-sm"
                   @click="goToDetails(solicitud.idsolicitud)"
                   :aria-label="`Ver detalles de la solicitud de ${solicitud.fullName}`"
                 >
@@ -157,27 +196,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- Card de paginación al pie del contenedor derecho -->
-      <div class="pagination-container" role="navigation" aria-label="Paginación de la lista de solicitudes">
-        <button 
-          :disabled="currentPage === 1" 
-          @click="prevPage"
-          aria-label="Página anterior"
-          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
-        >
-          Anterior
-        </button>
-        <span aria-live="polite">Página {{ currentPage }} de {{ totalPages }}</span>
-        <button 
-          :disabled="currentPage === totalPages" 
-          @click="nextPage"
-          aria-label="Página siguiente"
-          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
-        >
-          Siguiente
-        </button>
       </div>
     </div>
 
@@ -207,10 +225,12 @@ export default {
   setup() {
     const router = useRouter();
 
+    // Estados para mensajes de retroalimentación
     const showMessage = ref(false);
     const messageContent = ref("");
     const messageType = ref("");
 
+    // Listas y filtros
     const solicitudes = ref([]);
     const searchEstado = ref("");
     const searchUsername = ref("");
@@ -221,15 +241,25 @@ export default {
     const tiposSolicitud = ref([]);
     const centros = ref([]);
 
-    // Control de filtros
+    // Mostrar/ocultar filtros
     const showFilters = ref(false);
     const toggleFilters = () => {
       showFilters.value = !showFilters.value;
     };
 
-    // Estado para ordenar la fecha
+    // Función para limpiar filtros
+    const resetFilters = () => {
+      searchEstado.value = "";
+      searchUsername.value = "";
+      searchTipo.value = "";
+      searchCentro.value = "";
+      filterSolicitudes(); // Forzamos el refresco
+    };
+
+    // Orden de fecha (asc o desc)
     const dateSortOrder = ref("asc");
 
+    // Traer datos del backend
     const retrieveSolicitudes = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
@@ -284,36 +314,39 @@ export default {
       }
     };
 
+    // Texto y color para el estado
     const getStatusText = (estado) => {
       const estadoObj = estados.value.find((e) => e.idestadosolicitud === estado);
       return estadoObj ? estadoObj.descripcion : "Desconocido";
     };
 
     const getStatusColor = (estado) => {
+      // Ajusta colores según tus necesidades
       switch (estado) {
-        case 1:
+        case 1: // Recibida
           return "#17a2b8";
-        case 2:
+        case 2: // En Proceso
           return "#FFCC00";
-        case 3:
+        case 3: // Finalizada
           return "#1E7E34";
-        case 4:
+        case 4: // Cancelada
           return "#6c757d";
-        case 5:
+        case 5: // Rechazada
           return "#B22222";
         default:
           return "#6c757d";
       }
     };
 
+    // Formato de fecha
     const formatDate = (dateString) => {
-      const options = { year: "numeric", month: "long", day: "numeric" };
+      const options = { year: "numeric", month: "short", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
+    // Filtrar y ordenar
     const filterSolicitudes = () => {
-      // Reinicia a la primera página al filtrar
-      currentPage.value = 1;
+      currentPage.value = 1; // Reinicia a la primera página al filtrar
     };
 
     const filteredSolicitudes = computed(() => {
@@ -342,9 +375,13 @@ export default {
       });
     });
 
-    // Variables de paginación
+    const toggleDateSort = () => {
+      dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
+    };
+
+    // Paginación
     const currentPage = ref(1);
-    const pageSize = ref(5);
+    const pageSize = ref(8); // Ajusta la cantidad de filas por página
     const totalPages = computed(() => {
       return Math.ceil(sortedSolicitudes.value.length / pageSize.value) || 1;
     });
@@ -353,24 +390,20 @@ export default {
       return sortedSolicitudes.value.slice(start, start + pageSize.value);
     });
 
-    const toggleDateSort = () => {
-      dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
-    };
-
-    const goToDetails = (id) => {
-      router.push(`/detailsSolicitud/${id}`);
-    };
-
     const nextPage = () => {
       if (currentPage.value < totalPages.value) {
         currentPage.value++;
       }
     };
-
     const prevPage = () => {
       if (currentPage.value > 1) {
         currentPage.value--;
       }
+    };
+
+    // Navegar a detalles
+    const goToDetails = (id) => {
+      router.push(`/detailsSolicitud/${id}`);
     };
 
     onMounted(async () => {
@@ -381,46 +414,54 @@ export default {
     });
 
     return {
+      // Mensajes
       showMessage,
       messageContent,
       messageType,
+      // Listas
       solicitudes,
+      estados,
+      tiposSolicitud,
+      centros,
+      // Filtros
       searchEstado,
       searchUsername,
       searchTipo,
       searchCentro,
-      centros,
-      estados,
-      tiposSolicitud,
-      sortedSolicitudes,
+      showFilters,
+      toggleFilters,
+      resetFilters,
+      // Orden y filtrado
       dateSortOrder,
       toggleDateSort,
-      goToDetails,
+      filterSolicitudes,
+      filteredSolicitudes,
+      sortedSolicitudes,
+      // Estado y color
       getStatusText,
       getStatusColor,
       formatDate,
-      filterSolicitudes,
-      showFilters,
-      toggleFilters,
       // Paginación
       currentPage,
       pageSize,
       totalPages,
       paginatedSolicitudes,
       nextPage,
-      prevPage
+      prevPage,
+      // Navegación
+      goToDetails
     };
   },
 };
 </script>
 
 <style scoped>
-/* Estilos base (mantenemos la mayoría) */
+/* Contenedor principal */
 .relative-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px); /* Ajusta según el tamaño del header de tu app */
+  height: calc(100vh - 70px); /* Ajusta según la altura de tu header */
   overflow: hidden;
 }
 
@@ -431,105 +472,40 @@ export default {
   overflow: hidden;
 }
 
+/* Encabezado de la página */
 .page-header {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  padding: 0.7rem 1.5rem; /* Reducido de 1rem 2rem */
-  border-radius: 8px; /* Reducido de 10px */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .page-title {
   margin: 0;
-  font-size: 1.5rem; /* Reducido de 1.8rem */
+  font-size: 1.3rem;
   color: #002D62;
 }
 
-.table-responsive {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0; /* Importante para que el flex funcione correctamente */
-}
-
-/* Estilos de la tabla compacta */
-.compact-table {
-  font-size: 0.9rem; /* Fuente más pequeña */
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.compact-table th, 
-.compact-table td {
-  padding: 0.5rem 0.7rem; /* Reducido de 10px */
-  border: 1px solid #dee2e6;
-  vertical-align: middle;
-}
-
-/* Estilos para la columna ID */
-.id-column {
-  font-weight: 500;
-  color: #002D62;
-  text-align: center;
-}
-
-/* Estilos para badges de estado más compactos */
-.status-badge {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.8rem;
-  max-width: 120px; /* Reducido de 150px */
-}
-
-/* Botón de acción más compacto */
-.btn-action {
-  background-color: #002D62;
-  color: white;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.85rem;
-}
-
-.btn-action:hover {
-  background-color: #FFCC00;
-  color: #002D62;
-}
-
-/* Resto de estilos se mantienen igual */
+/* Botón principal (estilo UNAH) */
 .btn-unah {
   background-color: #002f6c;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
-  font-size: 0.9rem; /* Reducido */
-  padding: 0.35rem 0.8rem; /* Reducido */
+  font-size: 0.85rem;
+  padding: 0.4rem 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .btn-unah:hover {
   background-color: #ffcc00;
   color: #002f6c;
-}
-
-.arrow-button {
-  border: none;
-  color: black;
-}
-
-.slide-fade-enter-active {
-  transition: all 0.5s ease;
-}
-
-.slide-fade-enter-from {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-
-.slide-fade-enter-to,
-.slide-fade-leave-from {
-  transform: translateY(0);
-  opacity: 1;
 }
 
 /* Contenedor derecho */
@@ -538,36 +514,76 @@ export default {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: auto; /* Permite scroll en la tabla */
+  overflow: auto;
 }
 
-/* Paginación fija en la parte inferior */
+/* Tabla compacta y minimalista */
+.compact-table {
+  font-size: 0.85rem;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.compact-table th,
+.compact-table td {
+  padding: 0.4rem 0.6rem;
+  vertical-align: middle;
+}
+
+.compact-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Columna de ID */
+.id-column {
+  font-weight: 600;
+  color: #002D62;
+}
+
+/* Badges de estado */
+.status-badge {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Botón de acción */
+.btn-action {
+  background-color: #002D62;
+  color: #fff;
+  border: none;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+.btn-action:hover {
+  background-color: #ffcc00;
+  color: #002D62;
+}
+
+/* Paginación (arriba de la tabla) */
 .pagination-container {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
   background-color: #fff;
-  padding: 0.7rem;
+  padding: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  border-top: 1px solid #dee2e6;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .pagination-container button {
-  padding: 0.4rem 0.8rem;
   background-color: #002D62;
   color: #fff;
   border: none;
   border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
   cursor: pointer;
-  font-size: 0.85rem;
 }
-
 .pagination-container button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
@@ -576,48 +592,71 @@ export default {
 /* Overlay de filtros */
 .filters-overlay {
   position: absolute;
-  top: 60px; /* Ajustado de 70px */
+  top: 60px;
   left: 0;
   right: 0;
   z-index: 1000;
   background-color: #fff;
   padding: 0.8rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
 }
 
-/* Media queries para responsive */
+/* Transición de filtros */
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* Flecha de orden */
+.arrow-button {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  color: #333;
+  cursor: pointer;
+}
+.arrow-button:hover {
+  background-color: #eee;
+}
+
+/* Responsivo */
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0.8rem;
+    gap: 0.5rem;
   }
   .page-title {
-    font-size: 1.3rem;
-    margin-bottom: 0.4rem;
+    font-size: 1.2rem;
   }
   .filters-overlay {
     top: 55px;
     flex-direction: column;
-    gap: 0.4rem;
-    padding: 0.4rem;
-  }
-  .right-container {
-    height: calc(100vh - 130px);
+    gap: 0.6rem;
   }
   .compact-table th,
   .compact-table td {
-    padding: 0.4rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    padding: 0.3rem;
+  }
+  .status-badge {
+    font-size: 0.7rem;
   }
   .pagination-container {
-    position: static;
-    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
     box-shadow: none;
-    border: none;
+    border: 1px solid #ddd;
   }
 }
 </style>

@@ -60,7 +60,7 @@
             @click="deleteSingleUser"
             aria-label="Eliminar usuario"
           >
-            Eliminar
+            Desactivar
           </button>
         </div>
       </div>

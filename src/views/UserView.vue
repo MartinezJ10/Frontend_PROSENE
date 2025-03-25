@@ -568,9 +568,10 @@ main {
   box-shadow: 0 2px 5px var(--text-shadow-color);
   padding: 20px;
   margin: 10px;
-  height: calc(100% - 80px); /* Ajusta según la altura de otros elementos */
-  overflow-y: auto; /* Scroll solo en esta sección */
+  height: 410px; /* Altura fija */
+  overflow-y: auto; /* Scroll vertical interno */
 }
+
 
 .dashboard-title {
   font-size: 1.5em;
@@ -755,7 +756,7 @@ main {
   }
 
   main {
-    height: 87vh;
+    height: 86vh;
   }
 
   .text-md-end {
