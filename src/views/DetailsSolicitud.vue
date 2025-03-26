@@ -5,68 +5,114 @@
       <div class="details-solicitud-container" v-if="solicitud">
         <!-- role="region" identifica la sección de información -->
         <div class="details-solicitud-info" role="region" aria-label="Información de la solicitud">
-          <h2>Información de la Solicitud</h2>
-          <div class="info-item">
-            <span class="info-label">Email del Solicitante:</span>
-            <span class="info-value">{{ solicitud.usuariosolicitante?.email }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Centro Regional del Solicitante:</span>
-            <span class="info-value">{{ solicitud.usuariosolicitante?.centroregional?.centroregional }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Email del Responsable:</span>
-            <span class="info-value">
-              {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
-                  solicitud.responsablesolicitud?.email }}
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Centro Regional del Responsable:</span>
-            <span class="info-value">
-              {{ solicitud.estadosolicitud?.descripcion === "Recibida" ? "Sin asignar" :
-                  solicitud.responsablesolicitud?.centroregional?.centroregional }}
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Estado de la Solicitud:</span>
-            <span class="info-value">{{ solicitud.estadosolicitud?.descripcion }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Tipo de Solicitud:</span>
-            <span class="info-value">{{ solicitud.tiposolicitud?.descripcion }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Fecha de Creación:</span>
-            <span class="info-value">{{ formatDate(solicitud.fechacreacion) }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Descripción:</span>
-            <span class="info-value description-text">{{ solicitud.descripcion }}</span>
-          </div>
+          <!-- Lista de definiciones para los datos -->
+          <dl class="info-list">
+            <div class="info-item">
+              <dt>Email del Solicitante:</dt>
+              <dd>{{ solicitud.usuariosolicitante?.email }}</dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Centro Regional del Solicitante:</dt>
+              <dd>{{ solicitud.usuariosolicitante?.centroregional?.centroregional }}</dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Email del Responsable:</dt>
+              <dd>
+                {{ solicitud.estadosolicitud?.descripcion === "Recibida"
+                  ? "Sin asignar"
+                  : solicitud.responsablesolicitud?.email
+                }}
+              </dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Centro Regional del Responsable:</dt>
+              <dd>
+                {{ solicitud.estadosolicitud?.descripcion === "Recibida"
+                  ? "Sin asignar"
+                  : solicitud.responsablesolicitud?.centroregional?.centroregional
+                }}
+              </dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Estado de la Solicitud:</dt>
+              <dd>{{ solicitud.estadosolicitud?.descripcion }}</dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Tipo de Solicitud:</dt>
+              <dd>{{ solicitud.tiposolicitud?.descripcion }}</dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Fecha de Creación:</dt>
+              <dd>{{ formatDate(solicitud.fechacreacion) }}</dd>
+            </div>
+            
+            <div class="info-item">
+              <dt>Descripción:</dt>
+              <dd class="description-text">{{ solicitud.descripcion }}</dd>
+            </div>
+          </dl>
         </div>
-<!-- Contenedor para colocar los botones uno al lado del otro -->
-<div class="buttons-container">
-        <button 
-          class="btn btn-outline-primary" 
-          @click="assignSolicitud"
-          v-if="solicitud.estadosolicitud?.idestadosolicitud === 1"
-          aria-label="Atender esta solicitud"
-        >
-          Atender
-        </button>
+  
+        <div class="buttons-container">
+          <!-- Botón "Atender" -->
+          <button 
+            class="btn btn-outline-primary" 
+            @click="assignSolicitud"
+            v-if="solicitud.estadosolicitud?.idestadosolicitud === 1"
+            aria-label="Atender esta solicitud"
+          >
+            Atender
+          </button>
+          
+          <!-- Botón "Asignar a Empleado" (solo para rol=1) -->
+          <button 
+            class="btn btn-outline-primary" 
+            v-if="currentUserRole === 1 && solicitud.estadosolicitud?.idestadosolicitud === 1"
+            @click="showModal = true"
+            aria-label="Asignar esta solicitud a un empleado"
+          >
+            <i class="bi bi-person-badge me-2" aria-hidden="true"></i>
+            Asignar a Empleado
+          </button>
+  
+          <!-- Botón "Rechazar" -->
+          <button 
+            class="btn btn-outline-danger" 
+            @click="rejectSolicitud"
+            v-if="solicitud.estadosolicitud?.idestadosolicitud === 1"
+            aria-label="Rechazar esta solicitud"
+          >
+            Rechazar
+          </button>
+  
+          <!-- Botón "Finalizar" (estado 3) -->
+          <button
+            class="btn btn-outline-success"
+            @click="finalizeSolicitud"
+            v-if="solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible"
+            aria-label="Finalizar esta solicitud"
+          >
+            Finalizar Solicitud
+          </button>
+  
+          <!-- Botón "Cancelar" (estado 4) -->
+          <button
+            class="btn btn-outline-warning"
+            @click="cancelSolicitud"
+            v-if="solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible"
+            aria-label="Cancelar esta solicitud"
+          >
+            Cancelar Solicitud
+          </button>
+        </div>
         
-        <button 
-          class="btn btn-outline-primary" 
-          v-if="currentUserRole === 1 && solicitud.estadosolicitud?.idestadosolicitud === 1"
-          @click="showModal = true"
-          aria-label="Asignar esta solicitud a un empleado"
-        >
-          <i class="bi bi-person-badge me-2" aria-hidden="true"></i>
-          Asignar a Empleado
-        </button>
-      </div>
-        <!-- role="dialog" para el modal -->
+        <!-- Modal para asignar empleado -->
         <FormModal 
           title="Asignar a Empleado" 
           v-model="showModal" 
@@ -80,7 +126,8 @@
           aria-label="Modal para asignar solicitud a empleado"
         />
       </div>
-      <!-- aria-live para anunciar mensajes dinámicos -->
+  
+      <!-- Mensajes dinámicos -->
       <Mensaje 
         v-if="showMessage" 
         :mensaje="messageContent" 
@@ -93,10 +140,10 @@
   </template>
   
   <script>
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
-  import Mensaje from '../components/Mensaje.vue'; // Importa el componente
+  import Mensaje from '../components/Mensaje.vue';
   import utils from '../utils';
   import ReusableForm from "../components/ReusableForm.vue";
   import FormModal from "../components/FormModal.vue";
@@ -108,9 +155,9 @@
       FormModal
     },
     setup() {
-      const showMessage = ref(false); // Controla la visibilidad del mensaje
-      const messageContent = ref(''); // Contenido del mensaje
-      const messageType = ref(''); // Tipo de mensaje (éxito o error)
+      const showMessage = ref(false);
+      const messageContent = ref('');
+      const messageType = ref('');
       const showModal = ref(false);
   
       const solicitud = ref({});
@@ -124,6 +171,11 @@
       const asignToEmployeeFields = ref([]);
       const allEmployees = ref([]);
       const solicitud_estado = ref();
+      const currentUserId = utils.getCurrentUserID();
+      const isResponsible = computed(() => {
+        return solicitud.value?.responsablesolicitud?.idusuario === currentUserId;
+      });
+      
   
       const getSolicitudDetails = async (solicitud_id) => {
         try {
@@ -135,7 +187,6 @@
               }
             }
           );
-  
           solicitud.value = response.data;
           solicitud_estado.value = response.data.estadosolicitud.idestadosolicitud;
         } catch (err) {
@@ -155,10 +206,10 @@
             const payloadData = {
               idsolicitud: solicitud_id,
               idresponsablesolicitud: utils.getCurrentUserID(),
-              idestadosolicitud: 2 // Cambia el estado de la solicitud a 2
+              idestadosolicitud: 2 // "En proceso"
             };
   
-            const response = await axios.put(
+            await axios.put(
               'http://localhost:8000/api/v1/solicitudes/atender',
               payloadData,
               {
@@ -181,21 +232,118 @@
         }
       };
   
+      // Método para rechazar la solicitud (estado 5)
+      const rejectSolicitud = async () => {
+        try {
+          const token = localStorage.getItem("jwt");
+          if (token) {
+            const payloadData = {
+              idsolicitud: solicitud_id,
+              idresponsablesolicitud: utils.getCurrentUserID(),
+              idestadosolicitud: 5 // "Rechazada"
+            };
+  
+            await axios.put(
+              'http://localhost:8000/api/v1/solicitudes/atender',
+              payloadData,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            messageContent.value = 'Solicitud rechazada con éxito';
+            messageType.value = 'exito';
+            showMessage.value = true;
+  
+            await getSolicitudDetails(solicitud_id);
+          }
+        } catch (err) {
+          messageContent.value = 'Error al rechazar la solicitud';
+          messageType.value = 'error';
+          showMessage.value = true;
+          console.error("ERROR REJECTING SOLICITUD:", err.message);
+        }
+      };
+  
+      // Método para finalizar la solicitud (estado 3)
+      const finalizeSolicitud = async () => {
+        try {
+          const token = localStorage.getItem("jwt");
+          if (token) {
+            const payloadData = {
+              idsolicitud: solicitud_id,
+              idresponsablesolicitud: utils.getCurrentUserID(),
+              idestadosolicitud: 3 // "Finalizada"
+            };
+  
+            await axios.put(
+              'http://localhost:8000/api/v1/solicitudes/atender',
+              payloadData,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            messageContent.value = 'Solicitud finalizada con éxito';
+            messageType.value = 'exito';
+            showMessage.value = true;
+  
+            await getSolicitudDetails(solicitud_id);
+          }
+        } catch (err) {
+          messageContent.value = 'Error al finalizar la solicitud';
+          messageType.value = 'error';
+          showMessage.value = true;
+          console.error("ERROR FINALIZING SOLICITUD:", err.message);
+        }
+      };
+  
+      // Método para cancelar la solicitud (estado 4)
+      const cancelSolicitud = async () => {
+        try {
+          const token = localStorage.getItem("jwt");
+          if (token) {
+            const payloadData = {
+              idsolicitud: solicitud_id,
+              idresponsablesolicitud: utils.getCurrentUserID(),
+              idestadosolicitud: 4 // "Cancelada"
+            };
+  
+            await axios.put(
+              'http://localhost:8000/api/v1/solicitudes/atender',
+              payloadData,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            messageContent.value = 'Solicitud cancelada con éxito';
+            messageType.value = 'exito';
+            showMessage.value = true;
+  
+            await getSolicitudDetails(solicitud_id);
+          }
+        } catch (err) {
+          messageContent.value = 'Error al cancelar la solicitud';
+          messageType.value = 'error';
+          showMessage.value = true;
+          console.error("ERROR CANCELING SOLICITUD:", err.message);
+        }
+      };
+  
       const asignToEmployee = async (formData) => {
         try {
-          console.log({
-            idsolicitud: solicitud_id,
-            idresponsablesolicitud: formData.idresponsablesolicitud,
-          });
-          console.log("estado", solicitud_estado.value);
-  
           if (solicitud_estado.value === 1) {
-            const response = await axios.put(
+            // Primero la pasamos a "En proceso" si estaba en "Recibida"
+            await axios.put(
               'http://localhost:8000/api/v1/solicitudes/atender',
               {
                 idsolicitud: solicitud_id,
                 idresponsablesolicitud: formData.idresponsablesolicitud,
-                idestadosolicitud: 2 // Cambio a "en proceso"
+                idestadosolicitud: 2
               },
               {
                 headers: {
@@ -204,7 +352,8 @@
               }
             );
           }
-          const response = await axios.put(
+          // Luego se asigna la solicitud
+          await axios.put(
             'http://localhost:8000/api/v1/solicitudes/asignar',
             {
               idsolicitud: solicitud_id,
@@ -238,11 +387,13 @@
               Authorization: `Bearer ${localStorage.getItem("jwt")}`
             }
           });
-  
-          allEmployees.value = response.data.filter(user => user.role_id === 2).map(user => ({
-            value: user.idusuario,
-            label: user.email
-          }));
+          // Filtra solo usuarios con rol = 2
+          allEmployees.value = response.data
+            .filter(user => user.role_id === 2)
+            .map(user => ({
+              value: user.idusuario,
+              label: user.email
+            }));
         } catch (err) {
           console.error("User Listing Failed:", err.message);
         }
@@ -265,20 +416,29 @@
         solicitud,
         formatDate,
         assignSolicitud,
-        showMessage, // Añade la referencia de visibilidad del mensaje
-        messageContent, // Añade la referencia del contenido del mensaje
-        messageType, // Añade la referencia del tipo de mensaje
+        rejectSolicitud,
+        finalizeSolicitud,
+        cancelSolicitud,
+        showMessage,
+        messageContent,
+        messageType,
         currentUserRole,
         reusableFormComponent,
         showModal,
         asignToEmployee,
-        asignToEmployeeFields
+        asignToEmployeeFields,
+        isResponsible,
       };
     },
   };
   </script>
   
   <style scoped>
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
   .details-solicitud {
     padding: 20px;
   }
@@ -296,56 +456,95 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px var(--text-shadow-color);
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
   }
   
-  .details-solicitud-info h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+  /* Lista de definiciones */
+  .info-list {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    column-gap: 10px;
+    row-gap: 15px;
   }
   
   .info-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    display: contents;
   }
   
-  .info-label {
+  dt {
     font-weight: bold;
     color: #555;
   }
   
-  .info-value {
+  dd {
     color: #333;
-}
-
-/* Nuevo contenedor para los botones */
-.buttons-container {
+    margin: 0;
+  }
+  
+  .description-text {
+    text-align: center;
+  }
+  
+  /* Contenedor de botones */
+  .buttons-container {
     display: flex;
     gap: 10px;
     justify-content: center;
-}
-
-.btn {
+  }
+  
+  .btn {
     padding: 10px 20px;
     font-size: 16px;
     transition: all 0.3s ease;
-}
-
-.btn-outline-primary {
+    border-radius: 5px;
+  }
+  
+  /* Botón primario */
+  .btn-outline-primary {
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
     background-color: transparent;
-    border-radius: 5px;
-}
-
-.btn-outline-primary:hover {
+  }
+  
+  .btn-outline-primary:hover {
     background-color: var(--primary-color);
     color: white;
-}
-
-.description-text {
-    text-align: center;
+  }
+  
+  /* Botón de rechazo (rojo) */
+  .btn-outline-danger {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    background-color: transparent;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Botón "Finalizar" (verde) */
+  .btn-outline-success {
+    color: #28a745;
+    border: 1px solid #28a745;
+    background-color: transparent;
+  }
+  
+  .btn-outline-success:hover {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  /* Botón "Cancelar" (amarillo) */
+  .btn-outline-warning {
+    color: #ffc107;
+    border: 1px solid #ffc107;
+    background-color: transparent;
+  }
+  
+  .btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: black;
   }
   </style>
+  
