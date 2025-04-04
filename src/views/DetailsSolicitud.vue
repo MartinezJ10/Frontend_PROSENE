@@ -56,8 +56,6 @@
                 submitButtonText: 'Asignar a Empleado',
                 onSubmit: asignToEmployee
             }" />
-
-
         </div>
         <Mensaje v-if="showMessage" :mensaje="messageContent" :tipo="messageType" :visible="showMessage"
             @update:visible="showMessage = false" />
@@ -68,7 +66,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import Mensaje from '../components/Mensaje.vue'; // Importa el componente
+import Mensaje from '../components/Mensaje.vue';
 import utils from '../utils';
 
 import ReusableForm from "../components/ReusableForm.vue";
