@@ -7,7 +7,7 @@
         <img :src="images[0]" alt="" class="static-background" aria-hidden="true" />
       </div>
 
-      <div class="col-md-4 right-section">
+      <div class="col-md-4 col-sm-12 right-section">
         <div class="login-box">
           <img src="@/assets/top-logo.png" alt="Logo de PROSENE" class="top-logo" />
 
@@ -26,6 +26,7 @@
                 placeholder="Ingrese su correo" 
                 required 
                 aria-describedby="email-error"
+                autocomplete="email"
               />
               <!-- aria-live para anunciar errores dinámicamente -->
               <div v-if="errorsLogin" class="invalid-feedback" id="email-error" aria-live="polite">
@@ -44,7 +45,7 @@
                   id="password" 
                   placeholder="Ingrese su contraseña" 
                   required 
-                  autocomplete="new-password"
+                  autocomplete="current-password"
                   aria-describedby="password-error"
                 />
                 <!-- aria-label describe el botón para NVDA -->
@@ -204,6 +205,7 @@ export default {
   background-size: cover;
   background-position: center;
   height: 100vh;
+  width: 100%;
 }
 
 /* Sección de imágenes en la parte izquierda */
@@ -223,14 +225,13 @@ export default {
 
 /* Sección de inicio de sesión */
 .right-section {
-  display: block;
+  display: flex;
   height: 100vh;
   padding: 0 5%;
   background-color: #f8f9fa;
   position: relative;
-  display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 
@@ -238,14 +239,17 @@ export default {
 .login-box {
   width: 100%;
   max-width: 400px;
-  margin-top: 50px;
+  margin: 0 auto;
   background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 /* Estilo para los inputs y botones */
 .form-control,
 .btn-primary {
   border-color: #003366;
+  height: 44px; /* Altura óptima para inputs en móviles */
 }
 
 .form-control:focus,
@@ -256,6 +260,7 @@ export default {
 .btn-primary {
   background-color: #003366;
   border-color: #003366;
+  min-height: 44px; /* Tamaño mínimo recomendado para botones táctiles */
 }
 
 .btn-primary:hover {
@@ -292,20 +297,22 @@ export default {
 .top-logo {
   display: block;
   margin: 0 auto 20px;
-  width: 300px;
+  width: 80%;
+  max-width: 300px;
   height: auto;
 }
 
 .bottom-logo {
   position: absolute;
   bottom: 20px;
-  right: 20px;
   width: 120px;
   height: auto;
+  margin: 0 auto;
 }
 
 .input-group button {
   border-color: #003366;
+  min-width: 44px; /* Ancho mínimo para botones táctiles */
 }
 
 .input-group button:hover {
@@ -313,10 +320,24 @@ export default {
   color: #fff;
 }
 
+/* Para dispositivos iOS */
+@supports (-webkit-touch-callout: none) {
+  input, button, a {
+    -webkit-tap-highlight-color: transparent; /* Elimina el resaltado al tocar en iOS */
+  }
+  
+  .form-control, .btn {
+    --webkit-appearance: none; /* Elimina estilos predeterminados de iOS */
+    border-radius: 8px;
+  }
+}
+
 /* Media Query para pantallas móviles */
-@media (max-width: 767px) {
+@media (max-width: 576px) {
   .login-container {
-    flex-direction: column-reverse;
+    flex-direction: column;
+    overflow-y: hidden;
+    height: 90vh
   }
 
   .left-section {
@@ -325,24 +346,90 @@ export default {
 
   .right-section {
     padding: 0 15px;
+    height: clamp(300px, 90vh, 900px);
+    width: 100%;
+    justify-content: space-between;
   }
 
   .login-box {
     width: 100%;
-    max-width: 400px;
-    margin-top: 5vh;
-    background-color: #f8f9fa;
+    max-width: 100%;
+    margin-top: 10vh;
   }
 
   .top-logo {
-    width: 250px;
+    width: 80%;
+    max-width: 250px;
+    margin-bottom: 30px;
   }
 
   .bottom-logo {
     width: 100px;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 20px;
+    position: relative;
+    margin: 20px auto 0;
+  }
+  
+  /* Ajustes para orientación landscape en móviles */
+  @media (max-height: 500px) {
+    .login-box {
+      margin-top: 5vh;
+    }
+    
+    .top-logo {
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    
+    .bottom-logo {
+      width: 80px;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .mb-3 {
+      margin-bottom: 0.5rem !important;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .login-box {
+    padding: 15px;
+    height: 70vh;
+    margin-top: 5vh;
+  }
+  
+  .right-section {
+    padding: 0 15px;
+    height: clamp(300px, 90vh, 900px);
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Media Query para tablets */
+@media (min-width: 768px) and (max-width: 991px) {
+  .right-section {
+    padding: 0 10%;
+  }
+  
+  .login-box {
+    max-width: 450px;
+  }
+}
+
+/* Grid específica para dispositivos Android */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  .login-box {
+    padding: 15px;
+  }
+  
+  .form-control, .btn-primary {
+    border-radius: 4px;
   }
 }
 </style>

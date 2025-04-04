@@ -131,5 +131,94 @@ const handleCreateEmployee = async (formData) => {
   padding: 20px;
   padding-top: 0px;
   background: transparent;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media screen and (max-width: 992px) {
+  .create-employee-page {
+    padding: 15px;
+    padding-top: 0px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .create-employee-page {
+    padding: 10px;
+    padding-top: 0px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .create-employee-page {
+    padding: 8px;
+    padding-top: 0px;
+  }
+}
+
+/* Estas reglas afectarán los componentes hijos para mejorar la responsividad
+   Solo aplican si el componente ReusableForm2 tiene estas clases/elementos */
+:deep(.form-group) {
+  margin-bottom: 1rem;
+}
+
+:deep(.form-control), :deep(select), :deep(input[type="date"]) {
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+:deep(label) {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+:deep(button[type="submit"]) {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+:deep(button[type="submit"]:hover) {
+  background-color: #0069d9;
+}
+
+@media screen and (max-width: 768px) {
+  :deep(.form-group) {
+    margin-bottom: 0.75rem;
+  }
+  
+  :deep(.form-control), :deep(select), :deep(input[type="date"]) {
+    padding: 0.4rem;
+  }
+  
+  :deep(button[type="submit"]) {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  :deep(.form-group) {
+    margin-bottom: 0.5rem;
+  }
+  
+  :deep(label) {
+    font-size: 0.9rem;
+  }
+  
+  :deep(.form-control), :deep(select), :deep(input[type="date"]) {
+    padding: 0.35rem;
+    font-size: 0.9rem;
+  }
 }
 </style>

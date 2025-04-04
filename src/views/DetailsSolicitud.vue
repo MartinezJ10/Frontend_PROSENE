@@ -73,7 +73,7 @@
           <!-- Botón "Asignar a Empleado" (solo para rol=1) -->
           <button 
             class="btn btn-outline-primary" 
-            v-if="currentUserRole === 1 && solicitud.estadosolicitud?.idestadosolicitud === 1"
+            v-if="currentUserRole === 1"
             @click="showModal = true"
             aria-label="Asignar esta solicitud a un empleado"
           >

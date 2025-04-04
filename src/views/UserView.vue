@@ -122,7 +122,7 @@
   </header>
 
   <!-- role="main" define el contenido principal -->
-  <main class="container-fluid" role="main">
+  <main class="container-fluid main-content" role="main">
     <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
     <div class="dashboard-container p-4">
       <!-- role="search" para los filtros -->
@@ -507,14 +507,25 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow-x: hidden;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  height: 100vh; /* Asegura que el contenedor principal ocupe toda la altura */
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: var(--background-color);
+  background-image: url("@/assets/fondo-unah4.png");
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: 300px;
+  display: flex;
+  flex-direction: column;
+  height: clamp(300px, 85.5vh, 900px);
 }
 
 .header-page {
@@ -549,29 +560,16 @@ body {
   color: var(--primary-color);
 }
 
-main {
-  flex-grow: 1;
-  overflow: hidden; /* Evita el scroll en el main */
-  padding: 30px;
-  background-color: var(--background-color);
-  background-image: url("@/assets/fondo-unah4.png");
-  background-position: bottom right;
-  background-repeat: no-repeat;
-  background-size: 300px;
-  display: flex;
-  flex-direction: column;
-}
-
 .dashboard-container {
   background-color: var(--background-color);
   border-radius: 8px;
   box-shadow: 0 2px 5px var(--text-shadow-color);
   padding: 20px;
   margin: 10px;
-  height: 410px; /* Altura fija */
-  overflow-y: auto; /* Scroll vertical interno */
+  max-height: 500px; /* Altura máxima para el contenedor del dashboard */
+  overflow-y: auto; /* Scroll vertical solo para este contenedor */
+  flex-grow: 1; /* Permite que el dashboard ocupe el espacio restante */
 }
-
 
 .dashboard-title {
   font-size: 1.5em;
@@ -676,6 +674,17 @@ main {
   margin-top: 2rem;
 }
 
+@media (min-width: 1400px) {
+  .main-content {
+    height: clamp(300px, 93vh, 900px);
+  }
+
+  .dashboard-container {
+    max-height: 900px; /* Altura máxima para el contenedor del dashboard */
+    height: 92vh;
+  }
+}
+
 /* --- Responsivo --- */
 @media (max-width: 576px) {
   .header h1 {
@@ -700,8 +709,8 @@ main {
     display: none !important;
   }
 
-  main {
-    height: 89vh;
+  .main-content {
+    height: clamp(500px, 92vh, 900px);
   }
 
   .request-card {
@@ -714,6 +723,10 @@ main {
 
   .request-card p {
     font-size: 0.9rem;
+  }
+
+  .dashboard-container {
+    max-height: 900px; /* Altura máxima para el contenedor del dashboard */
   }
 }
 

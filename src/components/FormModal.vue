@@ -34,32 +34,30 @@ export default {
     modelValue: Boolean,
     title: String,
     reusableForm: Object,
-    formProps: Object
+    formProps: Object,
   },
-  emits: ['update:modelValue']
+  emits: ['update:modelValue'],
 };
 </script>
 
 <style scoped>
-/* Fondo semitransparente y centrado con padding para evitar desbordes */
 .modal-mask {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo ligeramente transparente */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9998;
-  padding: 20px; /* Espacio alrededor para que la modal no toque los bordes */
+  padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: opacity 0.3s ease;
 }
 
-/* Transiciones para la entrada y salida */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -67,22 +65,20 @@ export default {
 .modal-enter,
 .modal-leave-to {
   opacity: 0;
-  transform: scale(1.1);
+  transform: translateY(-10px); /* Transición más sutil */
 }
 
-/* Contenedor del modal con altura máxima y scroll interno si es necesario */
 .modal-container {
   background: #fff;
   width: 100%;
-  max-width: 500px;
-  max-height: calc(100vh - 40px); /* Altura máxima considerando el padding del mask */
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  max-height: calc(100vh - 40px);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave */
   overflow-y: auto;
   animation: modalFadeIn 0.3s ease;
 }
 
-/* Animación al abrir */
 @keyframes modalFadeIn {
   from {
     opacity: 0;
@@ -94,62 +90,60 @@ export default {
   }
 }
 
-/* Encabezado con degradado */
 .modal-header {
   position: relative;
-  padding: 20px;
-  background: linear-gradient(135deg, #003366, #0056b3);
-  color: #fff;
-  text-align: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid #eee; /* Borde sutil */
 }
 
 .modal-title {
   margin: 0;
   font-size: 1.5rem;
+  font-weight: 300; /* Peso de fuente ligero */
+  color: #333;
+  font-family: 'Roboto', sans-serif;
 }
 
-/* Botón de cierre */
 .quit-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 10px;
+  right: 10px;
   background: transparent;
   border: none;
   font-size: 1.8rem;
-  color: #fff;
+  color: #888;
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .quit-btn:hover {
-  transform: scale(1.2);
-  color: #ffcccb;
-}
-
-/* Cuerpo del modal */
-.modal-body {
-  padding: 20px;
   color: #333;
 }
 
-/* Ajustes para dispositivos móviles */
+.modal-body {
+  padding: 24px;
+  color: #444;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.6;
+}
+
 @media (max-width: 600px) {
   .modal-container {
-    max-width: 90%;
+    max-width: 95%;
   }
   .modal-header {
-    padding: 15px;
+    padding: 16px;
   }
   .modal-title {
     font-size: 1.3rem;
   }
   .quit-btn {
-    top: 10px;
-    right: 10px;
-    font-size: 1.5rem;
+    top: 8px;
+    right: 8px;
+    font-size: 1.6rem;
   }
   .modal-body {
-    padding: 15px;
+    padding: 20px;
   }
 }
 </style>

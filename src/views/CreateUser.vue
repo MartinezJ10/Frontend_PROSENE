@@ -86,14 +86,18 @@ export default {
 .container {
   padding: 20px;
   width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  overflow-y: auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
 .tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .tab {
@@ -107,6 +111,9 @@ export default {
   font-size: 16px;
   font-weight: 500;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
 }
 
 .tab:hover {
@@ -128,9 +135,64 @@ export default {
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   width: 100%;
+  box-sizing: border-box;
 }
 
-h2{
+h2 {
   text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .tabs {
+    gap: 8px;
+  }
+  
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-width: 100px;
+  }
+  
+  .tab-content {
+    padding: 15px;
+  }
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .tab {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .tab-content {
+    padding: 10px;
+  }
+  
+  h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
 }
 </style>

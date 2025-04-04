@@ -9,4 +9,7 @@ export default defineConfig({
       '@': '/src', // Este alias debe apuntar a la carpeta src
     },
   },
+  server: {
+    host: true // O también: host: '0.0.0.0'
+  }
 })

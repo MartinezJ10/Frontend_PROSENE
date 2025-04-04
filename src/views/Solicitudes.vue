@@ -3,16 +3,34 @@
   <div class="container my-3 relative-container" role="main">
     <div class="page-header mb-3">
       <h1 class="page-title">Lista de Solicitudes</h1>
+      <div class="button-group">
+    <button 
+      class="btn btn-unah" 
+      @click="toggleFilters"
+      :aria-expanded="showFilters ? 'true' : 'false'"
+      aria-controls="filters-overlay"
+    >
+      <i class="bi bi-funnel-fill me-2" aria-hidden="true"></i>
+      <span class="button-text">{{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}</span>
+    </button>
+    <button 
+      class="btn btn-unah" 
+      @click="retrieveMisSolicitudes"
+      aria-label="Mostrar mis solicitudes"
+    >
+      <i class="bi bi-person-fill me-2"></i>
+      <span class="button-text">Mis Solicitudes</span>
+    </button>
+    <button 
+      class="btn btn-unah" 
+      @click="retrieveSolicitudes"
+      aria-label="Mostrar todas las solicitudes"
+    >
+      <i class="bi bi-card-checklist me-2"></i>
+      <span class="button-text">Todas Solicitudes</span>
+    </button>
+  </div>
 
-      <button 
-        class="btn btn-unah" 
-        @click="toggleFilters"
-        :aria-expanded="showFilters ? 'true' : 'false'"
-        aria-controls="filters-overlay"
-      >
-        <i class="bi bi-funnel-fill me-2" aria-hidden="true"></i>
-        {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
-      </button>
     </div>
 
     <!-- Sección de filtros con transición -->
@@ -165,35 +183,44 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(solicitud, index) in paginatedSolicitudes" :key="index">
-              <td class="id-column">{{ solicitud.idsolicitud }}</td>
-              <td>{{ solicitud.fullName }}</td>
-              <td>{{ solicitud.tipo }}</td>
-              <td>{{ formatDate(solicitud.fecha) }}</td>
-              <td>{{ solicitud.centro }}</td>
-              <td>
-                <span
-                  class="badge status-badge"
-                  :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
-                >
-                  {{ getStatusText(solicitud.estado) }}
-                </span>
-              </td>
-              <td>
-                <button
-                  class="btn btn-action btn-sm"
-                  @click="goToDetails(solicitud.idsolicitud)"
-                  :aria-label="`Ver detalles de la solicitud de ${solicitud.fullName}`"
-                >
-                  Ver Detalles
-                </button>
-              </td>
-            </tr>
-            <tr v-if="paginatedSolicitudes.length === 0">
+            <!-- Mostrar mensaje de carga mientras se extraen los datos -->
+            <tr v-if="loading">
               <td colspan="7" class="text-center text-muted">
-                No se encontraron solicitudes.
+                Cargando datos, por favor espere...
               </td>
             </tr>
+            <!-- Mostrar resultados o mensaje de no encontrar solicitudes -->
+            <template v-else>
+              <tr v-if="paginatedSolicitudes.length === 0">
+                <td colspan="7" class="text-center text-muted">
+                  No se encontraron solicitudes.
+                </td>
+              </tr>
+              <tr v-for="(solicitud, index) in paginatedSolicitudes" :key="index">
+                <td class="id-column">{{ solicitud.idsolicitud }}</td>
+                <td>{{ solicitud.fullName }}</td>
+                <td>{{ solicitud.tipo }}</td>
+                <td>{{ formatDate(solicitud.fecha) }}</td>
+                <td>{{ solicitud.centro }}</td>
+                <td>
+                  <span
+                    class="badge status-badge"
+                    :style="{ backgroundColor: getStatusColor(solicitud.estado), color: '#fff' }"
+                  >
+                    {{ getStatusText(solicitud.estado) }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-action btn-sm"
+                    @click="goToDetails(solicitud.idsolicitud)"
+                    :aria-label="`Ver detalles de la solicitud de ${solicitud.fullName}`"
+                  >
+                    Ver Detalles
+                  </button>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -241,6 +268,9 @@ export default {
     const tiposSolicitud = ref([]);
     const centros = ref([]);
 
+    // Estado de carga de datos
+    const loading = ref(true);
+
     // Mostrar/ocultar filtros
     const showFilters = ref(false);
     const toggleFilters = () => {
@@ -259,25 +289,45 @@ export default {
     // Orden de fecha (asc o desc)
     const dateSortOrder = ref("asc");
 
-    // Traer datos del backend
+    // Función para mapear la respuesta de la API a la estructura que usa la tabla
+    const mapSolicitudes = (data) => {
+      return data.map((solicitud) => ({
+        idsolicitud: solicitud.idsolicitud,
+        fullName: solicitud.usuariosolicitante.persona
+          ? `${solicitud.usuariosolicitante.persona.primernombre} ${solicitud.usuariosolicitante.persona.primerapellido}`
+          : solicitud.usuariosolicitante.email,
+        email: solicitud.usuariosolicitante.email,
+        centro: solicitud.usuariosolicitante.centroregional.centroregional,
+        estado: solicitud.estadosolicitud.idestadosolicitud,
+        fecha: solicitud.fechacreacion,
+        tipo: solicitud.tiposolicitud.descripcion,
+      }));
+    };
+
+    // Traer todas las solicitudes (dashboard completo)
     const retrieveSolicitudes = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        solicitudes.value = response.data.map((solicitud) => ({
-          idsolicitud: solicitud.idsolicitud,
-          fullName: solicitud.usuariosolicitante.persona
-            ? `${solicitud.usuariosolicitante.persona.primernombre} ${solicitud.usuariosolicitante.persona.primerapellido}`
-            : solicitud.usuariosolicitante.email,
-          email: solicitud.usuariosolicitante.email,
-          centro: solicitud.usuariosolicitante.centroregional.centroregional,
-          estado: solicitud.estadosolicitud.idestadosolicitud,
-          fecha: solicitud.fechacreacion,
-          tipo: solicitud.tiposolicitud.descripcion,
-        }));
+        solicitudes.value = mapSolicitudes(response.data);
       } catch (err) {
         console.error("Failed to retrieve Solicitudes:", err.message);
+      }
+    };
+
+    // Función para traer "Mis Solicitudes" desde la API de solicitudes atendidas
+    const retrieveMisSolicitudes = async () => {
+      loading.value = true;
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/v1/solicitudes/atendidas", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        });
+        solicitudes.value = mapSolicitudes(response.data);
+      } catch (err) {
+        console.error("Error al obtener Mis Solicitudes:", err.message);
+      } finally {
+        loading.value = false;
       }
     };
 
@@ -321,7 +371,6 @@ export default {
     };
 
     const getStatusColor = (estado) => {
-      // Ajusta colores según tus necesidades
       switch (estado) {
         case 1: // Recibida
           return "#17a2b8";
@@ -354,9 +403,10 @@ export default {
         const matchesCentro = searchCentro.value
           ? solicitud.centro === searchCentro.value
           : true;
-        const matchesEstado = searchEstado.value
-          ? solicitud.estado === parseInt(searchEstado.value)
-          : true;
+        const matchesEstado =
+          searchEstado.value !== "" && searchEstado.value !== undefined
+            ? solicitud.estado === searchEstado.value
+            : true;
         const matchesUsername = searchUsername.value
           ? solicitud.fullName.toLowerCase().includes(searchUsername.value.toLowerCase())
           : true;
@@ -381,7 +431,7 @@ export default {
 
     // Paginación
     const currentPage = ref(1);
-    const pageSize = ref(8); // Ajusta la cantidad de filas por página
+    const pageSize = ref(8);
     const totalPages = computed(() => {
       return Math.ceil(sortedSolicitudes.value.length / pageSize.value) || 1;
     });
@@ -411,19 +461,17 @@ export default {
       await retrieveEstados();
       await retrieveTipos();
       await retrieveCentros();
+      loading.value = false;
     });
 
     return {
-      // Mensajes
       showMessage,
       messageContent,
       messageType,
-      // Listas
       solicitudes,
       estados,
       tiposSolicitud,
       centros,
-      // Filtros
       searchEstado,
       searchUsername,
       searchTipo,
@@ -431,38 +479,45 @@ export default {
       showFilters,
       toggleFilters,
       resetFilters,
-      // Orden y filtrado
+      loading,
       dateSortOrder,
       toggleDateSort,
       filterSolicitudes,
       filteredSolicitudes,
       sortedSolicitudes,
-      // Estado y color
       getStatusText,
       getStatusColor,
       formatDate,
-      // Paginación
       currentPage,
       pageSize,
       totalPages,
       paginatedSolicitudes,
       nextPage,
       prevPage,
-      // Navegación
-      goToDetails
+      goToDetails,
+      retrieveMisSolicitudes,
+      retrieveSolicitudes
     };
   },
 };
 </script>
 
-<style scoped>
+<style>
 /* Contenedor principal */
 .relative-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 70px); /* Ajusta según la altura de tu header */
+  height: calc(100vh - 70px);
   overflow: hidden;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  /* Ajusta la alineación horizontal que prefieras en pantallas grandes */
+  justify-content: flex-end; 
+  flex-wrap: wrap; /* Para que no desborde si no cabe en una sola línea */
 }
 
 .container {
@@ -547,6 +602,8 @@ export default {
   font-size: 0.75rem;
   border-radius: 4px;
   display: inline-block;
+  min-width: 100px;
+  text-align: center;
 }
 
 /* Botón de acción */
@@ -562,7 +619,7 @@ export default {
   color: #002D62;
 }
 
-/* Paginación (arriba de la tabla) */
+/* Paginación */
 .pagination-container {
   background-color: #fff;
   padding: 0.5rem;
@@ -573,6 +630,7 @@ export default {
   border: 1px solid #dee2e6;
   border-radius: 6px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
 }
 
 .pagination-container button {
@@ -630,33 +688,152 @@ export default {
   background-color: #eee;
 }
 
-/* Responsivo */
+/* Ajustes generales de responsividad */
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
-  .page-title {
-    font-size: 1.2rem;
+
+  .button-group {
+    flex-direction: row !important;
+    gap: 0.3rem;
   }
+
+  .btn-unah {
+    padding: 0.4rem;
+    width: auto;
+  }
+
+  .button-text {
+    display: none;
+  }
+
+  .btn-unah i {
+    margin: 0 !important;
+    font-size: 1.1rem;
+  }
+
+  .btn-unah {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .filters-overlay {
-    top: 55px;
+    position: static;
+    top: auto;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
   }
+
+  .filters-overlay > div {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .compact-table {
+    font-size: 0.75rem;
+  }
+
   .compact-table th,
   .compact-table td {
-    font-size: 0.75rem;
-    padding: 0.3rem;
+    padding: 0.5rem;
+    white-space: nowrap;
   }
+
   .status-badge {
+    min-width: 80px;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .btn-action {
     font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
   }
-  .pagination-container {
-    margin-bottom: 0.5rem;
-    box-shadow: none;
-    border: 1px solid #ddd;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
   }
+
+  .page-title {
+    font-size: 1.1rem;
+  }
+
+  .compact-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .compact-table th:nth-child(4),
+  .compact-table td:nth-child(4),
+  .compact-table th:nth-child(5),
+  .compact-table td:nth-child(5) {
+    display: none;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
+
+  .arrow-button {
+    padding: 0.1rem 0.3rem;
+    font-size: 0.6rem;
+  }
+}
+
+/* Mejoras adicionales para tabletas */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .filters-overlay {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .compact-table {
+    font-size: 0.8rem;
+  }
+
+  .btn-unah {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* Optimización de la tabla en móviles */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mejora de legibilidad en filtros */
+.form-label {
+  font-size: 0.8rem;
+}
+
+.form-control, .form-select {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* Ajuste de botones en móviles */
+.btn-secondary {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* Optimización de espacios verticales */
+.right-container {
+  padding-bottom: 1rem;
 }
 </style>

@@ -206,6 +206,7 @@ export default {
   top: 60px;
   right: 20px;
   width: 380px;
+  max-width: calc(100vw - 40px); /* Ancho máximo responsivo */
   background-color: var(--white);
   border: 1px solid var(--accent-blue);
   border-radius: 8px;
@@ -268,12 +269,15 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+  gap: 8px; /* Espacio entre elementos cuando se envuelven */
 }
 
 .type-badge {
   font-size: 1.0rem;
   font-weight: bold;
   display: inline-block;
+  word-break: break-word; /* Evita que texto largo rompa el diseño */
 }
 
 .date-container {
@@ -284,6 +288,8 @@ export default {
 .id-container {
   display: flex;
   align-items: center;
+  flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas muy pequeñas */
+  gap: 4px;
 }
 
 .id-label {
@@ -295,6 +301,7 @@ export default {
 .id-value {
   font-weight: bold;
   font-size: 0.9rem;
+  word-break: break-all; /* Para IDs muy largos */
 }
 
 .notification-actions {
@@ -303,6 +310,8 @@ export default {
   padding: 10px;
   background-color: rgba(0, 0, 0, 0.03);
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+  gap: 8px;
 }
 
 .action-btn {
@@ -311,9 +320,9 @@ export default {
   font-size: 0.875rem;
   border-radius: 4px;
   transition: all 0.2s ease;
-  margin-left: 8px;
   display: flex;
   align-items: center;
+  white-space: nowrap; /* Evita que el texto de los botones se envuelva */
 }
 
 .mark-read-btn {
@@ -368,5 +377,48 @@ export default {
 
 .panel-body::-webkit-scrollbar-thumb:hover {
   background: var(--main-blue);
+}
+
+/* Media queries para responsividad */
+@media (max-width: 480px) {
+  .notification-panel {
+    right: 10px;
+    left: 10px;
+    width: auto; /* Ancho automático en pantallas pequeñas */
+    max-width: none; /* Anula el max-width anterior */
+    top: 50px;
+  }
+
+  .panel-body {
+    max-height: 70vh; /* Altura máxima relativa a la ventana */
+  }
+
+  .notification-actions {
+    justify-content: space-between; /* Distribuye los botones equitativamente */
+  }
+
+  .action-btn {
+    flex: 1; /* Los botones ocupan el espacio disponible */
+    justify-content: center; /* Centra el contenido de los botones */
+  }
+}
+
+/* Para dispositivos muy pequeños */
+@media (max-width: 320px) {
+  .panel-header {
+    padding: 10px;
+  }
+
+  .panel-body {
+    padding: 10px;
+  }
+
+  .notification-content {
+    padding: 10px !important; /* Sobreescribe el p-3 de Bootstrap */
+  }
+
+  .type-badge {
+    font-size: 0.9rem;
+  }
 }
 </style>

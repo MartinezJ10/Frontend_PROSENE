@@ -27,7 +27,30 @@
         </div>
       </div>
 
-      <!-- role="region" para la tabla de estudiantes -->
+      <!-- Paginación movida arriba de la tabla -->
+      <div class="pagination-container" role="navigation" aria-label="Paginación de la lista de estudiantes">
+        <button 
+          :disabled="currentPage === 1" 
+          @click="prevPage"
+          aria-label="Página anterior"
+          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
+          class="pagination-button"
+        >
+          Anterior
+        </button>
+        <span aria-live="polite" class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
+        <button 
+          :disabled="currentPage === totalPages" 
+          @click="nextPage"
+          aria-label="Página siguiente"
+          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
+          class="pagination-button"
+        >
+          Siguiente
+        </button>
+      </div>
+
+      <!-- Se elimina la vista de tarjetas y se usa la tabla para todas las vistas -->
       <div class="table-responsive" role="region" aria-label="Lista de estudiantes">
         <table class="table table-striped">
           <thead>
@@ -72,27 +95,6 @@
         </table>
       </div>
 
-      <!-- role="navigation" para la paginación -->
-      <div class="pagination-container" role="navigation" aria-label="Paginación de la lista de estudiantes">
-        <button 
-          :disabled="currentPage === 1" 
-          @click="prevPage"
-          aria-label="Página anterior"
-          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
-        >
-          Anterior
-        </button>
-        <span aria-live="polite">Página {{ currentPage }} de {{ totalPages }}</span>
-        <button 
-          :disabled="currentPage === totalPages" 
-          @click="nextPage"
-          aria-label="Página siguiente"
-          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
-        >
-          Siguiente
-        </button>
-      </div>
-
       <!-- aria-live para anunciar mensajes dinámicos -->
       <Mensaje
         v-if="showMessage"
@@ -109,7 +111,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, onBeforeUnmount } from "vue";
 import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 
@@ -124,10 +126,31 @@ export default {
     const userInfo = ref([]);
     const centrosRegionales = ref([]);
     const selectedCentroRegional = ref("");
+    
+    // Mantenemos esta referencia para ajustar el pageSize, pero eliminamos su uso para la visualización
+    const isMobileView = ref(window.innerWidth < 768);
 
     // Variables de paginación
     const currentPage = ref(1);
-    const pageSize = 5; // Cantidad fija de usuarios por página (no necesita ser ref)
+    const pageSize = ref(isMobileView.value ? 5 : 10); // Ajuste dinámico según el tipo de vista
+
+    const updateViewMode = () => {
+      isMobileView.value = window.innerWidth < 768;
+      // Ajustar pageSize basado en el tipo de vista
+      pageSize.value = isMobileView.value ? 5 : 10;
+      // Asegurarse de que la página actual sigue siendo válida
+      if (currentPage.value > totalPages.value) {
+        currentPage.value = totalPages.value;
+      }
+    };
+
+    // Event listener para cambios de tamaño de ventana
+    window.addEventListener('resize', updateViewMode);
+
+    // Limpiar event listener al desmontar el componente
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', updateViewMode);
+    });
 
     const errorLog = async (err) => {
       console.error("ERROR IN REQUEST:", {
@@ -177,6 +200,7 @@ export default {
     onMounted(async () => {
       await retrieveUsers();
       await retrieveCentrosRegionales();
+      updateViewMode(); // Verificar el modo de vista inicial
     });
 
     // Se filtran solo los estudiantes y se aplica el filtro por centro regional
@@ -190,13 +214,13 @@ export default {
 
     // Total de páginas para la paginación
     const totalPages = computed(() => {
-      return Math.ceil(filteredUserInfo.value.length / pageSize) || 1;
+      return Math.ceil(filteredUserInfo.value.length / pageSize.value) || 1;
     });
 
     // Usuarios paginados según la página actual
     const paginatedUsers = computed(() => {
-      const start = (currentPage.value - 1) * pageSize;
-      return filteredUserInfo.value.slice(start, start + pageSize);
+      const start = (currentPage.value - 1) * pageSize.value;
+      return filteredUserInfo.value.slice(start, start + pageSize.value);
     });
 
     const nextPage = () => {
@@ -234,33 +258,37 @@ export default {
 <style scoped>
 .manage-users-page {
   display: flex;
-  height: 100%; /* Importante para ocupar todo el alto */
+  height: 100%;
+  width: 100%;
 }
 
 /* Contenedor de la sección derecha */
 .right-container {
   flex: 1;
-  position: relative; /* Permite posicionar elementos hijos de forma absoluta */
-  margin: 1rem;
-  padding-bottom: 80px; /* Espacio para que la paginación no tape el contenido */
-  overflow-y: auto; /* Cambiado de none a auto para permitir scroll si es necesario */
+  position: relative;
+  margin: 0.5rem;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .page-header {
   flex-shrink: 0;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  padding: 1rem 2rem;
+  padding: 0.75rem;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .page-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: #002D62;
 }
 
@@ -269,14 +297,14 @@ export default {
   align-items: center;
   gap: 0.5rem;
   background-color: #FFCC00;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .bi-search {
   color: #002D62;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .filter-select {
@@ -284,74 +312,239 @@ export default {
   color: #002D62;
   border: none;
   border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   appearance: none;
+  max-width: 100%;
 }
 
+/* Estilos actualizados para la tabla - se ajustan para que sean más responsive */
 .table-responsive {
   margin: 0 0 1rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Mejora el desplazamiento táctil en iOS */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.9rem; /* Texto más pequeño */
 }
 
 .table th,
 .table td {
-  padding: 0.75rem;
+  padding: 0.5rem; /* Reduce el padding para compactar filas */
   border: 1px solid #dee2e6;
   text-align: left;
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-weight: 600;
+  color: #002D62;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.status-active .status-circle,
+.status-inactive .status-circle {
+  display: inline-block;
+  width: 8px; /* Tamaño reducido */
+  height: 8px; /* Tamaño reducido */
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
 .status-active .status-circle {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
   background-color: green;
-  border-radius: 50%;
-  margin-right: 5px;
 }
 
 .status-inactive .status-circle {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
   background-color: red;
-  border-radius: 50%;
-  margin-right: 5px;
 }
 
-/* Paginación fija en el pie del contenedor derecho */
+/* Botones más pequeños */
+.btn-sm {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.btn-primary {
+  background-color: #002D62;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #001F4D;
+}
+
+/* Paginación responsiva */
 .pagination-container {
-  position: absolute;
-  bottom: 0; /* Cambiado de top: 74vh a bottom: 0 para mejor consistencia */
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  border-top: 1px solid #dee2e6;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
 }
 
-.pagination-container button {
-  padding: 0.5rem 1rem;
+.pagination-button {
+  padding: 0.3rem 0.8rem;
   background-color: #002D62;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 0.9rem;
+  min-width: 80px;
+  touch-action: manipulation; /* Optimiza para toques */
+  transition: background-color 0.2s ease;
 }
 
-.pagination-container button:disabled {
+.pagination-button:hover:not(:disabled) {
+  background-color: #001F4D;
+}
+
+.pagination-info {
+  text-align: center;
+  min-width: 120px;
+}
+
+.pagination-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 767px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .filter-container {
+    width: 100%;
+    margin-top: 0.5rem;
+    justify-content: space-between;
+  }
+  
+  .filter-select {
+    flex-grow: 1;
+    width: 100%;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .pagination-container {
+    padding: 0.25rem;
+  }
+  
+  .pagination-button {
+    min-width: 70px;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .pagination-info {
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+
+  .btn-sm {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Ajustes específicos para pequeñas pantallas */
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
+  
+  .right-container {
+    margin: 0.25rem;
+  }
+  
+  .pagination-button {
+    min-width: 60px;
+    font-size: 0.75rem;
+  }
+  
+  .pagination-info {
+    min-width: 80px;
+    font-size: 0.75rem;
+  }
+
+  /* Optimizaciones adicionales para la tabla en pantallas muy pequeñas */
+  .table th:nth-child(2),
+  .table td:nth-child(2) {
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
+    max-width: 60px;
+  }
+}
+
+/* Ajustes para orientación horizontal en dispositivos móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .manage-users-page {
+    height: auto;
+    min-height: 100%;
+  }
+  
+  .page-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .filter-container {
+    width: auto;
+  }
+}
+
+/* Soporte para dispositivos con safe-area-inset (notch) */
+@supports (padding: max(0px)) {
+  .right-container {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
 }
 </style>
