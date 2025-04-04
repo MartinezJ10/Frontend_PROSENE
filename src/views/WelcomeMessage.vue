@@ -1,5 +1,6 @@
 <template>
-  <div class="welcome-message">
+  <!-- role="region" define esta sección como una región notable para NVDA -->
+  <div class="welcome-message" role="region" aria-label="Mensaje de bienvenida">
     <h2>Bienvenido al Panel de Manejo de Solicitudes</h2>
     <p>Selecciona una opción del menú para comenzar.</p>
   </div>

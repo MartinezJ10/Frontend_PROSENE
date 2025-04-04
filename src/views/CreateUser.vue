@@ -1,28 +1,50 @@
 <template>
-  <div class="container">
-    <div class="tabs">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="container" role="main">
+    <!-- role="tablist" identifica el grupo de pestañas -->
+    <div class="tabs" role="tablist">
       <!-- La pestaña de Empleados solo se muestra si currentUserRole no es 2 -->
+      <!-- role="tab" y aria-controls vinculan la pestaña al contenido -->
       <button 
         v-if="currentUserRole !== 2"
         class="tab" 
         :class="{ active: activeTab === 'empleados' }" 
-        @click="activeTab = 'empleados'">
+        @click="activeTab = 'empleados'"
+        role="tab"
+        :aria-selected="activeTab === 'empleados' ? 'true' : 'false'"
+        aria-controls="empleados-panel"
+      >
         Empleados
       </button>
       <button 
         class="tab" 
         :class="{ active: activeTab === 'estudiantes' }" 
-        @click="activeTab = 'estudiantes'">
+        @click="activeTab = 'estudiantes'"
+        role="tab"
+        :aria-selected="activeTab === 'estudiantes' ? 'true' : 'false'"
+        aria-controls="estudiantes-panel"
+      >
         Estudiantes
       </button>
     </div>
 
+    <!-- role="tabpanel" identifica el contenido de cada pestaña -->
     <div class="tab-content">
-      <div v-if="activeTab === 'empleados'">
+      <div 
+        v-if="activeTab === 'empleados'" 
+        role="tabpanel" 
+        id="empleados-panel" 
+        aria-labelledby="empleados-tab"
+      >
         <h2>Creación de Empleados</h2>
         <EmpleadoForm />
       </div>
-      <div v-if="activeTab === 'estudiantes'">
+      <div 
+        v-if="activeTab === 'estudiantes'" 
+        role="tabpanel" 
+        id="estudiantes-panel" 
+        aria-labelledby="estudiantes-tab"
+      >
         <h2>Creación de Estudiantes</h2>
         <EstudianteForm />
       </div>
@@ -31,7 +53,6 @@
 </template>
 
 <script>
-// Asegúrate de que las rutas sean correctas según tu estructura de carpetas
 import EstudianteForm from "@/views/CreateStudent.vue";
 import EmpleadoForm from "@/views/CreateEmployee.vue";
 import utils from "../utils";
@@ -39,20 +60,19 @@ import utils from "../utils";
 export default {
   data() {
     return {
-      activeTab: 'empleados',
-      currentUserRole: null
+      currentUserRole: null,
+      activeTab: 'estudiantes' // Se asegura que la pestaña inicial sea correcta
     };
   },
   created() {
-      try {
-        this.currentUserRole = utils.getCurrentUserRole
-        // Si el role_id es 2, se fuerza la pestaña activa a 'estudiantes'
-        if (this.currentUserRole === 2) {
-          this.activeTab = 'estudiantes';
-        }
-      } catch (error) {
-        console.error("Error al decodificar el token:", error);
+    try {
+      this.currentUserRole = utils.getCurrentUserRole(); // Asegurar llamada correcta
+      if (this.currentUserRole !== 2) {
+        this.activeTab = 'empleados';
       }
+    } catch (error) {
+      console.error("Error al obtener el rol del usuario:", error);
+    }
   },
   components: {
     EstudianteForm,
@@ -60,6 +80,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .container {

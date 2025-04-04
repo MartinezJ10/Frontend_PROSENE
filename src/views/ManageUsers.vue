@@ -1,28 +1,35 @@
 <template>
-  <div class="manage-users-page">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="manage-users-page" role="main">
     <!-- Encabezado: Título y selector de centro regional -->
     <div class="page-header">
       <h1 class="page-title">Lista de Empleados</h1>
       <!-- Se agrega clase dinámica según el estado del navbar -->
-      <div :class="'filter-container'">
-        <i class="bi bi-search"></i>
-        <select v-model="selectedCentroRegional" class="filter-select">
+      <!-- role="search" identifica el filtro como área de búsqueda -->
+      <div :class="'filter-container'" role="search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <!-- aria-label describe el propósito del select -->
+        <select v-model="selectedCentroRegional" class="filter-select" aria-label="Filtrar por centro regional">
           <option value="">Todos los Centros</option>
           <option v-for="centro in centrosRegionales" :key="centro.value" :value="centro.value">
             {{ centro.label }}
           </option>
         </select>
-        <i class="bi bi-chevron-down select-icon"></i>
+        <i class="bi bi-chevron-down select-icon" aria-hidden="true"></i>
       </div>
     </div>
 
     <!-- Contenedor de tarjetas de usuarios -->
-    <div class="card-container">
+    <!-- role="region" para la lista de usuarios -->
+    <div class="card-container" role="region" aria-label="Lista de empleados">
       <div
         v-for="(user, index) in filteredUserInfo"
         :key="index"
         class="user-card"
         @click="router.push(`/detailsUser/${user.idusuario}`)"
+        role="button"
+        tabindex="0"
+        :aria-label="`Ver detalles de ${user.email}, estado: ${user.isactive ? 'Activo' : 'Inactivo'}`"
       >
         <div class="user-card-header">
           <p class="user-email"><strong>{{ user.email }}</strong></p>
@@ -51,12 +58,14 @@
     </div>
 
     <!-- Mensaje de notificación -->
+    <!-- aria-live para anunciar mensajes dinámicos -->
     <Mensaje
       v-if="showMessage"
       :mensaje="messageContent"
       :tipo="messageType"
       :visible="showMessage"
       @update:visible="showMessage = false"
+      aria-live="polite"
     />
   </div>
 </template>

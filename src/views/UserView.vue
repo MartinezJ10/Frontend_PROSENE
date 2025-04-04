@@ -1,149 +1,242 @@
 <template>
-    <header class="header-page d-flex justify-content-between align-items-center px-3">
-      <div class="d-flex align-items-center">
-        <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
-      </div>
-      <div class="d-flex justify-content-center flex-grow-1 tittle-container">
-        <h1 class="m-0">Solicitudes Académicas</h1>
-      </div>
-      <div>
-        <MensajeRetroalimentacion :mensaje="mensaje" :visible="visible" :tipo="tipo"
-          @update:visible="visible = $event" />
-      </div>
+  <!-- role="banner" define el encabezado para NVDA -->
+  <header class="header-page d-flex justify-content-between align-items-center px-3" role="banner">
+    <div class="d-flex align-items-center">
+      <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
+    </div>
+    <div class="d-flex justify-content-center flex-grow-1 tittle-container">
+      <h1 class="m-0">Solicitudes Académicas</h1>
+    </div>
+    <div>
+      <!-- aria-live para mensajes dinámicos -->
+      <MensajeRetroalimentacion 
+        :mensaje="mensaje" 
+        :visible="visible" 
+        :tipo="tipo"
+        @update:visible="visible = $event" 
+        aria-live="polite"
+      />
+    </div>
 
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary request-button" @click="showModal = true">
-          <i class="bi bi-plus-circle me-2"></i> Crear solicitud
-        </button>
-        <FormModal title="Crear Solicitud" v-model="showModal" :reusableForm="reusableFormComponent" :formProps="{
+    <div class="d-flex gap-2">
+      <button 
+        class="btn btn-primary request-button" 
+        @click="showModal = true"
+        aria-label="Crear una nueva solicitud"
+      >
+        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear solicitud
+      </button>
+      <!-- role="dialog" para el modal -->
+      <FormModal 
+        title="Crear Solicitud" 
+        v-model="showModal" 
+        :reusableForm="reusableFormComponent" 
+        :formProps="{
           fields: createRequestFields,
           submitButtonText: 'Crear Solicitud',
           onSubmit: handleRequestCreationSubmit,
           modalClass: 'modal-style-dos'
-        }" />
-        <button class="btn btn-light border notification-button" @click="toggleNotificationPanel">
-          <i class="bi bi-bell"></i>
-        </button>
-        <button class="btn btn-light me-2 border" @click="toggleTheme">
-          <i class="bi bi-nintendo-switch"></i> Cambiar Tema
-        </button>
-        <NotificationPanel :isAdmin="false" :url="notificationStudentURL" v-if="isNotificationPanelVisible"
-          @close="toggleNotificationPanel" />
-        <button class="btn btn-danger d-flex align-items-center logout-button" @click="handleExit">
-          <i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión
-        </button>
-      </div>
-      <div class="mobile-dropdown dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="mobileMenu" data-bs-toggle="dropdown">
-          Menú
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="#" @click="showModal = true">Crear solicitud</a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" @click="toggleNotificationPanel">Notificaciones</a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" @click="handleExit">Cerrar sesión</a>
-          </li>
-        </ul>
-      </div>
-    </header>
+        }" 
+        role="dialog"
+        aria-label="Modal para crear solicitud"
+      />
+      <button 
+        class="btn btn-light border notification-button" 
+        @click="toggleNotificationPanel"
+        :aria-expanded="isNotificationPanelVisible ? 'true' : 'false'"
+        aria-controls="notification-panel"
+        aria-label="Abrir panel de notificaciones"
+      >
+        <i class="bi bi-bell" aria-hidden="true"></i>
+      </button>
+      <button 
+        class="btn btn-light me-2 border theme-button" 
+        @click="toggleTheme"
+        aria-label="Cambiar tema de contraste"
+      >
+        <i class="bi bi-brightness-high" aria-hidden="true"></i> <span>Cambiar Tema</span>
+      </button>
+      <!-- role="dialog" para el panel de notificaciones -->
+      <NotificationPanel 
+        :isAdmin="false" 
+        :url="notificationStudentURL" 
+        v-if="isNotificationPanelVisible"
+        @close="toggleNotificationPanel" 
+        id="notification-panel"
+        role="dialog"
+        aria-label="Panel de notificaciones"
+      />
+      <button 
+        class="btn btn-danger d-flex align-items-center logout-button" 
+        @click="handleExit"
+        aria-label="Cerrar sesión"
+      >
+        <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar sesión
+      </button>
+    </div>
+    <!-- role="navigation" para el menú móvil -->
+    <div class="mobile-dropdown dropdown" role="navigation" aria-label="Menú móvil">
+      <button 
+        class="btn btn-primary dropdown-toggle" 
+        type="button" 
+        id="mobileMenu" 
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="Abrir menú móvil"
+      >
+        Menú
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="mobileMenu">
+        <li>
+          <a 
+            class="dropdown-item" 
+            href="#" 
+            @click.prevent="showModal = true"
+            aria-label="Crear solicitud desde menú móvil"
+          >
+            Crear solicitud
+          </a>
+        </li>
+        <li>
+          <a 
+            class="dropdown-item" 
+            href="#" 
+            @click.prevent="toggleNotificationPanel"
+            aria-label="Ver notificaciones desde menú móvil"
+          >
+            Notificaciones
+          </a>
+        </li>
+        <li>
+          <a 
+            class="dropdown-item" 
+            href="#" 
+            @click.prevent="handleExit"
+            aria-label="Cerrar sesión desde menú móvil"
+          >
+            Cerrar sesión
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
 
-    <main class="container-fluid">
-      <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
-      <div class="dashboard-container p-4">
-
-        <!-- Filtros mejorados -->
-        <div class="filters mb-4 row g-3 align-items-end">
-          <!-- Filtro por fecha -->
-          <div class="col-md-4">
-            <label for="dateFilter" class="form-label">Fecha</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-calendar-date"></i>
-              </span>
-              <input type="date" id="dateFilter" class="form-control" v-model="searchDate" @input="filterRequests" />
-            </div>
-          </div>
-
-          <!-- Filtro por estado -->
-          <div class="col-md-4">
-            <label for="estadoFilter" class="form-label">Estado</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-filter"></i>
-              </span>
-              <select id="estadoFilter" class="form-select" v-model="searchEstado" @change="filterRequests">
-                <option value="">Todos los estados</option>
-                <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
-                  {{ estado.descripcion }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Botón para limpiar filtros (opcional) -->
-          <div class="col-md-4">
-            <button type="button" class="btn-limpiar btn btn-secondary w-100 " @click="resetFilters">
-              Limpiar filtros
-            </button>
+  <!-- role="main" define el contenido principal -->
+  <main class="container-fluid" role="main">
+    <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
+    <div class="dashboard-container p-4">
+      <!-- role="search" para los filtros -->
+      <div class="filters mb-4 row g-3 align-items-end" role="search" aria-label="Filtros de solicitudes">
+        <!-- Filtro por fecha -->
+        <div class="col-md-4">
+          <label for="dateFilter" class="form-label">Fecha</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-calendar-date" aria-hidden="true"></i>
+            </span>
+            <input 
+              type="date" 
+              id="dateFilter" 
+              class="form-control" 
+              v-model="searchDate" 
+              @input="filterRequests"
+              aria-label="Filtrar por fecha"
+            />
           </div>
         </div>
 
-        <!-- Si existen solicitudes, se itera sobre ellas -->
-        <div v-if="filteredRequests.length > 0">
-          <ul class="list-group">
-            <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
-              <div class="request-card p-3">
-                <div class="row align-items-center card-text">
-                  <!-- Columna ID -->
-                  <div class="col-12 col-md-2">
-                    <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
-                  </div>
+        <!-- Filtro por estado -->
+        <div class="col-md-4">
+          <label for="estadoFilter" class="form-label">Estado</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-filter" aria-hidden="true"></i>
+            </span>
+            <select 
+              id="estadoFilter" 
+              class="form-select" 
+              v-model="searchEstado" 
+              @change="filterRequests"
+              aria-label="Filtrar por estado"
+            >
+              <option value="">Todos los estados</option>
+              <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
+                {{ estado.descripcion }}
+              </option>
+            </select>
+          </div>
+        </div>
 
-                  <!-- Columna Tipo -->
-                  <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
+        <!-- Botón para limpiar filtros -->
+        <div class="col-md-4">
+          <button 
+            type="button" 
+            class="btn-limpiar btn btn-secondary w-100" 
+            @click="resetFilters"
+            aria-label="Limpiar todos los filtros"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de solicitudes -->
+      <div v-if="filteredRequests.length > 0" role="region" aria-label="Lista de solicitudes">
+        <ul class="list-group">
+          <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
+            <div class="request-card p-3">
+              <div class="row align-items-center card-text">
+                <div class="col-12 col-md-2">
+                  <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
+                </div>
+                <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
+                  <p class="mb-0 text-muted">
+                    {{ request.tiposolicitud.descripcion }}
+                  </p>
+                </div>
+                <div class="col-12 col-md-4 mt-2 mt-md-0">
+                  <div class="text-md-end">
                     <p class="mb-0 text-muted">
-                      {{ request.tiposolicitud.descripcion }}
+                      <strong>Fecha de creación:</strong> {{ formatDate(request.fechacreacion) }}
                     </p>
                   </div>
-
-                  <!-- Columna Derecha: Fecha + Botones -->
-                  <div class="col-12 col-md-4 mt-2 mt-md-0">
-                    <!-- Fecha alineada a la derecha -->
-                    <div class="text-md-end">
-                      <p class="mb-0 text-muted">
-                        <strong>Fecha de creación:</strong> {{ formatDate(request.fechacreacion) }}
-                      </p>
-                    </div>
-
-                    <!-- Contenedor de botones debajo de la fecha -->
-                    <div class="d-flex justify-content-end gap-2 mt-2">
-                      <button class="btn btn-outline-dark btn-sm border btn-detalles" @click="openDetailsModal(request.descripcion)">
-                        Detalles
-                      </button>
-                      <span class="badge badge-status" :class="getStatusClass(request.estadosolicitud.descripcion)">
-                        {{ request.estadosolicitud.descripcion }}
-                      </span>
-                    </div>
+                  <div class="d-flex justify-content-end gap-2 mt-2">
+                    <button 
+                      class="btn btn-outline-dark btn-sm border btn-detalles" 
+                      @click="openDetailsModal(request.descripcion)"
+                      :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
+                    >
+                      Detalles
+                    </button>
+                    <span 
+                      class="badge badge-status" 
+                      :class="getStatusClass(request.estadosolicitud.descripcion)"
+                    >
+                      {{ request.estadosolicitud.descripcion }}
+                    </span>
                   </div>
                 </div>
               </div>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Si no hay solicitudes, se muestra un mensaje -->
-        <div v-else class="no-requests">
-          No hay solicitudes registradas.
-        </div>
+            </div>
+          </li>
+        </ul>
       </div>
-      <!-- Modal reutilizable para mostrar detalles de la solicitud -->
-      <ReusableModal :show="showDetailsModal" title="Detalles de la Solicitud" :message="currentRequestDescription"
-        @close="showDetailsModal = false" />
-    </main>
+
+      <!-- Mensaje de no solicitudes -->
+      <div v-else class="no-requests">
+        No hay solicitudes registradas.
+      </div>
+    </div>
+    <!-- role="dialog" para el modal de detalles -->
+    <ReusableModal 
+      :show="showDetailsModal" 
+      title="Detalles de la Solicitud" 
+      :message="currentRequestDescription"
+      @close="showDetailsModal = false" 
+      role="dialog"
+      aria-label="Modal de detalles de la solicitud"
+    />
+  </main>
 </template>
 
 <script>
@@ -189,9 +282,7 @@ export default {
     const isHighContrast = inject('isHighContrast');
     const toggleTheme = inject('toggleTheme');
 
-    // Compute the theme class for this view
     const themeClass = computed(() => (isHighContrast.value ? 'high-contrast' : ''));
-
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -231,7 +322,7 @@ export default {
         });
         requests.value = response.data;
       } catch (err) {
-        utils.utils.errorLog(err);
+        utils.errorLog(err);
       }
     };
 
@@ -240,7 +331,7 @@ export default {
         const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        estados.value = response.data; // Store estados
+        estados.value = response.data;
       } catch (err) {
         console.error("Failed to retrieve estados:", err.message);
       }
@@ -338,7 +429,6 @@ export default {
       // Trigger computed property
     };
 
-    // Método para limpiar los filtros
     const resetFilters = () => {
       searchDate.value = "";
       searchEstado.value = "";
@@ -352,7 +442,6 @@ export default {
       const year = d.getFullYear();
       return `${day}/${month}/${year}`;
     };
-
 
     onMounted(async () => {
       checkScreenSize();
@@ -425,7 +514,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  margin: 0;
   overflow: hidden;
 }
 
@@ -448,7 +536,7 @@ body {
   letter-spacing: 1px;
   text-shadow: 2px 2px 4px var(--text-shadow-color);
   margin: 0;
-  color: var(--header-text-color)
+  color: var(--header-text-color);
 }
 
 .request-button {
@@ -463,6 +551,7 @@ body {
 
 main {
   flex-grow: 1;
+  overflow: hidden; /* Evita el scroll en el main */
   padding: 30px;
   background-color: var(--background-color);
   background-image: url("@/assets/fondo-unah4.png");
@@ -479,9 +568,10 @@ main {
   box-shadow: 0 2px 5px var(--text-shadow-color);
   padding: 20px;
   margin: 10px;
-  height: calc(100vh - 200px);
-  overflow-y: auto;
+  height: 410px; /* Altura fija */
+  overflow-y: auto; /* Scroll vertical interno */
 }
+
 
 .dashboard-title {
   font-size: 1.5em;
@@ -491,7 +581,6 @@ main {
 }
 
 /* --- Ajustes para la lista y la "tarjeta" de solicitud --- */
-
 .list-group-item {
   border: none;
   padding: 0;
@@ -507,26 +596,27 @@ main {
   position: relative;
 }
 
-.card-text p{
+.card-text p {
   font-size: 1.1rem !important;
   color: var(--text-color) !important;
 }
 
-.request-card p{
+.request-card p {
   color: var(--text-color);
 }
 
 .request-card h5 {
   font-size: 1.25rem;
   color: var(--text-color);
-
   text-align: left;
 }
 
-.btn-detalles,.btn-limpiar {
+.btn-detalles, .btn-limpiar {
   color: var(--primary-color);
   background-color: var(--brat) !important;
+  --bs-btn-hover-color: var(--primary-color);
 }
+
 /* --- Badge (estado) --- */
 .badge-status {
   font-size: 0.9rem;
@@ -582,15 +672,17 @@ main {
 /* --- Mensaje de "no hay solicitudes" --- */
 .no-requests {
   font-size: 1.5rem;
-  /* Texto más grande */
   text-align: center;
   margin-top: 2rem;
-  /* Separación desde el bloque de filtros */
 }
 
 /* --- Responsivo --- */
 @media (max-width: 576px) {
   .header h1 {
+    display: none;
+  }
+
+  .theme-button span {
     display: none;
   }
 
@@ -631,11 +723,16 @@ main {
     padding: 10px;
   }
 
+  .theme-button span {
+    display: none;
+  }
+
   .tittle-container h1 {
     font-size: 1.5em;
     flex-basis: 100%;
     text-align: center;
     margin: 10px 0;
+    display: none;
   }
 
   .logo {
@@ -659,7 +756,7 @@ main {
   }
 
   main {
-    height: 87vh;
+    height: 86vh;
   }
 
   .text-md-end {
@@ -670,6 +767,9 @@ main {
     justify-content: flex-start !important;
   }
 
+  .theme-button span{
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {

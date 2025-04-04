@@ -1,17 +1,23 @@
 <template>
-  <div class="create-employee-page">
+  <!-- role="main" define el contenido principal para NVDA -->
+  <div class="create-employee-page" role="main">
+    <!-- role="form" identifica el formulario para NVDA -->
     <ReusableForm
       :fields="employeeFields"
       submitButtonText="Crear Empleado"
       :onSubmit="handleCreateEmployee"
+      role="form"
+      aria-label="Formulario de creación de empleado"
     />
 
+    <!-- aria-live para anunciar mensajes dinámicos -->
     <Mensaje
       v-if="showMessage"
       :mensaje="messageContent"
       :tipo="messageType"
       :visible="showMessage"
       @update:visible="showMessage = false"
+      aria-live="polite"
     />
   </div>
 </template>
