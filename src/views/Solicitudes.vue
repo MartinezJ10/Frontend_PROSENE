@@ -213,7 +213,7 @@
 
 <script>
 import axios from "axios";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import Mensaje from "../components/Mensaje.vue";
 import ReusableForm from "../components/ReusableForm.vue";
@@ -241,6 +241,8 @@ export default {
     const tiposSolicitud = ref([]);
     const centros = ref([]);
 
+    const requestURL = inject("requestURL");
+
     // Mostrar/ocultar filtros
     const showFilters = ref(false);
     const toggleFilters = () => {
@@ -262,7 +264,7 @@ export default {
     // Traer datos del backend
     const retrieveSolicitudes = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
+        const response = await axios.get(`${requestURL}/api/v1/solicitudes/all`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         solicitudes.value = response.data.map((solicitud) => ({
@@ -283,7 +285,7 @@ export default {
 
     const retrieveCentros = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/centros`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         centros.value = response.data;
@@ -294,7 +296,7 @@ export default {
 
     const retrieveEstados = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/estados`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         estados.value = response.data;
@@ -305,7 +307,7 @@ export default {
 
     const retrieveTipos = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/tipos", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         tiposSolicitud.value = response.data;

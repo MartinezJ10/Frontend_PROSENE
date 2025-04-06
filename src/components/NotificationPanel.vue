@@ -72,7 +72,8 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, inject } from "vue";
+
 
 // Directiva personalizada para detectar clics fuera del elemento.
 // Se utiliza setTimeout para retrasar la adición del listener y evitar que el clic que abre el panel lo cierre inmediatamente.
@@ -104,7 +105,7 @@ export default {
   emits: ["close"],
   setup(props, { emit }) {
     const notifications = ref([]);
-
+    const requestURL = inject("requestURL");
     const closePanel = () => emit("close");
 
     const formatDate = (dateString) => {
@@ -134,7 +135,7 @@ export default {
     const markAsRead = async (id) => {
       try {
         await axios.put(
-          `http://localhost:8000/api/v1/notificaciones/${id}`,
+          `${requestURL}/api/v1/notificaciones/${id}`,
           {},
           {
             headers: {
@@ -154,7 +155,7 @@ export default {
     const deleteNotification = async (id) => {
       try {
         await axios.delete(
-          `http://localhost:8000/api/v1/notificaciones/delete/${id}`,
+          `${requestURL}/api/v1/notificaciones/delete/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("jwt")}`
@@ -169,8 +170,7 @@ export default {
       }
     };
 
-    onMounted(retrieveNotifications);
-
+    onMounted(retrieveNotifications);    
     const sortedNotifications = computed(() =>
       notifications.value.slice().sort(
         (a, b) =>

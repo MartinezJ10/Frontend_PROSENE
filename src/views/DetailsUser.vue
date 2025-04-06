@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { onMounted, ref, watch, computed } from 'vue';
+import { onMounted, ref, watch, computed, inject } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import FormModal from '../components/FormModal.vue';
@@ -99,7 +99,7 @@ export default {
     const showMessage = ref(false);
     const messageContent = ref('');
     const messageType = ref('');
-
+    const requestURL = inject('requestURL');
     const userFound = ref({});
     const updateUsersFields = ref([]);
     const reusableFormComponent = ReusableForm;
@@ -117,7 +117,7 @@ export default {
     const getSingleUserDetails = async (userId) => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/v1/users/get/${userId}`,
+          `${requestURL}/api/v1/users/get/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('jwt')}`,
@@ -151,7 +151,7 @@ export default {
     const deleteSingleUser = async () => {
       try {
         const response = await axios.put(
-          `http://localhost:8000/api/v1/users/delete/?email=${userFound.value.email}`,
+          `${requestURL}/api/v1/users/delete/?email=${userFound.value.email}`,
           null,
           {
             headers: {
@@ -178,7 +178,7 @@ export default {
     const retrieveCentrosRegionales = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:8000/api/v1/varios/centros',
+          `${requestURL}/api/v1/varios/centros`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('jwt')}`,
@@ -198,7 +198,7 @@ export default {
     const updateSingleUser = async (formData) => {
       try {
         const response = await axios.put(
-          `http://localhost:8000/api/v1/users/update/?email=${userFound.value.email}`,
+          `${requestURL}/api/v1/users/update/?email=${userFound.value.email}`,
           {
             email: formData.email,
             role_id: formData.rol,

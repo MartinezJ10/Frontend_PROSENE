@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import ReusableForm from '@/components/ReusableForm.vue';
@@ -35,6 +35,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const token = ref(null);
+    const requestURL = inject("requestURL")
 
     const fields = ref([
       { 
@@ -80,7 +81,7 @@ export default {
       }
       
       try {
-        await axios.post(`http://localhost:8000/api/v1/users/password/${token.value}`, {
+        await axios.post(`${requestURL}/api/v1/users/password/${token.value}`, {
           email: 'example@gmail.com',
           password: formData.newPassword
         });

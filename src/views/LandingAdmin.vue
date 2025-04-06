@@ -71,7 +71,7 @@
 
 <script>
 import NotificationPanel from '@/components/NotificationPanel.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import utils from '../utils';
 
@@ -83,8 +83,9 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const requestURL = inject("requestURL")
     const isNotificationPanelVisible = ref(false);
-    const notificationAdminUrl = "http://localhost:8000/api/v1/notificaciones/admin/";
+    const notificationAdminUrl = `${requestURL}/api/v1/notificaciones/admin/`;
 
     const currentUserRole = utils.getCurrentUserRole(); // Variable para almacenar el rol del usuario
 

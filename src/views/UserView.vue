@@ -276,7 +276,9 @@ export default {
     const searchDate = ref("");
     const searchEstado = ref("");
     const estados = ref([]);
-    const notificationStudentURL = "http://localhost:8000/api/v1/notificaciones/";
+
+    const requestURL = inject("requestURL");
+    const notificationStudentURL = `${requestURL}/api/v1/notificaciones/`;
     const usertID = ref(utils.getCurrentUserID());
 
     const isHighContrast = inject('isHighContrast');
@@ -303,7 +305,7 @@ export default {
 
     const retrieveTipoSolicitudes = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/tipos", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         tipoSolicitudes.value = response.data.map((tipoSolicitud) => ({
@@ -317,7 +319,7 @@ export default {
 
     const retrieveRequests = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/solicitudes/", {
+        const response = await axios.get(`${requestURL}/api/v1/solicitudes/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         requests.value = response.data;
@@ -328,7 +330,7 @@ export default {
 
     const retrieveEstados = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/estados`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         estados.value = response.data;
@@ -340,7 +342,7 @@ export default {
     const handleRequestCreationSubmit = async (formData) => {
       try {
         await axios.post(
-          "http://localhost:8000/api/v1/solicitudes/nueva",
+          `${requestURL}/api/v1/solicitudes/nueva`,
           {
             idusuariosolicitante: usertID.value,
             idresponsablesolicitud: 3,

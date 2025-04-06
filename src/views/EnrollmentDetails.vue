@@ -168,7 +168,7 @@
   
   <script>
   import axios from 'axios';
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, inject } from 'vue';
   import { useRoute } from 'vue-router';
   
   export default {
@@ -177,11 +177,12 @@
       const enrollments = ref(null);
       const noEnrollment = ref(false); // Track if no enrollment is found
       const route = useRoute();
+      const requestURL = inject("requestURL")
   
       const getEnrollments = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8000/api/v1/form/full/${route.params.idusuario}`
+            `${requestURL}/api/v1/form/full/${route.params.idusuario}`
           );
   
           // Check if the response indicates no enrollment was found

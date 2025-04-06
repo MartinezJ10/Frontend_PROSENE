@@ -140,7 +140,7 @@
   </template>
   
   <script>
-  import { onMounted, ref, computed } from 'vue';
+  import { onMounted, ref, computed, inject } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
   import Mensaje from '../components/Mensaje.vue';
@@ -167,6 +167,7 @@
       const reusableFormComponent = ReusableForm;
   
       const solicitud_id = parseInt(route.params.id, 10);
+      const requestURL = inject("requestURL")
   
       const asignToEmployeeFields = ref([]);
       const allEmployees = ref([]);
@@ -180,7 +181,7 @@
       const getSolicitudDetails = async (solicitud_id) => {
         try {
           const response = await axios.get(
-            `http://localhost:8000/api/v1/solicitudes/get/${solicitud_id}`,
+            `${requestURL}/api/v1/solicitudes/get/${solicitud_id}`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem("jwt")}`
@@ -210,7 +211,7 @@
             };
   
             await axios.put(
-              'http://localhost:8000/api/v1/solicitudes/atender',
+              `${requestURL}/api/v1/solicitudes/atender`,
               payloadData,
               {
                 headers: {
@@ -244,7 +245,7 @@
             };
   
             await axios.put(
-              'http://localhost:8000/api/v1/solicitudes/atender',
+              `${requestURL}/api/v1/solicitudes/atender`,
               payloadData,
               {
                 headers: {
@@ -278,7 +279,7 @@
             };
   
             await axios.put(
-              'http://localhost:8000/api/v1/solicitudes/atender',
+              `${requestURL}/api/v1/solicitudes/atender`,
               payloadData,
               {
                 headers: {
@@ -312,7 +313,7 @@
             };
   
             await axios.put(
-              'http://localhost:8000/api/v1/solicitudes/atender',
+              `${requestURL}/api/v1/solicitudes/atender`,
               payloadData,
               {
                 headers: {
@@ -339,7 +340,7 @@
           if (solicitud_estado.value === 1) {
             // Primero la pasamos a "En proceso" si estaba en "Recibida"
             await axios.put(
-              'http://localhost:8000/api/v1/solicitudes/atender',
+              `${requestURL}/api/v1/solicitudes/atender`,
               {
                 idsolicitud: solicitud_id,
                 idresponsablesolicitud: formData.idresponsablesolicitud,
@@ -354,7 +355,7 @@
           }
           // Luego se asigna la solicitud
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/asignar',
+            `${requestURL}/api/v1/solicitudes/asignar`,
             {
               idsolicitud: solicitud_id,
               idresponsablesolicitud: formData.idresponsablesolicitud,
@@ -382,7 +383,7 @@
   
       const retrieveEmployees = async () => {
         try {
-          const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+          const response = await axios.get(`${requestURL}/api/v1/users/all`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("jwt")}`
             }
