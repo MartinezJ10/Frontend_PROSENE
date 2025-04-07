@@ -12,6 +12,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const app = createApp(App);
 
+// Set the backend URL as a global property
+app.provide('requestURL', 'http://localhost:8000')
+
 app.use(router);
 app.use(plugin, defaultConfig(config))
 app.mount("#app");

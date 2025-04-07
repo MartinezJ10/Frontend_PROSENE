@@ -502,7 +502,7 @@ export default {
 };
 </script>
 
-<style>
+<style >
 /* Contenedor principal */
 .relative-container {
   position: relative;

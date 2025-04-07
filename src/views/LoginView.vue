@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import FormModal from '@/components/FormModal.vue';
@@ -124,6 +124,7 @@ export default {
     const tipo = ref('');
     const errorsLogin = ref('');
     const showPassword = ref(false);
+    const requestURL = inject("requestURL")
 
     const images = [new URL('@/assets/fondo-unah1.jpg', import.meta.url).href];
     const loginForm = ref({ email: '', password: '' });
@@ -138,7 +139,7 @@ export default {
 
     const handleLoginSubmit = async () => {
       try {
-        const response = await axios.post("http://localhost:8000/api/v1/auth/login", loginForm.value);
+        const response = await axios.post(`${requestURL}/api/v1/auth/login`, loginForm.value);
         localStorage.setItem("jwt", response.data.token);
         
         const role_id = utils.getCurrentUserRole();
@@ -157,7 +158,7 @@ export default {
     
     const handleSendEmail = async (formData) => {
       try {
-        await axios.post("http://localhost:8000/api/v1/users/requestreset", { emailAddress: formData.email });
+        await axios.post(`${requestURL}/api/v1/users/requestreset`, { emailAddress: formData.email });
         showModal.value = false;
         mostrarExito();
       } catch (err) {

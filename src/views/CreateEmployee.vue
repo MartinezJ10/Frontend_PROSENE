@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import axios from 'axios';
 import ReusableForm from '../components/ReusableForm2.vue';
 import Mensaje from '../components/Mensaje.vue';
@@ -34,11 +34,13 @@ const messageContent = ref('');
 const messageType = ref('');
 const centrosRegionales = ref([]);
 const roles = ref([]);
+const requestURL = inject("requestURL")
+
 
 const retrieveCentrosRegionales = async () => {
   try {
     const response = await axios.get(
-      'http://localhost:8000/api/v1/varios/centros',
+      `${requestURL}/api/v1/varios/centros`,
       { headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` } }
     );
     centrosRegionales.value = response.data.map(centro => ({
@@ -53,7 +55,7 @@ const retrieveCentrosRegionales = async () => {
 const retrieveRoles = async () => {
   try {
     const response = await axios.get(
-      'http://localhost:8000/api/v1/varios/roles',
+      `${requestURL}/api/v1/varios/roles`,
       { headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` } }
     );
     roles.value = response.data
@@ -91,14 +93,14 @@ onMounted(async () => {
 const handleCreateEmployee = async (formData) => {
   try {
     const userResponse = await axios.post(
-      'http://localhost:8000/api/v1/users/create',
+      `${requestURL}/api/v1/users/create`,
       { email: formData.email, password: formData.password, role_id: 2, idcentroregional: formData.centroregional },
       { headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` } }
     );
     const createdUserId = userResponse.data.idusuario;
 
     await axios.post(
-      'http://localhost:8000/api/v1/users/detalles_personales',
+      `${requestURL}/api/v1/users/detalles_personales`,
       {
         idusuario: createdUserId,
         primernombre: formData.primernombre,

@@ -126,21 +126,11 @@
         aria-label="Modal para asignar solicitud a empleado"
       />
     </div>
-
-    <!-- Mensajes dinámicos -->
-    <Mensaje 
-      v-if="showMessage" 
-      :mensaje="messageContent" 
-      :tipo="messageType" 
-      :visible="showMessage"
-      @update:visible="showMessage = false" 
-      aria-live="polite" 
-    />
   </div>
 </template>
 
 <script>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, inject } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import Mensaje from '../components/Mensaje.vue';
@@ -167,6 +157,7 @@ export default {
     const reusableFormComponent = ReusableForm;
 
     const solicitud_id = parseInt(route.params.id, 10);
+    const requestURL = inject("requestURL");
 
     const asignToEmployeeFields = ref([]);
     const allEmployees = ref([]);
@@ -175,15 +166,15 @@ export default {
     const isResponsible = computed(() => {
       return solicitud.value?.responsablesolicitud?.idusuario === currentUserId;
     });
-    
 
     const getSolicitudDetails = async (solicitud_id) => {
       try {
+        const token = localStorage.getItem("jwt");
         const response = await axios.get(
-          `http://localhost:8000/api/v1/solicitudes/get/${solicitud_id}`,
+          `${requestURL}/api/v1/solicitudes/get/${solicitud_id}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+              'Authorization': `Bearer ${token}`
             }
           }
         );
@@ -210,7 +201,7 @@ export default {
           };
 
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/atender',
+            `${requestURL}/api/v1/solicitudes/atender`,
             payloadData,
             {
               headers: {
@@ -221,18 +212,16 @@ export default {
           messageContent.value = 'Solicitud asignada con éxito';
           messageType.value = 'exito';
           showMessage.value = true;
-
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
         messageContent.value = 'Error al asignar la solicitud';
         messageType.value = 'error';
         showMessage.value = true;
-        console.error("ERROR ASSIGNING SOLICITUD:", err.message);
+        await getSolicitudDetails(solicitud_id);
       }
     };
 
-    // Método para rechazar la solicitud (estado 5)
     const rejectSolicitud = async () => {
       try {
         const token = localStorage.getItem("jwt");
@@ -244,7 +233,7 @@ export default {
           };
 
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/atender',
+            `${requestURL}/api/v1/solicitudes/atender`,
             payloadData,
             {
               headers: {
@@ -255,7 +244,6 @@ export default {
           messageContent.value = 'Solicitud rechazada con éxito';
           messageType.value = 'exito';
           showMessage.value = true;
-
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
@@ -266,7 +254,6 @@ export default {
       }
     };
 
-    // Método para finalizar la solicitud (estado 3)
     const finalizeSolicitud = async () => {
       try {
         const token = localStorage.getItem("jwt");
@@ -278,7 +265,7 @@ export default {
           };
 
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/atender',
+            `${requestURL}/api/v1/solicitudes/atender`,
             payloadData,
             {
               headers: {
@@ -289,7 +276,6 @@ export default {
           messageContent.value = 'Solicitud finalizada con éxito';
           messageType.value = 'exito';
           showMessage.value = true;
-
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
@@ -300,7 +286,6 @@ export default {
       }
     };
 
-    // Método para cancelar la solicitud (estado 4)
     const cancelSolicitud = async () => {
       try {
         const token = localStorage.getItem("jwt");
@@ -312,7 +297,7 @@ export default {
           };
 
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/atender',
+            `${requestURL}/api/v1/solicitudes/atender`,
             payloadData,
             {
               headers: {
@@ -323,7 +308,6 @@ export default {
           messageContent.value = 'Solicitud cancelada con éxito';
           messageType.value = 'exito';
           showMessage.value = true;
-
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
@@ -336,10 +320,11 @@ export default {
 
     const asignToEmployee = async (formData) => {
       try {
+        const token = localStorage.getItem("jwt");
         if (solicitud_estado.value === 1) {
-          // Primero la pasamos a "En proceso" si estaba en "Recibida"
+          // Primero se pasa a "En proceso" si estaba en "Recibida"
           await axios.put(
-            'http://localhost:8000/api/v1/solicitudes/atender',
+            `${requestURL}/api/v1/solicitudes/atender`,
             {
               idsolicitud: solicitud_id,
               idresponsablesolicitud: formData.idresponsablesolicitud,
@@ -347,44 +332,36 @@ export default {
             },
             {
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                'Authorization': `Bearer ${token}`
               }
             }
           );
         }
         // Luego se asigna la solicitud
         await axios.put(
-          'http://localhost:8000/api/v1/solicitudes/asignar',
+          `${requestURL}/api/v1/solicitudes/asignar`,
           {
             idsolicitud: solicitud_id,
             idresponsablesolicitud: formData.idresponsablesolicitud,
+            idestadosolicitud: 2
           },
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+              'Authorization': `Bearer ${token}`
             }
           }
         );
-
-        messageContent.value = 'Solicitud asignada con éxito';
-        messageType.value = 'exito';
-        showMessage.value = true;
-        showModal.value = false;
-
-        await getSolicitudDetails(solicitud_id);
       } catch (err) {
-        messageContent.value = 'Error al asignar la solicitud';
-        messageType.value = 'error';
-        showMessage.value = true;
-        console.error("ERROR ASSIGNING SOLICITUD:", err.message);
+        console.error("ERROR ASIGNING EMPLOYEE:", err.message);
       }
     };
 
     const retrieveEmployees = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+        const token = localStorage.getItem("jwt");
+        const response = await axios.get(`${requestURL}/api/v1/users/all`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`
+            Authorization: `Bearer ${token}`
           }
         });
         // Filtra solo usuarios con rol = 2
@@ -408,7 +385,7 @@ export default {
           label: 'Empleado',
           type: 'select',
           options: allEmployees.value,
-        },
+        }
       ];
     });
 

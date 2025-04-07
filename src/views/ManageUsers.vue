@@ -73,7 +73,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, inject } from "vue";
 import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 
@@ -91,6 +91,8 @@ export default {
     const centrosRegionales = ref([]);
     const selectedCentroRegional = ref("");
 
+    const requestURL = inject("requestURL");
+
     const errorLog = async (err) => {
       console.error("ERROR IN REQUEST:", {
         message: err.message,
@@ -102,7 +104,7 @@ export default {
 
     const retrieveUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+        const response = await axios.get(`${requestURL}/api/v1/users/all`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("jwt")}`
           }
@@ -115,7 +117,7 @@ export default {
 
     const retrieveCentrosRegionales = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/centros`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("jwt")}`
           }

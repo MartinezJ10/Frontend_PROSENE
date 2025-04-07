@@ -55,7 +55,7 @@ import StepUsuario from '../components/StepUsuario.vue';
 import Mensaje from '../components/Mensaje.vue';
 
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, inject } from 'vue';
 import utils from '../utils';
 
 export default {
@@ -74,6 +74,7 @@ export default {
     setup() {
         const formularioId = ref();
         const userID = ref('');
+        const requestURL = inject("requestURL")
 
         const formData = ref({
             usuario: {},
@@ -148,7 +149,7 @@ export default {
             try {
 
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/users/create`,
+                    `${requestURL}/api/v1/users/create`,
                     {
                         email: formData.value.usuario.email,
                         password: formData.value.usuario.password,
@@ -180,7 +181,7 @@ export default {
             try {
 
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/users/detalles_personales`,
+                    `${requestURL}/api/v1/users/detalles_personales`,
                     {
                         idusuario: userID.value,
                         numeroidentidad: formData.value.usuario.numeroidentidad,
@@ -225,7 +226,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/inscripcion`,
+                    `${requestURL}/api/v1/form/inscripcion`,
                     {
                         ...formulario,
                         idusuario: userID.value
@@ -258,7 +259,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/caracteristicas`,
+                    `${requestURL}/api/v1/form/caracteristicas`,
                     {
                         idformulario: formulario_id,
                         ...educacion
@@ -284,7 +285,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/comunicacion`,
+                    `${requestURL}/api/v1/form/comunicacion`,
                     {
                         idformulario: formulario_id,
                         ...comunicacion
@@ -310,7 +311,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/deficiencia`,
+                    `${requestURL}/api/v1/form/deficiencia`,
                     {
                         idformulario: formulario_id,
                         ...deficiencia
@@ -336,7 +337,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/discapacidad`,
+                    `${requestURL}/api/v1/form/discapacidad`,
                     {
                         idformulario: formulario_id,
                         ...discapacidad
@@ -362,7 +363,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/movilizacion`,
+                    `${requestURL}/api/v1/form/movilizacion`,
                     {
                         idformulario: formulario_id,
                         ...movilizacion
@@ -388,7 +389,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/api/v1/form/servicio`,
+                    `${requestURL}/api/v1/form/servicio`,
                     {
                         idformulario: formulario_id,
                         ...servicio

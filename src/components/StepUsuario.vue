@@ -129,10 +129,12 @@
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted } from 'vue';
+import { defineProps, ref, onMounted, inject } from 'vue';
 import axios from 'axios';
 
 const centrosRegionales = ref([]);
+const requestURL = inject("requestURL")
+
 
 defineProps({
     formData: {
@@ -144,7 +146,7 @@ defineProps({
 const retrieveCentrosRegionales = async () => {
     try {
         const response = await axios.get(
-            'http://localhost:8000/api/v1/varios/centros',
+            `${requestURL}/api/v1/varios/centros`,
             { headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` } }
         );
         centrosRegionales.value = response.data.map(centro => ({

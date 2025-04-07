@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted } from 'vue';
+import { ref, defineProps, onMounted, inject } from 'vue';
 import axios from 'axios';
 
 const estadoCivil = ref([
@@ -85,13 +85,13 @@ const estadoCivil = ref([
 const nacionalidades = ref([]);
 const condicionesMedicas = ref([]);
 const userInfo = ref([]);
-
+const requestURL = inject("requestURL")
 
 const retrieveUsers = async () => {
 
   try {
     const response = await axios.get(
-      "http://localhost:8000/api/v1/users/all",
+      `${requestURL}/api/v1/users/all`,
       {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("jwt")}`
@@ -115,7 +115,7 @@ const retrieveUsers = async () => {
 const setNacionalidadesOptions = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:8000/api/v1/varios/nacionalidades`,
+      `${requestURL}/api/v1/varios/nacionalidades`,
       {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("jwt")}`
@@ -138,7 +138,7 @@ const setNacionalidadesOptions = async () => {
 const setCondicionesMedicas = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:8000/api/v1/varios/condiciones`,
+      `${requestURL}/api/v1/varios/condiciones`,
       {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("jwt")}`

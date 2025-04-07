@@ -111,7 +111,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed, onBeforeUnmount } from "vue";
+import { onMounted, ref, computed, inject } from "vue";
 import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 
@@ -129,6 +129,8 @@ export default {
     
     // Mantenemos esta referencia para ajustar el pageSize, pero eliminamos su uso para la visualización
     const isMobileView = ref(window.innerWidth < 768);
+
+    const requestURL = inject("requestURL");
 
     // Variables de paginación
     const currentPage = ref(1);
@@ -163,7 +165,7 @@ export default {
 
     const retrieveUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/users/all", {
+        const response = await axios.get(`${requestURL}/api/v1/users/all`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
         userInfo.value = response.data;
@@ -177,7 +179,7 @@ export default {
 
     const retrieveCentrosRegionales = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/centros`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
         centrosRegionales.value = response.data.map((centro) => ({
