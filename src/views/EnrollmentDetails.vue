@@ -1,6 +1,6 @@
 <template>
     <!-- role="main" define el contenido principal para NVDA -->
-    <div class="container mt-4" role="main">
+    <div class="container main-content mt-4" role="main">
       <div v-if="enrollments && !error">
         <!-- Detalles Personales -->
         <div v-if="enrollments.formulario" class="card mb-4" role="region" aria-label="Detalles Personales">
@@ -238,5 +238,9 @@
   .btn-primary:hover {
     background-color: #0056b3;
     border-color: #004085;
+  }
+
+  .main-content {
+    overflow-y: auto;
   }
   </style>

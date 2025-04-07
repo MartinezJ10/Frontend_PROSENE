@@ -1,169 +1,249 @@
 <template>
-    <transition name="modal-fade">
-      <div v-if="show" class="modal-overlay">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <!-- Encabezado -->
-            <div class="modal-header header-unah">
-              <h5 class="modal-title">{{ title }}</h5>
-              <button type="button" class="btn-close" @click="close" aria-label="Cerrar">
-                &times;
-              </button>
-            </div>
-            <!-- Cuerpo del modal -->
-            <div class="modal-body">
+  <transition name="modal-fade">
+    <div v-if="show" class="modal-overlay" @click.self="closeOnOverlayClick ? close() : null">
+      <div class="modal-dialog" :class="[`modal-${size}`]">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ title }}</h5>
+            <button type="button" class="btn-close" @click="close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <slot>
               <p>{{ message }}</p>
-            </div>
-            <!-- Pie de página -->
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary btn-unah" @click="close">
-                Cerrar
+            </slot>
+          </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button 
+                type="button" 
+                class="btn btn-secondary" 
+                v-if="showCancelButton" 
+                @click="close"
+              >
+                {{ cancelButtonText }}
               </button>
-            </div>
+              <button 
+                type="button" 
+                class="btn btn-primary" 
+                @click="confirm"
+              >
+                {{ confirmButtonText }}
+              </button>
+            </slot>
           </div>
         </div>
       </div>
-    </transition>
-  </template>
-  
-  <script>
-  export default {
-    name: 'ReusableModal',
-    props: {
-      show: {
-        type: Boolean,
-        required: true
-      },
-      title: {
-        type: String,
-        default: 'Información'
-      },
-      message: {
-        type: String,
-        default: ''
-      }
+    </div>
+  </transition>
+</template>
+
+<script>
+export default {
+  name: 'ReusableModal',
+  props: {
+    show: {
+      type: Boolean,
+      required: true
     },
-    emits: ['close'],
-    methods: {
-      close() {
-        this.$emit('close');
+    title: {
+      type: String,
+      default: 'Información'
+    },
+    message: {
+      type: String,
+      default: ''
+    },
+    confirmButtonText: {
+      type: String,
+      default: 'Aceptar'
+    },
+    cancelButtonText: {
+      type: String,
+      default: 'Cancelar'
+    },
+    showCancelButton: {
+      type: Boolean,
+      default: false
+    },
+    closeOnOverlayClick: {
+      type: Boolean,
+      default: true
+    },
+    size: {
+      type: String,
+      default: 'medium',
+      validator: (value) => ['small', 'medium', 'large', 'fullscreen'].includes(value)
+    }
+  },
+  emits: ['close', 'confirm'],
+  mounted() {
+    if (this.show) {
+      document.body.style.overflow = 'hidden';
+    }
+    document.addEventListener('keydown', this.handleKeyDown);
+  },
+  beforeUnmount() {
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', this.handleKeyDown);
+  },
+  watch: {
+    show(newVal) {
+      document.body.style.overflow = newVal ? 'hidden' : '';
+    }
+  },
+  methods: {
+    close() {
+      this.$emit('close');
+    },
+    confirm() {
+      this.$emit('confirm');
+      this.close();
+    },
+    handleKeyDown(e) {
+      if (e.key === 'Escape' && this.show && this.closeOnOverlayClick) {
+        this.close();
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Fondo oscuro al abrir el modal */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
   }
-  
-  /* Transición suave de aparición y desaparición */
-  .modal-fade-enter-active,
-  .modal-fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  .modal-fade-enter-from,
-  .modal-fade-leave-to {
-    opacity: 0;
-  }
-  
-  /* Ajuste del contenedor del modal */
+};
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+}
+
+.modal-small { max-width: 350px; }
+.modal-medium { max-width: 500px; }
+.modal-large { max-width: 700px; }
+.modal-fullscreen { 
+  max-width: 90%; 
+  height: 90%;
+}
+.modal-fullscreen .modal-content {
+  height: 100%;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+  text-align: center;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1a252f;
+}
+
+.btn-secondary {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.btn-secondary:hover {
+  background-color: #dee2e6;
+}
+
+@media (max-width: 576px) {
   .modal-dialog {
-    width: 90%;        /* Ocupa el 90% del ancho en pantallas pequeñas */
-    max-width: 600px;  /* Pero no excede los 600px en pantallas grandes */
-    margin: auto;
+    width: 95%;
   }
   
-  /* Contenedor principal del modal */
-  .modal-content {
-    background-color: #ffffff;
-    border-radius: 1rem; /* Bordes más redondeados */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más notoria */
-    overflow: hidden;
-    border: none; /* Sin borde grueso */
+  .btn {
+    flex: 1;
+    min-width: 0;
   }
   
-  /* Encabezado del modal */
-  .modal-header {
-    padding: 1rem 1.5rem;
-  }
-  .header-unah {
-    background-color: var(--primary-color); /* Azul UNAH */
-    color: var(--background-color);            /* Texto blanco */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  /* Botón de cerrar (X) */
-  .btn-close {
-    background: none;
-    border: none;
-    color: var(--brat);;
-    font-size: 1.5rem; /* Tamaño ligeramente menor para mayor sutileza */
-    cursor: pointer;
-    line-height: 1;
-  }
-  .btn-close:hover {
-    color: var(--brat) !important;
-  }
-  
-  /* Cuerpo del modal */
-  .modal-body {
-    padding: 1rem 1.5rem;
-    color: #333;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  
-  /* Pie de página del modal */
   .modal-footer {
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-    border-top: 1px solid #e0e0e0; /* Barra divisoria gris más clara */
+    flex-wrap: wrap;
   }
-  
-  /* Botón de acción principal */
-  .btn-unah {
-    background-color: var(--modal-btn-bg-color); /* Amarillo UNAH */
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-  }
-  
-  /* MEDIA QUERIES: Ajustes para pantallas pequeñas */
-  @media (max-width: 576px) {
-    /* Ajustar el padding interno para ahorrar espacio en móviles */
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-      padding: 0.8rem 1rem;
-    }
-  
-    /* Disminuir tamaño de la 'X' para adaptarse mejor */
-    .btn-close {
-      font-size: 1.2rem;
-    }
-  
-    /* Controlar altura máxima y permitir scroll si el contenido es muy largo */
-    .modal-content {
-      max-height: 90vh;
-    }
-    .modal-body {
-      overflow-y: auto;
-    }
-  }
-  </style>
-  
+}
+</style>

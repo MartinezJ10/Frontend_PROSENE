@@ -185,22 +185,20 @@
         <ul class="list-group">
           <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
             <div class="request-card p-3">
-              <div class="row align-items-center card-text">
-                <div class="col-12 col-md-2">
-                  <h5 class="mb-1">#{{ request.idsolicitud }}</h5>
-                </div>
-                <div class="col-12 col-md-6 mt-2 mt-md-0 text-md-start">
-                  <p class="mb-0 text-muted">
-                    {{ request.tiposolicitud.descripcion }}
+            <!-- Modificar la estructura de la tarjeta para que sea más compacta -->
+            <div class="row align-items-center card-text g-1">
+              <div class="col-6 col-md-2">
+                <h5 class="mb-0">#{{ request.idsolicitud }}</h5>
+              </div>
+              <div class="col-6 col-md-6 text-end text-md-start">
+                <p class="mb-0 text-muted small-text">{{ request.tiposolicitud.descripcion }}</p>
+              </div>
+              <div class="col-12 col-md-4 mt-1 mt-md-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="mb-0 text-muted small-text">
+                    <small>{{ formatDate(request.fechacreacion) }}</small>
                   </p>
-                </div>
-                <div class="col-12 col-md-4 mt-2 mt-md-0">
-                  <div class="text-md-end">
-                    <p class="mb-0 text-muted">
-                      <strong>Fecha de creación:</strong> {{ formatDate(request.fechacreacion) }}
-                    </p>
-                  </div>
-                  <div class="d-flex justify-content-end gap-2 mt-2">
+                  <div class="d-flex gap-1">
                     <button 
                       class="btn btn-outline-dark btn-sm border btn-detalles" 
                       @click="openDetailsModal(request.descripcion)"
@@ -218,6 +216,7 @@
                 </div>
               </div>
             </div>
+            </div>
           </li>
         </ul>
       </div>
@@ -227,16 +226,16 @@
         No hay solicitudes registradas.
       </div>
     </div>
-    <!-- role="dialog" para el modal de detalles -->
-    <ReusableModal 
-      :show="showDetailsModal" 
-      title="Detalles de la Solicitud" 
-      :message="currentRequestDescription"
-      @close="showDetailsModal = false" 
-      role="dialog"
-      aria-label="Modal de detalles de la solicitud"
-    />
   </main>
+  <!-- role="dialog" para el modal de detalles -->
+<ReusableModal 
+  :show="showDetailsModal" 
+  title="Detalles de la Solicitud" 
+  :message="currentRequestDescription"
+  @close="showDetailsModal = false" 
+  role="dialog"
+  aria-label="Modal de detalles de la solicitud"
+/>
 </template>
 
 <script>
@@ -512,7 +511,7 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Asegura que el contenedor principal ocupe toda la altura */
+  height: 100vh;
 }
 
 .main-content {
@@ -550,25 +549,29 @@ body {
   color: var(--header-text-color);
 }
 
-.request-button {
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
-  border: none;
-}
-.request-button:hover {
-  background-color: var(--brat);
+/* --- Botones --- */
+.request-button, .btn-detalles, .btn-limpiar {
   color: var(--primary-color);
 }
 
+.request-button {
+  background-color: var(--secondary-color);
+  border: none;
+}
+
+.request-button:hover, .btn-detalles, .btn-limpiar {
+  background-color: lightsteelblue !important;
+}
+
+/* --- Dashboard --- */
 .dashboard-container {
   background-color: var(--background-color);
   border-radius: 8px;
   box-shadow: 0 2px 5px var(--text-shadow-color);
   padding: 20px;
   margin: 10px;
-  max-height: 500px; /* Altura máxima para el contenedor del dashboard */
-  overflow-y: auto; /* Scroll vertical solo para este contenedor */
-  flex-grow: 1; /* Permite que el dashboard ocupe el espacio restante */
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .dashboard-title {
@@ -594,25 +597,18 @@ body {
   position: relative;
 }
 
-.card-text p {
-  font-size: 1.1rem !important;
-  color: var(--text-color) !important;
+.card-text p, .request-card p {
+  color: var(--text-color);
 }
 
-.request-card p {
-  color: var(--text-color);
+.card-text p {
+  font-size: 1.1rem !important;
 }
 
 .request-card h5 {
   font-size: 1.25rem;
   color: var(--text-color);
   text-align: left;
-}
-
-.btn-detalles, .btn-limpiar {
-  color: var(--primary-color);
-  background-color: var(--brat) !important;
-  --bs-btn-hover-color: var(--primary-color);
 }
 
 /* --- Badge (estado) --- */
@@ -623,13 +619,15 @@ body {
   padding: 0.5em;
 }
 
-.badge-status.recibida {
+.badge-status.recibida, .badge-status.en-proceso {
   background-color: var(--background-color);
+}
+
+.badge-status.recibida {
   color: var(--badge-text-color);
 }
 
 .badge-status.en-proceso {
-  background-color: var(--background-color);
   color: var(--badge-en-proceso-text-color);
 }
 
@@ -649,7 +647,7 @@ body {
   color: var(--badge-otro-estado-text-color);
 }
 
-/* --- Filtros (estilos extra) --- */
+/* --- Filtros --- */
 .filters {
   padding: 1rem;
   border: 1px solid var(--filter-border-color);
@@ -674,59 +672,31 @@ body {
   margin-top: 2rem;
 }
 
+.small-text {
+  font-size: 0.85rem;
+}
+
+@media (max-height: 500px){
+  .main-content {
+    height: clamp(500px, 88.5vh, 900px) !important;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 400px){
+  .main-content {
+    height: clamp(500px, 88.5vh, 900px) !important;
+  }
+}
+
+/* --- Media queries --- */
 @media (min-width: 1400px) {
   .main-content {
     height: clamp(300px, 93vh, 900px);
   }
 
   .dashboard-container {
-    max-height: 900px; /* Altura máxima para el contenedor del dashboard */
+    max-height: 900px;
     height: 92vh;
-  }
-}
-
-/* --- Responsivo --- */
-@media (max-width: 576px) {
-  .header h1 {
-    display: none;
-  }
-
-  .theme-button span {
-    display: none;
-  }
-
-  .dashboard-title {
-    font-size: 1.4em;
-  }
-
-  .logo {
-    width: 60px;
-  }
-
-  .notification-button,
-  .request-button,
-  .logout-button {
-    display: none !important;
-  }
-
-  .main-content {
-    height: clamp(500px, 92vh, 900px);
-  }
-
-  .request-card {
-    padding: 1rem;
-  }
-
-  .request-card h5 {
-    font-size: 1rem;
-  }
-
-  .request-card p {
-    font-size: 0.9rem;
-  }
-
-  .dashboard-container {
-    max-height: 900px; /* Altura máxima para el contenedor del dashboard */
   }
 }
 
@@ -734,18 +704,6 @@ body {
   .header {
     flex-wrap: wrap;
     padding: 10px;
-  }
-
-  .theme-button span {
-    display: none;
-  }
-
-  .tittle-container h1 {
-    font-size: 1.5em;
-    flex-basis: 100%;
-    text-align: center;
-    margin: 10px 0;
-    display: none;
   }
 
   .logo {
@@ -757,15 +715,25 @@ body {
     font-size: 1.2em;
   }
 
-  .dashboard-container {
-    margin: 0 5px;
-    height: auto;
+    /* Hacer el dashboard más compacto */
+    .dashboard-container {
+    padding: 10px;
+    margin: 5px 0;
   }
 
   .notification-button,
   .request-button,
-  .logout-button {
-    display: none;
+  .logout-button,
+  .theme-button span,
+  .tittle-container h1 {
+    display: none !important;
+  }
+  
+  .tittle-container h1 {
+    font-size: 1.5em;
+    flex-basis: 100%;
+    text-align: center;
+    margin: 10px 0;
   }
 
   main {
@@ -780,14 +748,139 @@ body {
     justify-content: flex-start !important;
   }
 
-  .theme-button span{
+    /* Reducir el padding general */
+    .main-content {
+    padding: 15px;
+  }
+
+    /* Reducir el espacio entre los elementos de la lista */
+    .list-group-item {
+    margin-bottom: 0.5rem;
+  }
+
+    /* Hacer las tarjetas de solicitud más compactas */
+    .request-card {
+    padding: 0.75rem !important;
+  }
+
+    /* Reducir tamaños de fuente */
+    .request-card h5 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-text p {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Ajustar los botones para que ocupen menos espacio */
+  .btn-detalles {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .badge-status {
+    font-size: 0.75rem;
+    min-width: 70px;
+    padding: 0.3em;
+  }
+  
+  /* Reducir el espacio en los filtros */
+  .filters {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .filters .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Ajustar el espacio entre filas en el grid */
+  .g-3 {
+    --bs-gutter-y: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .header h1 {
     display: none;
+  }
+
+  .main-content {
+    height: clamp(500px, 90vh, 900px);
+  }
+
+  .request-card .col-md-5,
+  .request-card .col-md-4 {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+
+  .request-card .col-md-3 {
+    margin-bottom: 10px;
+  }
+
+  .request-card {
+    padding: 1rem;
+  }
+
+  .request-card h5 {
+    font-size: 1rem;
+  }
+
+  .request-card p {
+    font-size: 0.9rem;
+  }
+
+  .logout-button {
+    display: none !important;
+  }
+
+   /* Ajustes adicionales para pantallas muy pequeñas */
+   .dashboard-title {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+  }
+  
+  /* Estructura más compacta para móviles */
+  .request-card .row {
+    margin: 0;
+  }
+  
+  .request-card .col-12 {
+    padding: 0.15rem;
+  }
+  
+  /* Reducir aún más los espaciados */
+  .mt-2 {
+    margin-top: 0.25rem !important;
+  }
+  
+  /* Optimizar la visualización de fecha */
+  .text-md-end p {
+    font-size: 0.8rem !important;
+  }
+
+  .small-text {
+    font-size: 0.75rem;
   }
 }
 
 @media (min-width: 768px) {
   .mobile-dropdown {
     display: none;
+  }
+}
+
+@media (max-width: 1100px){
+  .main-content {
+    height: clamp(500px, 91vh, 900px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
   }
 }
 </style>

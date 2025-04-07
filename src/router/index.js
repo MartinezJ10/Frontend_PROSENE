@@ -42,40 +42,5 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('jwt');
-  const userRoleId = utils.getCurrentUserRole();
 
-
-    // Permitir el acceso a la ruta de cambio de contraseña sin validar el token
-    if (to.path.startsWith('/usuario/cambiopass')) {
-      next();
-      return;
-    }
-
-  // Si la ruta requiere autenticación y no hay token, redirigir al login
-  if (to.meta.requiresAuth && !token) {
-    next('/login');
-    return;
-  }
-
-  // Verificar si el token ha expirado
-  const expiresToken = utils.getExpires();
-  const currentTime = Date.now() / 1000; // Tiempo actual en segundos
-  if (expiresToken < currentTime) {
-    localStorage.removeItem('jwt');
-    next('/login');
-    return;
-  }
-
-  // Verificar que el usuario tenga el rol permitido
-  if (to.meta.allowedRoleIds && !to.meta.allowedRoleIds.includes(Number(userRoleId))) {
-    next('/login');
-    return;
-  }
-
-  // Permitir la navegación si pasa todas las validaciones
-  next();
-});
-
-export default router;
+export default router;  
