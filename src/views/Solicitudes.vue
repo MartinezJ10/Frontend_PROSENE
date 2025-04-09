@@ -33,17 +33,19 @@
 
     </div>
 
-    <!-- Sección de filtros con transición -->
-    <transition name="slide-fade">
-      <div 
-        v-if="showFilters" 
-        class="filters-overlay" 
-        id="filters-overlay"
-        role="region"
-        aria-label="Filtros de búsqueda"
-      >
+<!-- Sección de filtros con transición -->
+<transition name="slide-fade">
+  <div 
+    v-if="showFilters" 
+    class="filters-overlay" 
+    id="filters-overlay"
+    role="region"
+    aria-label="Filtros de búsqueda"
+  >
+    <div class="filters-content">
+      <div class="filters-grid">
         <!-- Filtro por Usuario -->
-        <div class="col-12 col-sm-3">
+        <div class="filter-item">
           <label for="userFilter" class="form-label fw-semibold">Usuario</label>
           <input
             id="userFilter"
@@ -57,7 +59,7 @@
         </div>
 
         <!-- Filtro por Centro Regional -->
-        <div class="col-12 col-sm-3">
+        <div class="filter-item">
           <label for="centroFilter" class="form-label fw-semibold">Centro Regional</label>
           <select
             id="centroFilter"
@@ -78,7 +80,7 @@
         </div>
 
         <!-- Filtro por Estado -->
-        <div class="col-12 col-sm-3">
+        <div class="filter-item">
           <label for="estadoFilter" class="form-label fw-semibold">Estado</label>
           <select
             id="estadoFilter"
@@ -99,7 +101,7 @@
         </div>
 
         <!-- Filtro por Tipo de Solicitud -->
-        <div class="col-12 col-sm-3">
+        <div class="filter-item">
           <label for="tipoFilter" class="form-label fw-semibold">Tipo de Solicitud</label>
           <select
             id="tipoFilter"
@@ -118,19 +120,21 @@
             </option>
           </select>
         </div>
-
-        <!-- Botón para limpiar filtros -->
-        <div class="col-12 col-sm-3 d-flex align-items-end">
-          <button
-            class="btn btn-secondary w-100"
-            @click="resetFilters"
-            aria-label="Limpiar todos los filtros"
-          >
-            Limpiar Filtros
-          </button>
-        </div>
       </div>
-    </transition>
+      
+      <!-- Botones de acción de filtros -->
+      <div class="filters-actions">
+        <button
+          class="btn btn-secondary"
+          @click="resetFilters"
+          aria-label="Limpiar todos los filtros"
+        >
+          <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+</transition>
 
     <!-- Contenedor derecho -->
     <div class="right-container">
@@ -321,7 +325,7 @@ export default {
     const retrieveMisSolicitudes = async () => {
       loading.value = true;
       try {
-        const response = await axios.get(`${requestURL}/api/v1/solicitudes/atendidas`, {
+        const response = await axios.get("http://127.0.0.1:8000/api/v1/solicitudes/atendidas", {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         solicitudes.value = mapSolicitudes(response.data);
@@ -503,22 +507,15 @@ export default {
 };
 </script>
 
-<style >
+<style>
 /* Contenedor principal */
+/* CONTENEDORES Y ESTRUCTURA */
 .relative-container {
   position: relative;
   display: flex;
   flex-direction: column;
   height: calc(100vh - 70px);
   overflow: hidden;
-}
-
-.button-group {
-  display: flex;
-  gap: 0.5rem;
-  /* Ajusta la alineación horizontal que prefieras en pantallas grandes */
-  justify-content: flex-end; 
-  flex-wrap: wrap; /* Para que no desborde si no cabe en una sola línea */
 }
 
 .container {
@@ -528,7 +525,16 @@ export default {
   overflow: hidden;
 }
 
-/* Encabezado de la página */
+.right-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: auto;
+  padding-bottom: 1rem;
+}
+
+/* ENCABEZADO */
 .page-header {
   flex-shrink: 0;
   display: flex;
@@ -546,34 +552,121 @@ export default {
   color: #002D62;
 }
 
-/* Botón principal (estilo UNAH) */
-.btn-unah {
+/* BOTONES */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  border: none;
+}
+
+.btn.btn-unah {
   background-color: #002f6c;
   color: white;
   font-weight: 600;
-  border: none;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.7rem;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-.btn-unah:hover {
+.btn.btn-unah:hover {
   background-color: #ffcc00;
   color: #002f6c;
 }
 
-/* Contenedor derecho */
-.right-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  overflow: auto;
+.btn.btn-primary {
+  background-color: #002f6c;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
 }
 
-/* Tabla compacta y minimalista */
+.btn.btn-primary:hover {
+  background-color: #001f4d;
+}
+
+.btn.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn.btn-secondary:hover {
+  background-color: #adb5bd;
+  color: #002f6c;
+}
+
+.btn.btn-action {
+  background-color: #002f6c;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.btn.btn-action:hover {
+  background-color: #66b2ff;
+  color: #002f6c;
+}
+
+/* FILTROS */
+.filters-overlay {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.filters-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+  margin-top: 0.5rem;
+}
+
+/* TRANSICIONES */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* TABLAS */
 .compact-table {
   font-size: 0.85rem;
   margin: 0;
@@ -591,13 +684,17 @@ export default {
   font-weight: 600;
 }
 
-/* Columna de ID */
 .id-column {
   font-weight: 600;
   color: #002D62;
 }
 
-/* Badges de estado */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* BADGES */
 .status-badge {
   padding: 0.3rem 0.5rem;
   font-size: 0.75rem;
@@ -607,20 +704,7 @@ export default {
   text-align: center;
 }
 
-/* Botón de acción */
-.btn-action {
-  background-color: #002D62;
-  color: #fff;
-  border: none;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-}
-.btn-action:hover {
-  background-color: #ffcc00;
-  color: #002D62;
-}
-
-/* Paginación */
+/* PAGINACIÓN */
 .pagination-container {
   background-color: #fff;
   padding: 0.5rem;
@@ -637,46 +721,18 @@ export default {
 .pagination-container button {
   background-color: #002D62;
   color: #fff;
-  border: none;
   border-radius: 4px;
   font-size: 0.75rem;
   padding: 0.3rem 0.7rem;
   cursor: pointer;
 }
+
 .pagination-container button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-/* Overlay de filtros */
-.filters-overlay {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background-color: #fff;
-  padding: 0.8rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
-}
-
-/* Transición de filtros */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-
-/* Flecha de orden */
+/* BOTONES DE ORDEN */
 .arrow-button {
   background-color: transparent;
   border: 1px solid #ccc;
@@ -685,11 +741,22 @@ export default {
   color: #333;
   cursor: pointer;
 }
+
 .arrow-button:hover {
   background-color: #eee;
 }
 
-/* Ajustes generales de responsividad */
+/* FORMULARIOS */
+.form-label {
+  font-size: 0.8rem;
+}
+
+.form-control, .form-select {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
@@ -703,32 +770,26 @@ export default {
     gap: 0.3rem;
   }
 
-  .btn-unah {
+  .btn.btn-unah {
     padding: 0.4rem;
     width: auto;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
   }
 
   .button-text {
     display: none;
   }
 
-  .btn-unah i {
+  .btn.btn-unah i {
     margin: 0 !important;
     font-size: 1.1rem;
   }
 
-  .btn-unah {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .filters-overlay {
     position: static;
-    top: auto;
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.75rem;
@@ -738,6 +799,15 @@ export default {
   .filters-overlay > div {
     width: 100% !important;
     max-width: 100%;
+  }
+
+  .filters-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filters-actions button {
+    width: 100%;
   }
 
   .compact-table {
@@ -750,33 +820,6 @@ export default {
     white-space: nowrap;
   }
 
-  .status-badge {
-    min-width: 80px;
-    font-size: 0.65rem;
-    padding: 0.25rem 0.4rem;
-  }
-
-  .btn-action {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-
-  .page-title {
-    font-size: 1.1rem;
-  }
-
-  .compact-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-
   .compact-table th:nth-child(4),
   .compact-table td:nth-child(4),
   .compact-table th:nth-child(5),
@@ -784,7 +827,15 @@ export default {
     display: none;
   }
 
-  .btn-action {
+  .status-badge {
+    min-width: 80px;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .btn.btn-action {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
     width: 100%;
   }
 
@@ -792,9 +843,16 @@ export default {
     padding: 0.1rem 0.3rem;
     font-size: 0.6rem;
   }
+
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.1rem;
+  }
 }
 
-/* Mejoras adicionales para tabletas */
 @media (min-width: 769px) and (max-width: 1024px) {
   .filters-overlay {
     gap: 0.5rem;
@@ -805,36 +863,10 @@ export default {
     font-size: 0.8rem;
   }
 
-  .btn-unah {
+  .btn.btn-unah {
     font-size: 0.8rem;
     padding: 0.4rem 0.6rem;
   }
 }
 
-/* Optimización de la tabla en móviles */
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Mejora de legibilidad en filtros */
-.form-label {
-  font-size: 0.8rem;
-}
-
-.form-control, .form-select {
-  font-size: 0.8rem;
-  padding: 0.4rem 0.6rem;
-}
-
-/* Ajuste de botones en móviles */
-.btn-secondary {
-  font-size: 0.8rem;
-  padding: 0.4rem 0.6rem;
-}
-
-/* Optimización de espacios verticales */
-.right-container {
-  padding-bottom: 1rem;
-}
 </style>
