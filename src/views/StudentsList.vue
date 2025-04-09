@@ -111,7 +111,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed, inject } from "vue";
+import { onMounted, ref, computed, inject,onBeforeUnmount  } from "vue";
 import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 

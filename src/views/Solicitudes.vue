@@ -240,7 +240,7 @@
 
 <script>
 import axios from "axios";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import Mensaje from "../components/Mensaje.vue";
 import ReusableForm from "../components/ReusableForm.vue";
@@ -270,6 +270,7 @@ export default {
 
     // Estado de carga de datos
     const loading = ref(true);
+    const requestURL = inject("requestURL");
 
     // Mostrar/ocultar filtros
     const showFilters = ref(false);
@@ -307,7 +308,7 @@ export default {
     // Traer todas las solicitudes (dashboard completo)
     const retrieveSolicitudes = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/solicitudes/all", {
+        const response = await axios.get(`${requestURL}/api/v1/solicitudes/all`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         solicitudes.value = mapSolicitudes(response.data);
@@ -320,7 +321,7 @@ export default {
     const retrieveMisSolicitudes = async () => {
       loading.value = true;
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/v1/solicitudes/atendidas", {
+        const response = await axios.get(`${requestURL}/api/v1/solicitudes/atendidas`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         solicitudes.value = mapSolicitudes(response.data);
@@ -333,7 +334,7 @@ export default {
 
     const retrieveCentros = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/centros", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/centros`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         centros.value = response.data;
@@ -344,7 +345,7 @@ export default {
 
     const retrieveEstados = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/estados", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/estados`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         estados.value = response.data;
@@ -355,7 +356,7 @@ export default {
 
     const retrieveTipos = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/varios/tipos", {
+        const response = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         tiposSolicitud.value = response.data;
