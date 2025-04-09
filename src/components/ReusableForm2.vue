@@ -352,7 +352,6 @@ const formFields = computed(() => {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 

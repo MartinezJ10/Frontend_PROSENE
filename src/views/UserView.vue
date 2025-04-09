@@ -200,6 +200,14 @@
                   </p>
                   <div class="d-flex gap-1">
                     <button 
+                        v-if="request.estadosolicitud.descripcion === 'Recibida'"
+                        class="btn btn-outline-danger btn-sm border btn-eliminar" 
+                        @click="deleteSolicitud(request.idsolicitud)"
+                        :aria-label="`Eliminar solicitud ${request.idsolicitud}`"
+                      >
+                        <i class="bi bi-trash" aria-hidden="true"></i>
+                      </button>
+                    <button 
                       class="btn btn-outline-dark btn-sm border btn-detalles" 
                       @click="openDetailsModal(request.descripcion)"
                       :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
@@ -338,6 +346,19 @@ export default {
       }
     };
 
+    const deleteSolicitud = async (id) => {
+      try {
+        await axios.delete(`${requestURL}/api/v1/solicitudes/eliminar?${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        });
+        mostrarExito();
+        await retrieveRequests();
+      } catch (err) {
+        console.error("Failed to delete solicitud:", err.message);
+        mostrarError();
+      }
+    };
+
     const handleRequestCreationSubmit = async (formData) => {
       try {
         await axios.post(
@@ -472,6 +493,7 @@ export default {
       currentRequestDescription,
       createRequestFields,
       handleRequestCreationSubmit,
+      deleteSolicitud,
       handleExit,
       mensaje,
       visible,
@@ -676,6 +698,26 @@ body {
 
 .small-text {
   font-size: 0.85rem;
+}
+
+.btn-eliminar {
+  padding: 0.25rem 0.5rem;
+  background-color: #dc3545;    /* rojo Bootstrap “danger” */
+  border-color: #dc3545;
+  color: #fff;
+}
+
+.btn-eliminar:hover {
+  background-color: #c82333;    /* un poco más oscuro al pasar el ratón */
+  border-color: #bd2130;
+  color: #fff;
+}
+
+@media (max-width: 576px) {
+  .btn-eliminar {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
 }
 
 @media (max-height: 500px){

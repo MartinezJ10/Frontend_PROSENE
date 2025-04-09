@@ -12,6 +12,8 @@ import EnrollmentDetails from '../views/EnrollmentDetails.vue';
 import WelcomeMessage from '../views/WelcomeMessage.vue';
 import CreateUser from '../views/CreateUser.vue';
 import StudentsList from '../views/StudentsList.vue';
+import ErrorPage from '../views/ErrorPage.vue';
+import SessionExpiredView from '../views/SessionExpiredView.vue';
 import utils from '../utils';
 
 const routes = [
@@ -35,6 +37,18 @@ const routes = [
   },
   { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [3] } }, 
   { path: '/usuario/cambiopass/', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } },
+  { path: '/error', component: ErrorPage }, // Ruta para la página de error
+  {
+    path: '/:catchAll(.*)',
+    name: 'NotFound',
+    component: ErrorPage
+  },
+  {
+    path: '/session-expired',
+    name: 'SessionExpired',
+    component: SessionExpiredView,
+    meta: { requiresAuth: false } // No requiere autenticación
+  },
 ];
 
 const router = createRouter({
@@ -42,5 +56,40 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('jwt');
+  const userRoleId = utils.getCurrentUserRole();
 
-export default router;  
+
+    // Permitir el acceso a la ruta de cambio de contraseña sin validar el token
+    if (to.path.startsWith('/usuario/cambiopass') && to.path.startsWith('/error') && to.path.startsWith('/session-expired')) {
+      next();
+      return;
+    }
+
+  // Si la ruta requiere autenticación y no hay token, redirigir al login
+  if (to.meta.requiresAuth && !token) {
+    next('/login');
+    return;
+  }
+
+  // Verificar si el token ha expirado
+  const expiresToken = utils.getExpires();
+  const currentTime = Date.now() / 1000; // Tiempo actual en segundos
+  if (expiresToken < currentTime) {
+    localStorage.removeItem('jwt');
+    next('/session-expired');
+    return;
+  }
+
+  // Verificar que el usuario tenga el rol permitido
+  if (to.meta.allowedRoleIds && !to.meta.allowedRoleIds.includes(Number(userRoleId))) {
+    next('/error');
+    return;
+  }
+
+  // Permitir la navegación si pasa todas las validaciones
+  next();
+});
+
+export default router;

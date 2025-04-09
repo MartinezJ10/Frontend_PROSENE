@@ -366,7 +366,7 @@ body {
   /* Reducir el tamaño del logo */
   .navbar-top img {
     width: 40px;
-    height: 25px;
+    height: 35px;
   }
   
   /* Reducir el tamaño del título */
@@ -490,7 +490,7 @@ body {
   /* Ajustes para tablets Android con alta densidad de píxeles */
   .navbar-top img {
     width: 55px;
-    height: 35px;
+    height: 55px;
   }
   
   .title-page {

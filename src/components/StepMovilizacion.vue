@@ -8,7 +8,7 @@
     v-model="formData.dificultadparaorientarseenentorno"
     aria-labelledby="dificultadOrientarseLabel"
   />
-  <label id="dificultadOrientarseLabel" class="sr-only">Dificultad para Orientarse en Entorno</label>
+  <label id="dificultadOrientarseLabel" class="sr-only"></label>
 
   <!-- Dificultad para Salvar Desniveles -->
   <FormKit
@@ -19,7 +19,7 @@
     v-model="formData.dificultadparasalvardesniveles"
     aria-labelledby="dificultadSalvarDesnivelesLabel"
   />
-  <label id="dificultadSalvarDesnivelesLabel" class="sr-only">Dificultad para Salvar Desniveles</label>
+  <label id="dificultadSalvarDesnivelesLabel" class="sr-only"></label>
 
   <!-- Dificultad para Usar Gradas -->
   <FormKit
@@ -30,7 +30,7 @@
     v-model="formData.dificultadparausargradas"
     aria-labelledby="dificultadUsarGradasLabel"
   />
-  <label id="dificultadUsarGradasLabel" class="sr-only">Dificultad para Usar Gradas</label>
+  <label id="dificultadUsarGradasLabel" class="sr-only"></label>
 
   <!-- Dificultad para Viajar en Transporte Público -->
   <FormKit
@@ -41,7 +41,7 @@
     v-model="formData.dificultadparaviajarentrasportepublico"
     aria-labelledby="dificultadViajarTransportePublicoLabel"
   />
-  <label id="dificultadViajarTransportePublicoLabel" class="sr-only">Dificultad para Viajar en Transporte Público</label>
+  <label id="dificultadViajarTransportePublicoLabel" class="sr-only"></label>
 
   <!-- Dificultad para Subir y Bajar del Vehículo -->
   <FormKit 
@@ -52,7 +52,7 @@
     v-model="formData.dificultadparasubirybajardelvehiculo"
     aria-labelledby="dificultadSubirBajarVehiculoLabel"
   />
-  <label id="dificultadSubirBajarVehiculoLabel" class="sr-only">Dificultad para Subir y Bajar del Vehículo</label>
+  <label id="dificultadSubirBajarVehiculoLabel" class="sr-only"></label>
 
   <!-- Dificultad para Desplazarse Distancias -->
   <FormKit
@@ -63,7 +63,7 @@
     v-model="formData.dificultadparadesplazarsedistancias"
     aria-labelledby="dificultadDesplazarseDistanciasLabel"
   />
-  <label id="dificultadDesplazarseDistanciasLabel" class="sr-only">Dificultad para Desplazarse Distancias</label>
+  <label id="dificultadDesplazarseDistanciasLabel" class="sr-only"></label>
 </template>
 
 <script setup>

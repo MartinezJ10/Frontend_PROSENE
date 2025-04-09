@@ -7,7 +7,7 @@
     v-model="formData.apoyoenprocesodeadmision"
     aria-labelledby="apoyoProcesoAdmisionLabel"
   />
-  <label id="apoyoProcesoAdmisionLabel" class="sr-only">Apoyo en Proceso de Admisión</label>
+  <label id="apoyoProcesoAdmisionLabel" class="sr-only"></label>
 
   <!-- Apoyo en PAA -->
   <FormKit
@@ -17,7 +17,7 @@
     v-model="formData.apoyoenpaa"
     aria-labelledby="apoyoPaaLabel"
   />
-  <label id="apoyoPaaLabel" class="sr-only">Apoyo en PAA</label>
+  <label id="apoyoPaaLabel" class="sr-only"></label>
 
   <!-- Orientación General -->
   <FormKit
@@ -27,7 +27,7 @@
     v-model="formData.orientaciongeneral"
     aria-labelledby="orientacionGeneralLabel"
   />
-  <label id="orientacionGeneralLabel" class="sr-only">Orientación General</label>
+  <label id="orientacionGeneralLabel" class="sr-only"></label>
 
   <!-- Orientación Vocacional -->
   <FormKit
@@ -37,7 +37,7 @@
     v-model="formData.orientacionvocacional"
     aria-labelledby="orientacionVocacionalLabel"
   />
-  <label id="orientacionVocacionalLabel" class="sr-only">Orientación Vocacional</label>
+  <label id="orientacionVocacionalLabel" class="sr-only"></label>
 
   <!-- Coordinación con Profesores -->
   <FormKit
@@ -47,7 +47,7 @@
     v-model="formData.coordinacionconprofesores"
     aria-labelledby="coordinacionProfesoresLabel"
   />
-  <label id="coordinacionProfesoresLabel" class="sr-only">Coordinación con Profesores</label>
+  <label id="coordinacionProfesoresLabel" class="sr-only"></label>
 
   <!-- Orientación y Movilidad -->
   <FormKit
@@ -57,7 +57,7 @@
     v-model="formData.orientacionymovilidad"
     aria-labelledby="orientacionMovilidadLabel"
   />
-  <label id="orientacionMovilidadLabel" class="sr-only">Orientación y Movilidad</label>
+  <label id="orientacionMovilidadLabel" class="sr-only"></label>
 
   <!-- Transcripción a Braille -->
   <FormKit
@@ -67,7 +67,7 @@
     v-model="formData.transcripcionalbraille"
     aria-labelledby="transcripcionBrailleLabel"
   />
-  <label id="transcripcionBrailleLabel" class="sr-only">Transcripción a Braille</label>
+  <label id="transcripcionBrailleLabel" class="sr-only"></label>
 
   <!-- Lectura y Grabación de Texto -->
   <FormKit
@@ -77,7 +77,7 @@
     v-model="formData.lecturaygrabaciondetexto"
     aria-labelledby="lecturaGrabacionTextoLabel"
   />
-  <label id="lecturaGrabacionTextoLabel" class="sr-only">Lectura y Grabación de Texto</label>
+  <label id="lecturaGrabacionTextoLabel" class="sr-only"></label>
 
   <!-- Tutorial de Materia -->
   <FormKit
@@ -87,7 +87,7 @@
     v-model="formData.tutorialdemateria"
     aria-labelledby="tutorialMateriaLabel"
   />
-  <label id="tutorialMateriaLabel" class="sr-only">Tutorial de Materia</label>
+  <label id="tutorialMateriaLabel" class="sr-only"></label>
 
   <!-- Servicio de Notarios -->
   <FormKit
@@ -97,7 +97,7 @@
     v-model="formData.serviciodenotarios"
     aria-labelledby="servicioNotariosLabel"
   />
-  <label id="servicioNotariosLabel" class="sr-only">Servicio de Notarios</label>
+  <label id="servicioNotariosLabel" class="sr-only"></label>
 
   <!-- Intérpretes de Lengua de Señas -->
   <FormKit
@@ -107,7 +107,7 @@
     v-model="formData.interpretesdelenguadesenias"
     aria-labelledby="intérpretesLenguaSeñasLabel"
   />
-  <label id="intérpretesLenguaSeñasLabel" class="sr-only">Intérpretes de Lengua de Señas</label>
+  <label id="intérpretesLenguaSeñasLabel" class="sr-only"></label>
 
   <!-- Adecuación de Acceso al Entorno -->
   <FormKit
@@ -117,7 +117,7 @@
     v-model="formData.adecuaciondeaccesoalentorno"
     aria-labelledby="adecuacionAccesoEntornoLabel"
   />
-  <label id="adecuacionAccesoEntornoLabel" class="sr-only">Adecuación de Acceso al Entorno</label>
+  <label id="adecuacionAccesoEntornoLabel" class="sr-only"></label>
 
   <!-- Otros Servicios -->
   <FormKit
@@ -128,7 +128,7 @@
     v-model="formData.otrosservicios"
     aria-labelledby="otrosServiciosLabel"
   />
-  <label id="otrosServiciosLabel" class="sr-only">Otros Servicios</label>
+  <label id="otrosServiciosLabel" class="sr-only"></label>
 
   <!-- Barreras para Estudiar en UNAH -->
   <FormKit
@@ -139,7 +139,7 @@
     v-model="formData.barrerasparaestudiarenunah"
     aria-labelledby="barrerasEstudiarUNAHLabel"
   />
-  <label id="barrerasEstudiarUNAHLabel" class="sr-only">Barreras para Estudiar en UNAH</label>
+  <label id="barrerasEstudiarUNAHLabel" class="sr-only"></label>
 
   <FormKit @click="submitForm" type="submit" label="Submit" />
 </template>
