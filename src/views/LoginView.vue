@@ -2,12 +2,12 @@
   <!-- role="main" define el contenido principal para NVDA -->
   <div class="container-fluid m-0 p-0" :style="{ backgroundImage: 'url(${images[0]})' }" role="main">
     <div class="row login-container m-0">
-      <div class="col-md-8 d-none d-md-block left-section">
+      <div class="col-lg-8 d-none d-lg-block left-section">
         <!-- aria-hidden en imagen decorativa para que NVDA no la anuncie -->
         <img :src="images[0]" alt="" class="static-background" aria-hidden="true" />
       </div>
 
-      <div class="col-md-4 col-sm-12 right-section">
+      <div class="col-12 col-lg-4 right-section">
         <div class="login-box">
           <img src="@/assets/top-logo.png" alt="Logo de PROSENE" class="top-logo" />
 
@@ -250,7 +250,7 @@ export default {
 .form-control,
 .btn-primary {
   border-color: #003366;
-  height: 44px; /* Altura óptima para inputs en móviles */
+  height: 44px;
 }
 
 .form-control:focus,
@@ -261,7 +261,7 @@ export default {
 .btn-primary {
   background-color: #003366;
   border-color: #003366;
-  min-height: 44px; /* Tamaño mínimo recomendado para botones táctiles */
+  min-height: 44px;
 }
 
 .btn-primary:hover {
@@ -277,7 +277,6 @@ export default {
   border-color: red;
 }
 
-/* Estilo para el enlace "Olvidaste tu contraseña" */
 .forgot-password {
   display: block;
   text-align: center;
@@ -294,7 +293,6 @@ export default {
   text-decoration: underline;
 }
 
-/* Estilo para los logos */
 .top-logo {
   display: block;
   margin: 0 auto 20px;
@@ -313,7 +311,7 @@ export default {
 
 .input-group button {
   border-color: #003366;
-  min-width: 44px; /* Ancho mínimo para botones táctiles */
+  min-width: 44px;
 }
 
 .input-group button:hover {
@@ -324,21 +322,21 @@ export default {
 /* Para dispositivos iOS */
 @supports (-webkit-touch-callout: none) {
   input, button, a {
-    -webkit-tap-highlight-color: transparent; /* Elimina el resaltado al tocar en iOS */
+    -webkit-tap-highlight-color: transparent;
   }
-  
+
   .form-control, .btn {
-    --webkit-appearance: none; /* Elimina estilos predeterminados de iOS */
+    --webkit-appearance: none;
     border-radius: 8px;
   }
 }
 
-/* Media Query para pantallas móviles */
+/* Móviles */
 @media (max-width: 576px) {
   .login-container {
     flex-direction: column;
     overflow-y: hidden;
-    height: 90vh
+    height: 90vh;
   }
 
   .left-section {
@@ -370,27 +368,26 @@ export default {
     position: relative;
     margin: 20px auto 0;
   }
-  
-  /* Ajustes para orientación landscape en móviles */
+
   @media (max-height: 500px) {
     .login-box {
       margin-top: 5vh;
     }
-    
+
     .top-logo {
       width: 150px;
       margin-bottom: 10px;
     }
-    
+
     .bottom-logo {
       width: 80px;
     }
-    
+
     h2 {
       font-size: 1.5rem;
       margin-bottom: 10px;
     }
-    
+
     .mb-3 {
       margin-bottom: 0.5rem !important;
     }
@@ -403,7 +400,7 @@ export default {
     height: 70vh;
     margin-top: 5vh;
   }
-  
+
   .right-section {
     padding: 0 15px;
     height: clamp(300px, 90vh, 900px);
@@ -412,23 +409,108 @@ export default {
   }
 }
 
-/* Media Query para tablets */
+/* Tablets: Retrato */
 @media (min-width: 768px) and (max-width: 991px) {
   .right-section {
-    padding: 0 10%;
+    padding: 0 6%;
   }
-  
+
   .login-box {
-    max-width: 450px;
+    max-width: 400px;
+    padding: 25px;
+  }
+
+  .form-control,
+  .btn-primary {
+    height: 48px;
+    font-size: 1.05rem;
+  }
+
+  .top-logo {
+    margin-bottom: 30px;
+    width: 70%;
+  }
+
+  .col-md-8.left-section {
+    flex: 0 0 60%;
+    max-width: 60%;
+  }
+
+  .col-md-4.right-section {
+    flex: 0 0 40%;
+    max-width: 40%;
   }
 }
 
-/* Grid específica para dispositivos Android */
+/* Tablets: Paisaje */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .login-box {
+    max-width: 450px;
+    padding: 30px;
+  }
+
+  .right-section {
+    padding: 0 8%;
+  }
+
+  .mb-3 {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* Tablets Retina */
+@media screen and (min-width: 768px) and (max-width: 1199px) and (-webkit-min-device-pixel-ratio: 2) {
+  .login-container {
+    background-size: cover;
+  }
+
+  .static-background {
+    object-fit: cover;
+  }
+
+  .input-group button {
+    min-width: 50px;
+    min-height: 48px;
+  }
+}
+
+/* Tablets grandes tipo iPad Pro */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: portrait) {
+  .col-md-8.left-section {
+    flex: 0 0 55%;
+    max-width: 55%;
+  }
+
+  .col-md-4.right-section {
+    flex: 0 0 45%;
+    max-width: 45%;
+  }
+
+  .login-box {
+    max-width: 500px;
+  }
+}
+
+
+/* Ocultar imagen en modo tableta */
+@media (min-width: 768px) and (max-width: 1000px) {
+  /* Anula el background-image inline del container-fluid */
+  .container-fluid {
+    background-image: none !important;
+  }
+
+  /* Oculta la <img> decorativa dentro de .left-section */
+  .left-section img {
+    display: none !important;
+  }
+}
+
+/* Android HDPI */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
   .login-box {
     padding: 15px;
   }
-  
+
   .form-control, .btn-primary {
     border-radius: 4px;
   }
