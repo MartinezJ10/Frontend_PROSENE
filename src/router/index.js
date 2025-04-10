@@ -14,6 +14,7 @@ import CreateUser from '../views/CreateUser.vue';
 import StudentsList from '../views/StudentsList.vue';
 import ErrorPage from '../views/ErrorPage.vue';
 import SessionExpiredView from '../views/SessionExpiredView.vue';
+import HistorialSolicitudes from '../views/HistorialSolicitudes.vue';
 import utils from '../utils';
 
 const routes = [
@@ -33,6 +34,7 @@ const routes = [
       { path: '/WelcomeMessage', component: WelcomeMessage, meta: { requiresAuth: true, allowedRoleIds: [1, 2] } },
       { path: '/CreateUser', component: CreateUser, meta: { requiresAuth: true, allowedRoleIds: [1, 2] } },
       { path: '/StudentList', component: StudentsList, meta: { requiresAuth: true, allowedRoleIds: [1, 2] } },
+      { path: '/HistorialSolicitudes', component: HistorialSolicitudes, meta: { requiresAuth: true, allowedRoleIds: [1, 2] } },
     ],
   },
   { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [3] } }, 

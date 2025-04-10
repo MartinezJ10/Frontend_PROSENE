@@ -67,6 +67,11 @@
               <i class="bi bi-bar-chart" aria-hidden="true"></i><span class="menu-text">Dashboard de Solicitudes</span>
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" @click="router.push('/HistorialSolicitudes')" aria-label="Historial de solicitudes">
+              <i class="bi bi-bookmark-check" aria-hidden="true"></i><span class="menu-text">Historial de Solicitudes</span>
+            </button>
+          </li>
         </ul>
       </div>
 
