@@ -29,7 +29,7 @@
         :mensaje="messageContent"
         :tipo="messageType"
         :visible="showMessage"
-        @update:visible="showMessage = false"
+         @update:visible="showMessage = false"
         aria-live="polite"
         class="responsive-mensaje"
       />
