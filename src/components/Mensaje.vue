@@ -12,7 +12,7 @@
   
   <script>
   export default {
-    name: 'MensajeRetroalimentacion', // Nombre del componente
+    name: 'MensajeRetroalimentacion',
     props: {
       mensaje: {
         type: String,
@@ -49,14 +49,17 @@
         this.$emit('update:visible', false);
       }
     },
-    mounted() {
-    setTimeout(() => {
-      this.closeMessage();
-    }, 5000);
-  }
+    watch: {
+      visible(newValue) {
+        if (newValue) {
+          setTimeout(() => {
+            this.closeMessage();
+          }, 5000); // Reinicia el temporizador cada vez que visible es true
+        }
+      }
+    }
   };
   </script>
-  
   <style scoped>
   .alert {
     max-width: 500px; /* Aumenta el tamaño máximo del mensaje */

@@ -138,6 +138,16 @@
         onSubmit: finalizeSolicitud
       }" role="dialog" aria-label="Modal para asignar finalizar solicitud" />
     </div>
+
+    <Mensaje
+        v-if="showMessage"
+        :mensaje="messageContent"
+        :tipo="messageType"
+        :visible="showMessage"
+        @update:visible="showMessage = $event"
+        aria-live="polite"
+        class="responsive-mensaje"
+      />
   </div>
 </template>
 
@@ -299,12 +309,14 @@ export default {
           messageContent.value = 'Solicitud finalizada con éxito';
           messageType.value = 'exito';
           showFinalizeModal.value = false;
+          visible.value = true;
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
         messageContent.value = 'Error al finalizar la solicitud';
         messageType.value = 'error';
         showMessage.value = true;
+        visible.value = true;
         console.error("ERROR FINALIZING SOLICITUD:", err.message);
       }
     };
