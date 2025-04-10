@@ -183,23 +183,22 @@
       <!-- Lista de solicitudes -->
       <div v-if="filteredRequests.length > 0" role="region" aria-label="Lista de solicitudes">
         <ul class="list-group">
-          <li class="list-group-item" v-for="(request, index) in filteredRequests" :key="request.id">
+          <li class="list-group-item" v-for="request in filteredRequests" :key="request.idsolicitud">
             <div class="request-card p-3">
-            <!-- Modificar la estructura de la tarjeta para que sea más compacta -->
-            <div class="row align-items-center card-text g-1">
-              <div class="col-6 col-md-2">
-                <h5 class="mb-0">#{{ request.idsolicitud }}</h5>
-              </div>
-              <div class="col-6 col-md-6 text-end text-md-start">
-                <p class="mb-0 text-muted small-text">{{ request.tiposolicitud.descripcion }}</p>
-              </div>
-              <div class="col-12 col-md-4 mt-1 mt-md-0">
-                <div class="d-flex justify-content-between align-items-center">
-                  <p class="mb-0 text-muted small-text">
-                    <small>{{ formatDate(request.fechacreacion) }}</small>
-                  </p>
-                  <div class="d-flex gap-1">
-                    <button 
+              <div class="row align-items-center card-text g-1">
+                <div class="col-6 col-md-2">
+                  <h5 class="mb-0">#{{ request.idsolicitud }}</h5>
+                </div>
+                <div class="col-6 col-md-6 text-end text-md-start">
+                  <p class="mb-0 text-muted small-text">{{ request.tiposolicitud.descripcion }}</p>
+                </div>
+                <div class="col-12 col-md-4 mt-1 mt-md-0">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-0 text-muted small-text">
+                      <small>{{ formatDate(request.fechacreacion) }}</small>
+                    </p>
+                    <div class="d-flex gap-1">
+                      <button 
                         v-if="request.estadosolicitud.descripcion === 'Recibida'"
                         class="btn btn-outline-danger btn-sm border btn-eliminar" 
                         @click="deleteSolicitud(request.idsolicitud)"
@@ -207,23 +206,23 @@
                       >
                         <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
-                    <button 
-                      class="btn btn-outline-dark btn-sm border btn-detalles" 
-                      @click="openDetailsModal(request.descripcion)"
-                      :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
-                    >
-                      Detalles
-                    </button>
-                    <span 
-                      class="badge badge-status" 
-                      :class="getStatusClass(request.estadosolicitud.descripcion)"
-                    >
-                      {{ request.estadosolicitud.descripcion }}
-                    </span>
+                      <button 
+                        class="btn btn-outline-dark btn-sm border btn-detalles" 
+                        @click="openDetailsModal(request.idsolicitud)"
+                        :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
+                      >
+                        Detalles
+                      </button>
+                      <span 
+                        class="badge badge-status" 
+                        :class="getStatusClass(request.estadosolicitud.descripcion)"
+                      >
+                        {{ request.estadosolicitud.descripcion }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             </div>
           </li>
         </ul>
@@ -235,15 +234,33 @@
       </div>
     </div>
   </main>
+
   <!-- role="dialog" para el modal de detalles -->
-<ReusableModal 
-  :show="showDetailsModal" 
-  title="Detalles de la Solicitud" 
-  :message="currentRequestDescription"
-  @close="showDetailsModal = false" 
-  role="dialog"
-  aria-label="Modal de detalles de la solicitud"
-/>
+  <ReusableModal 
+    :show="showDetailsModal" 
+    title="Detalles de la Solicitud" 
+    @close="showDetailsModal = false" 
+    role="dialog"
+    aria-label="Modal de detalles de la solicitud"
+  >
+    <template #default>
+      <div v-if="requestDetails">
+        <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
+        <p><strong>Fecha de creación:</strong> {{ formatDateTime(requestDetails.fechaCreacion) }}</p>
+        <h6>Retroalimentaciones:</h6>
+        <ul class="ps-3">
+          <li><strong>En proceso:</strong> {{ requestDetails.retroalimentaciones.enProceso || '–' }}</li>
+          <li><strong>Finalizada:</strong> {{ requestDetails.retroalimentaciones.finalizada || '–' }}</li>
+          <li><strong>Cancelada:</strong> {{ requestDetails.retroalimentaciones.cancelada || '–' }}</li>
+          <li><strong>Recibida:</strong> {{ requestDetails.retroalimentaciones.recibida || '–' }}</li>
+          <li><strong>Rechazada:</strong> {{ requestDetails.retroalimentaciones.rechazada || '–' }}</li>
+        </ul>
+      </div>
+      <div v-else class="text-center py-3">
+        Cargando detalles…
+      </div>
+    </template>
+  </ReusableModal>
 </template>
 
 <script>
@@ -269,7 +286,7 @@ export default {
   setup() {
     const showModal = ref(false);
     const showDetailsModal = ref(false);
-    const currentRequestDescription = ref("");
+    const requestDetails = ref(null);
 
     const router = useRouter();
     const mensaje = ref("");
@@ -288,10 +305,9 @@ export default {
     const notificationStudentURL = `${requestURL}/api/v1/notificaciones/`;
     const usertID = ref(utils.getCurrentUserID());
 
-    const isHighContrast = inject('isHighContrast');
-    const toggleTheme = inject('toggleTheme');
-
-    const themeClass = computed(() => (isHighContrast.value ? 'high-contrast' : ''));
+    const isHighContrast = inject("isHighContrast");
+    const toggleTheme = inject("toggleTheme");
+    const themeClass = computed(() => (isHighContrast.value ? "high-contrast" : ""));
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -315,9 +331,9 @@ export default {
         const response = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        tipoSolicitudes.value = response.data.map((tipoSolicitud) => ({
-          value: tipoSolicitud.idtiposolicitud,
-          label: tipoSolicitud.descripcion,
+        tipoSolicitudes.value = response.data.map((t) => ({
+          value: t.idtiposolicitud,
+          label: t.descripcion,
         }));
       } catch (err) {
         utils.errorLog(err);
@@ -348,8 +364,9 @@ export default {
 
     const deleteSolicitud = async (id) => {
       try {
-        await axios.delete(`${requestURL}/api/v1/solicitudes/eliminar?${id}`, {
+        await axios.delete(`${requestURL}/api/v1/solicitudes/eliminar`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+          params: { id },
         });
         mostrarExito();
         await retrieveRequests();
@@ -384,9 +401,44 @@ export default {
       }
     };
 
-    const openDetailsModal = (description) => {
-      currentRequestDescription.value = description;
+    const getSolicitudDetalle = async (solicitudId) => {
+      const resp = await axios.get(
+        `${requestURL}/api/v1/solicitudes/get/${solicitudId}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        }
+      );
+      const d = resp.data;
+      // Optional chaining y valores por defecto
+      const persona = d.responsablesolicitud?.persona;
+      const atendidaPor = persona
+        ? `${persona.primernombre} ${persona.primerapellido}`
+        : "Sin responsable asignado";
+
+      return {
+        atendidaPor,
+        fechaCreacion: d.fechacreacion,
+        retroalimentaciones: {
+          enProceso: d.retroalimentacionEnProceso ?? "–",
+          finalizada: d.retroalimentacionFinalizada ?? "–",
+          cancelada: d.retroalimentacionCancelada ?? "–",
+          recibida: d.retroalimentacionRecibida ?? "–",
+          rechazada: d.retroalimentacionRechazada ?? "–",
+        },
+      };
+    };
+
+    const openDetailsModal = async (solicitudId) => {
       showDetailsModal.value = true;
+      requestDetails.value = null;
+      try {
+        const detalles = await getSolicitudDetalle(solicitudId);
+        requestDetails.value = detalles;
+      } catch (err) {
+        console.error("Error al cargar detalles:", err);
+        mostrarError();
+        showDetailsModal.value = false;
+      }
     };
 
     const handleExit = () => {
@@ -465,6 +517,11 @@ export default {
       return `${day}/${month}/${year}`;
     };
 
+    const formatDateTime = (iso) => {
+      const d = new Date(iso);
+      return d.toLocaleString();
+    };
+
     onMounted(async () => {
       checkScreenSize();
       window.addEventListener("resize", checkScreenSize);
@@ -490,7 +547,7 @@ export default {
       router,
       showModal,
       showDetailsModal,
-      currentRequestDescription,
+      requestDetails,
       createRequestFields,
       handleRequestCreationSubmit,
       deleteSolicitud,
@@ -515,6 +572,7 @@ export default {
       resetFilters,
       notificationStudentURL,
       formatDate,
+      formatDateTime,
       isHighContrast,
       toggleTheme,
       themeClass,
@@ -522,6 +580,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 /* --- Ajustes globales y layout general --- */
