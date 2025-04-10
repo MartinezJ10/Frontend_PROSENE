@@ -1,25 +1,22 @@
 <template>
-  <!-- role="dialog" para el panel de notificaciones -->
-  <div 
-    class="notification-panel" 
-    v-click-outside="closePanel" 
-    role="dialog" 
-    aria-label="Panel de notificaciones" 
+  <div
+    class="notification-panel"
+    v-click-outside="closePanel"
+    role="dialog"
+    aria-label="Panel de notificaciones"
     aria-modal="true"
   >
-    <!-- Header del panel -->
     <div class="panel-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Notificaciones</h5>
-      <button 
-        class="close-btn" 
-        @click="closePanel" 
+      <button
+        class="close-btn"
+        @click="closePanel"
         aria-label="Cerrar panel de notificaciones"
       >
         ×
       </button>
     </div>
 
-    <!-- Contenido del panel -->
     <div v-if="notifications.length === 0" class="text-muted p-3 text-center">
       <div class="empty-state">
         <i class="bi bi-bell-slash mb-2"></i>
@@ -28,7 +25,7 @@
     </div>
     <div v-else class="panel-body" role="region" aria-label="Lista de notificaciones">
       <div
-        v-for="notification in notifications"
+        v-for="notification in sortedNotifications"
         :key="notification.idnotificacion"
         class="notification-card mb-3"
         :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }"
@@ -42,7 +39,7 @@
               {{ formatDate(notification.create_date) }}
             </div>
           </div>
-          
+
           <div class="id-container mt-2">
             <span class="id-label me-2">ID Solicitud:</span>
             <span class="id-value">{{ notification.solicitudes.idsolicitud }}</span>
@@ -72,8 +69,7 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted, inject } from "vue";
-
+import { ref, onMounted, inject, computed } from "vue";
 
 // Directiva personalizada para detectar clics fuera del elemento.
 // Se utiliza setTimeout para retrasar la adición del listener y evitar que el clic que abre el panel lo cierre inmediatamente.
@@ -127,6 +123,8 @@ export default {
           response.data.detail === "No tienes notificaciones"
             ? []
             : response.data;
+        // Ordenar las notificaciones por idnotificacion de mayor a menor
+        notifications.value.sort((a, b) => b.idnotificacion - a.idnotificacion);
       } catch (err) {
         notifications.value = [];
       }
@@ -172,8 +170,14 @@ export default {
 
     onMounted(retrieveNotifications);
 
+    // Crear una propiedad computada para las notificaciones ordenadas (opcional, ya que se ordena al recibir)
+    const sortedNotifications = computed(() => {
+      return [...notifications.value].sort((a, b) => b.idnotificacion - a.idnotificacion);
+    });
+
     return {
       notifications,
+      sortedNotifications, // Usar la propiedad computada en el template
       formatDate,
       markAsRead,
       deleteNotification,

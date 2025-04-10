@@ -29,10 +29,12 @@
         @keydown.enter="router.push(`/detailsUser/${user.idusuario}`)"
         role="button"
         tabindex="0"
-        :aria-label="`Ver detalles de ${user.email}, estado: ${user.isactive ? 'Activo' : 'Inactivo'}`"
+        :aria-label="`Ver detalles de ${getNombreCompleto(user)}, estado: ${user.isactive ? 'Activo' : 'Inactivo'}`"
       >
         <div class="user-card-header">
-          <p class="user-email"><strong>{{ user.email }}</strong></p>
+          <p class="user-name">
+            <strong>{{ getNombreCompleto(user) }}</strong>
+          </p>
           <div
             class="status"
             :class="{
@@ -52,7 +54,7 @@
             <span v-else-if="user.role_id === 2">Empleado/Colaborador</span>
             <span v-else-if="user.role_id === 3">Estudiante</span>
           </p>
-          <p class="user-center">{{ user.centroregional.centroregional }}</p>
+          <p class="user-center">{{ user.centroregional && user.centroregional.centroregional ? user.centroregional.centroregional : 'Centro no disponible' }}</p>
         </div>
       </div>
     </div>
@@ -131,6 +133,22 @@ export default {
       }
     };
 
+    // Función para obtener el nombre completo del usuario de forma segura
+    const getNombreCompleto = (user) => {
+      if (!user || !user.persona) {
+        return 'Nombre no disponible';
+      }
+      
+      const nombre = user.persona.primernombre || '';
+      const apellido = user.persona.primerapellido || '';
+      
+      if (!nombre && !apellido) {
+        return 'Nombre no disponible';
+      }
+      
+      return `${nombre} ${apellido}`.trim();
+    };
+
     onMounted(async () => {
       await retrieveUsers();
       await retrieveCentrosRegionales();
@@ -144,6 +162,7 @@ export default {
       return userInfo.value.filter(
         user =>
           (user.role_id === 1 || user.role_id === 2) &&
+          user.centroregional && 
           user.centroregional.idcentroregional === selectedCentroRegional.value
       );
     });
@@ -156,13 +175,15 @@ export default {
       messageContent,
       messageType,
       centrosRegionales,
-      selectedCentroRegional
+      selectedCentroRegional,
+      getNombreCompleto
     };
   }
 };
 </script>
 
 <style scoped>
+/* Estilos permanecen iguales */
 /* Contenedor principal */
 .manage-users-page {
   display: flex;

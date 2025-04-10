@@ -414,13 +414,17 @@ export default {
     };
 
     const filteredRequests = computed(() =>
-      requests.value.filter(r => {
-        const byDate   = searchDate.value ? isSameDate(r.fechacreacion, searchDate.value) : true;
-        const byEstado = searchEstado.value
-          ? r.estadosolicitud.idestadosolicitud === +searchEstado.value
-          : true;
-        return byDate && byEstado;
-      })
+      requests.value
+        // 1. Filtramos
+        .filter(r => {
+          const byDate   = searchDate.value ? isSameDate(r.fechacreacion, searchDate.value) : true;
+          const byEstado = searchEstado.value
+            ? r.estadosolicitud.idestadosolicitud === +searchEstado.value
+            : true;
+          return byDate && byEstado;
+        })
+        // 2. Ordenamos por idsolicitud ascendente
+        .sort((a, b) => b.idsolicitud - a.idsolicitud)
     );
 
     const filterRequests = () => {};
@@ -686,7 +690,7 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .header {
     flex-wrap: wrap;
     padding: 10px;
@@ -854,7 +858,7 @@ body {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .mobile-dropdown {
     display: none;
   }
@@ -862,7 +866,67 @@ body {
 
 @media (max-width: 1100px){
   .main-content {
-    height: clamp(500px, 91vh, 900px);
+    height: clamp(500px, 92vh, 1000px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+} 
+
+@media (max-width: 1100px) and (min-height: 700px){
+  .main-content {
+    height: clamp(500px, 88.2vh, 900px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 850px){
+  .main-content {
+    height: clamp(500px, 88.5vh, 900px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+}
+
+@media (max-width: 1000px) and (max-height: 1050px){
+  .main-content {
+    height: clamp(500px, 92vh, 1000px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+}
+
+@media(min-height: 1100px){
+  .main-content {
+    height: clamp(500px, 100vh, 1100px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+}
+
+@media(max-width: 1200px) and (min-height: 900px){
+  .main-content {
+    height: clamp(500px, 88.5vh, 900px);
+  }
+
+  .tittle-container h1 {
+    font-size: 1.9em;
+  }
+}
+
+@media(max-width: 900px) and (min-height: 900px){
+  .main-content {
+    height: clamp(500px, 95vh, 1100px);
   }
 
   .tittle-container h1 {

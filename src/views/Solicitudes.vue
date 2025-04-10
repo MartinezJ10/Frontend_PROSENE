@@ -36,12 +36,13 @@
 <!-- Sección de filtros con transición -->
 <transition name="slide-fade">
   <div 
-    v-if="showFilters" 
+  v-if="showFilters" 
     class="filters-overlay" 
     id="filters-overlay"
     role="region"
     aria-label="Filtros de búsqueda"
-  >
+    ref="filtersRef"
+    >
     <div class="filters-content">
       <div class="filters-grid">
         <!-- Filtro por Usuario -->
@@ -243,8 +244,9 @@
 </template>
 
 <script>
+// Importamos un nuevo ref para el elemento de filtros
 import axios from "axios";
-import { onMounted, ref, computed, inject } from "vue";
+import { onMounted, ref, computed, inject, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import Mensaje from "../components/Mensaje.vue";
 import ReusableForm from "../components/ReusableForm.vue";
@@ -255,6 +257,9 @@ export default {
   components: { Mensaje, ReusableForm, ReusableModal },
   setup() {
     const router = useRouter();
+
+    // Ref para el contenedor de filtros
+    const filtersRef = ref(null);
 
     // Estados para mensajes de retroalimentación
     const showMessage = ref(false);
@@ -280,6 +285,19 @@ export default {
     const showFilters = ref(false);
     const toggleFilters = () => {
       showFilters.value = !showFilters.value;
+    };
+    
+    // Función para manejar clics en el documento
+    const handleClickOutside = (event) => {
+      // Si los filtros están visibles y se hizo clic fuera del contenedor de filtros
+      if (
+        showFilters.value && 
+        filtersRef.value && 
+        !filtersRef.value.contains(event.target) && 
+        !event.target.closest('.btn-unah') // Evita que se cierre al hacer clic en el botón de filtros
+      ) {
+        showFilters.value = false;
+      }
     };
 
     // Función para limpiar filtros
@@ -335,6 +353,20 @@ export default {
         loading.value = false;
       }
     };
+
+    // Registrar y desregistrar el event listener para detectar clics fuera del contenedor
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+      retrieveSolicitudes();
+      retrieveEstados();
+      retrieveTipos();
+      retrieveCentros();
+      loading.value = false;
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside);
+    });
 
     const retrieveCentros = async () => {
       try {
@@ -461,14 +493,6 @@ export default {
       router.push(`/detailsSolicitud/${id}`);
     };
 
-    onMounted(async () => {
-      await retrieveSolicitudes();
-      await retrieveEstados();
-      await retrieveTipos();
-      await retrieveCentros();
-      loading.value = false;
-    });
-
     return {
       showMessage,
       messageContent,
@@ -501,7 +525,8 @@ export default {
       prevPage,
       goToDetails,
       retrieveMisSolicitudes,
-      retrieveSolicitudes
+      retrieveSolicitudes,
+      filtersRef // Exportamos la referencia al elemento
     };
   },
 };
