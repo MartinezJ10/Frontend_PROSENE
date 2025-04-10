@@ -26,7 +26,6 @@
       >
         <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear solicitud
       </button>
-      <!-- role="dialog" para el modal -->
       <FormModal 
         title="Crear Solicitud" 
         v-model="showModal" 
@@ -56,7 +55,6 @@
       >
         <i class="bi bi-brightness-high" aria-hidden="true"></i> <span>Cambiar Tema</span>
       </button>
-      <!-- role="dialog" para el panel de notificaciones -->
       <NotificationPanel 
         :isAdmin="false" 
         :url="notificationStudentURL" 
@@ -74,7 +72,6 @@
         <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar sesión
       </button>
     </div>
-    <!-- role="navigation" para el menú móvil -->
     <div class="mobile-dropdown dropdown" role="navigation" aria-label="Menú móvil">
       <button 
         class="btn btn-primary dropdown-toggle" 
@@ -125,15 +122,12 @@
   <main class="container-fluid main-content" role="main">
     <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
     <div class="dashboard-container p-4">
-      <!-- role="search" para los filtros -->
+      <!-- filtros -->
       <div class="filters mb-4 row g-3 align-items-end" role="search" aria-label="Filtros de solicitudes">
-        <!-- Filtro por fecha -->
         <div class="col-md-4">
           <label for="dateFilter" class="form-label">Fecha</label>
           <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-calendar-date" aria-hidden="true"></i>
-            </span>
+            <span class="input-group-text"><i class="bi bi-calendar-date" aria-hidden="true"></i></span>
             <input 
               type="date" 
               id="dateFilter" 
@@ -144,14 +138,10 @@
             />
           </div>
         </div>
-
-        <!-- Filtro por estado -->
         <div class="col-md-4">
           <label for="estadoFilter" class="form-label">Estado</label>
           <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-filter" aria-hidden="true"></i>
-            </span>
+            <span class="input-group-text"><i class="bi bi-filter" aria-hidden="true"></i></span>
             <select 
               id="estadoFilter" 
               class="form-select" 
@@ -166,8 +156,6 @@
             </select>
           </div>
         </div>
-
-        <!-- Botón para limpiar filtros -->
         <div class="col-md-4">
           <button 
             type="button" 
@@ -180,44 +168,27 @@
         </div>
       </div>
 
-      <!-- Lista de solicitudes -->
-      <div v-if="filteredRequests.length > 0" role="region" aria-label="Lista de solicitudes">
+      <!-- lista -->
+      <div v-if="filteredRequests.length" role="region" aria-label="Lista de solicitudes">
         <ul class="list-group">
-          <li class="list-group-item" v-for="request in filteredRequests" :key="request.idsolicitud">
+          <li class="list-group-item" v-for="req in filteredRequests" :key="req.idsolicitud">
             <div class="request-card p-3">
-              <div class="row align-items-center card-text g-1">
-                <div class="col-6 col-md-2">
-                  <h5 class="mb-0">#{{ request.idsolicitud }}</h5>
-                </div>
+              <div class="row align-items-center g-1">
+                <div class="col-6 col-md-2"><h5>#{{ req.idsolicitud }}</h5></div>
                 <div class="col-6 col-md-6 text-end text-md-start">
-                  <p class="mb-0 text-muted small-text">{{ request.tiposolicitud.descripcion }}</p>
+                  <p class="mb-0 text-muted small-text">{{ req.tiposolicitud.descripcion }}</p>
                 </div>
                 <div class="col-12 col-md-4 mt-1 mt-md-0">
                   <div class="d-flex justify-content-between align-items-center">
-                    <p class="mb-0 text-muted small-text">
-                      <small>{{ formatDate(request.fechacreacion) }}</small>
-                    </p>
+                    <p class="mb-0 text-muted small-text"><small>{{ formatDate(req.fechacreacion) }}</small></p>
                     <div class="d-flex gap-1">
                       <button 
-                        v-if="request.estadosolicitud.descripcion === 'Recibida'"
-                        class="btn btn-outline-danger btn-sm border btn-eliminar" 
-                        @click="deleteSolicitud(request.idsolicitud)"
-                        :aria-label="`Eliminar solicitud ${request.idsolicitud}`"
-                      >
-                        <i class="bi bi-trash" aria-hidden="true"></i>
-                      </button>
-                      <button 
-                        class="btn btn-outline-dark btn-sm border btn-detalles" 
-                        @click="openDetailsModal(request.idsolicitud)"
-                        :aria-label="`Ver detalles de la solicitud ${request.idsolicitud}`"
-                      >
-                        Detalles
-                      </button>
-                      <span 
-                        class="badge badge-status" 
-                        :class="getStatusClass(request.estadosolicitud.descripcion)"
-                      >
-                        {{ request.estadosolicitud.descripcion }}
+                        class="btn btn-outline-dark btn-sm" 
+                        @click="openDetailsModal(req.idsolicitud)"
+                        :aria-label="`Ver detalles de la solicitud ${req.idsolicitud}`"
+                      >Detalles</button>
+                      <span class="badge badge-status" :class="getStatusClass(req.estadosolicitud.descripcion)">
+                        {{ req.estadosolicitud.descripcion }}
                       </span>
                     </div>
                   </div>
@@ -227,40 +198,34 @@
           </li>
         </ul>
       </div>
-
-      <!-- Mensaje de no solicitudes -->
-      <div v-else class="no-requests">
-        No hay solicitudes registradas.
-      </div>
+      <div v-else class="no-requests">No hay solicitudes registradas.</div>
     </div>
   </main>
 
-  <!-- role="dialog" para el modal de detalles -->
+  <!-- modal detalles -->
   <ReusableModal 
-    :show="showDetailsModal" 
-    title="Detalles de la Solicitud" 
-    @close="showDetailsModal = false" 
-    role="dialog"
-    aria-label="Modal de detalles de la solicitud"
-  >
-    <template #default>
-      <div v-if="requestDetails">
-        <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
-        <p><strong>Fecha de creación:</strong> {{ formatDateTime(requestDetails.fechaCreacion) }}</p>
-        <h6>Retroalimentaciones:</h6>
-        <ul class="ps-3">
-          <li><strong>En proceso:</strong> {{ requestDetails.retroalimentaciones.enProceso || '–' }}</li>
-          <li><strong>Finalizada:</strong> {{ requestDetails.retroalimentaciones.finalizada || '–' }}</li>
-          <li><strong>Cancelada:</strong> {{ requestDetails.retroalimentaciones.cancelada || '–' }}</li>
-          <li><strong>Recibida:</strong> {{ requestDetails.retroalimentaciones.recibida || '–' }}</li>
-          <li><strong>Rechazada:</strong> {{ requestDetails.retroalimentaciones.rechazada || '–' }}</li>
-        </ul>
-      </div>
-      <div v-else class="text-center py-3">
-        Cargando detalles…
-      </div>
-    </template>
-  </ReusableModal>
+  :show="showDetailsModal" 
+  title="Detalles de la Solicitud" 
+  @close="showDetailsModal = false" 
+  role="dialog"
+  aria-label="Modal de detalles de la solicitud"
+>
+  <template #default>
+    <div v-if="requestDetails">
+      <!-- Nuevo bloque para el becario -->
+      <p v-if="requestDetails.becario">
+        <strong>Becario:</strong> {{ requestDetails.becario }}
+      </p>
+
+      <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
+      <p><strong>Fecha de creación:</strong> {{ formatDateTime(requestDetails.fechaCreacion) }}</p>
+      <p><strong>Estado:</strong> {{ requestDetails.estado }}</p>
+      <p><strong>Retroalimentación:</strong> {{ requestDetails.mensajeRetro }}</p>
+    </div>
+    <div v-else class="text-center py-3">Cargando detalles…</div>
+  </template>
+</ReusableModal>
+
 </template>
 
 <script>
@@ -277,37 +242,34 @@ import utils from "../utils";
 export default {
   name: "UserView",
   components: {
-    FormModal,
-    ReusableForm,
-    MensajeRetroalimentacion,
-    NotificationPanel,
-    ReusableModal,
+    FormModal, ReusableForm, MensajeRetroalimentacion,
+    NotificationPanel, ReusableModal
   },
   setup() {
-    const showModal = ref(false);
-    const showDetailsModal = ref(false);
-    const requestDetails = ref(null);
-
     const router = useRouter();
-    const mensaje = ref("");
-    const tipoSolicitudes = ref([]);
-    const visible = ref(false);
-    const tipo = ref("");
-    const createRequestFields = ref([]);
-    const isNotificationPanelVisible = ref(false);
-    const requests = ref([]);
-    const isMobile = ref(false);
-    const searchDate = ref("");
-    const searchEstado = ref("");
-    const estados = ref([]);
-
     const requestURL = inject("requestURL");
     const notificationStudentURL = `${requestURL}/api/v1/notificaciones/`;
     const usertID = ref(utils.getCurrentUserID());
 
+    const showModal = ref(false);
+    const showDetailsModal = ref(false);
+    const requestDetails = ref(null);
+
+    const mensaje = ref("");
+    const visible = ref(false);
+    const tipo = ref("");
+    const tipoSolicitudes = ref([]);
+    const createRequestFields = ref([]);
+    const isNotificationPanelVisible = ref(false);
+    const requests = ref([]);
+    const estados = ref([]);
+    const searchDate = ref("");
+    const searchEstado = ref("");
+    const isMobile = ref(false);
+
     const isHighContrast = inject("isHighContrast");
     const toggleTheme = inject("toggleTheme");
-    const themeClass = computed(() => (isHighContrast.value ? "high-contrast" : ""));
+    const themeClass = computed(() => isHighContrast.value ? "high-contrast" : "");
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -317,63 +279,33 @@ export default {
       isMobile.value = window.innerWidth <= 768;
     };
 
-    const errorLog = async (err) => {
-      console.error("ERROR IN REQUEST:", {
-        message: err.message,
-        response: err.response,
-        request: err.request,
-        config: err.config,
-      });
-    };
+    const errorLog = (err) => console.error("ERROR IN REQUEST:", err);
 
     const retrieveTipoSolicitudes = async () => {
       try {
-        const response = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        const { data } = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
-        tipoSolicitudes.value = response.data.map((t) => ({
-          value: t.idtiposolicitud,
-          label: t.descripcion,
-        }));
-      } catch (err) {
-        utils.errorLog(err);
-      }
+        tipoSolicitudes.value = data.map(t => ({ value: t.idtiposolicitud, label: t.descripcion }));
+      } catch (err) { errorLog(err) }
     };
 
     const retrieveRequests = async () => {
       try {
-        const response = await axios.get(`${requestURL}/api/v1/solicitudes/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        const { data } = await axios.get(`${requestURL}/api/v1/solicitudes/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
-        requests.value = response.data;
-      } catch (err) {
-        utils.errorLog(err);
-      }
+        requests.value = data;
+      } catch (err) { errorLog(err) }
     };
 
     const retrieveEstados = async () => {
       try {
-        const response = await axios.get(`${requestURL}/api/v1/varios/estados`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+        const { data } = await axios.get(`${requestURL}/api/v1/varios/estados`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         });
-        estados.value = response.data;
-      } catch (err) {
-        console.error("Failed to retrieve estados:", err.message);
-      }
-    };
-
-    const deleteSolicitud = async (id) => {
-      try {
-        await axios.delete(`${requestURL}/api/v1/solicitudes/eliminar`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-          params: { id },
-        });
-        mostrarExito();
-        await retrieveRequests();
-      } catch (err) {
-        console.error("Failed to delete solicitud:", err.message);
-        mostrarError();
-      }
+        estados.value = data;
+      } catch (err) { console.error("Failed to retrieve estados:", err) }
     };
 
     const handleRequestCreationSubmit = async (formData) => {
@@ -386,54 +318,62 @@ export default {
             idtiposolicitud: formData.requestType,
             idestadosolicitud: 1,
             fechacreacion: new Date().toISOString(),
-            descripcion: formData.description,
+            descripcion: formData.description
           },
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-          }
+          { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
         );
         showModal.value = false;
         mostrarExito();
         await retrieveRequests();
       } catch (err) {
-        console.error("Request creation failed:", err.message);
+        console.error("Request creation failed:", err);
         mostrarError();
       }
     };
 
     const getSolicitudDetalle = async (solicitudId) => {
-      const resp = await axios.get(
+      const { data: d } = await axios.get(
         `${requestURL}/api/v1/solicitudes/get/${solicitudId}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
       );
-      const d = resp.data;
-      // Optional chaining y valores por defecto
+
+      // Responsable
       const persona = d.responsablesolicitud?.persona;
       const atendidaPor = persona
         ? `${persona.primernombre} ${persona.primerapellido}`
         : "Sin responsable asignado";
 
+      // Estado y mensaje de retroalimentación
+      const estado = d.estadosolicitud?.descripcion || "";
+      let mensajeRetro = "";
+      switch (estado.toLowerCase()) {
+        case "en proceso":  mensajeRetro = d.retroalimentacionEnProceso; break;
+        case "finalizada":  mensajeRetro = d.retroalimentacionFinalizada; break;
+        case "cancelada":   mensajeRetro = d.retroalimentacionCancelada; break;
+        case "recibida":    mensajeRetro = d.retroalimentacionRecibida; break;
+        case "rechazada":   mensajeRetro = d.retroalimentacionRechazada; break;
+      }
+    
+      // Becario (sólo si viene true y hay nombre)
+      const becario = (d.toBecario && d.nombreBecario)
+        ? d.nombreBecario
+        : null;
+    
       return {
         atendidaPor,
         fechaCreacion: d.fechacreacion,
-        retroalimentaciones: {
-          enProceso: d.retroalimentacionEnProceso ?? "–",
-          finalizada: d.retroalimentacionFinalizada ?? "–",
-          cancelada: d.retroalimentacionCancelada ?? "–",
-          recibida: d.retroalimentacionRecibida ?? "–",
-          rechazada: d.retroalimentacionRechazada ?? "–",
-        },
+        estado,
+        mensajeRetro: mensajeRetro ?? "–",
+        becario      // <— aquí lo agregas
       };
     };
+
 
     const openDetailsModal = async (solicitudId) => {
       showDetailsModal.value = true;
       requestDetails.value = null;
       try {
-        const detalles = await getSolicitudDetalle(solicitudId);
-        requestDetails.value = detalles;
+        requestDetails.value = await getSolicitudDetalle(solicitudId);
       } catch (err) {
         console.error("Error al cargar detalles:", err);
         mostrarError();
@@ -442,7 +382,7 @@ export default {
     };
 
     const handleExit = () => {
-      localStorage.setItem("jwt", "");
+      localStorage.removeItem("jwt");
       router.push("/login");
     };
 
@@ -458,69 +398,39 @@ export default {
       visible.value = true;
     };
 
-    const mostrarAdvertencia = () => {
-      mensaje.value = "Ten cuidado con los datos ingresados.";
-      tipo.value = "advertencia";
-      visible.value = true;
-    };
-
     const getStatusClass = (status) => {
       switch (status.toLowerCase()) {
-        case "recibida":
-          return "recibida";
-        case "en proceso":
-          return "en-proceso";
-        case "finalizada":
-          return "finalizada";
-        case "cancelada":
-          return "cancelada";
-        case "rechazada":
-          return "rechazada";
-        default:
-          return "otro-estado";
+        case "recibida":   return "recibida";
+        case "en proceso": return "en-proceso";
+        case "finalizada": return "finalizada";
+        case "cancelada":  return "cancelada";
+        case "rechazada":  return "rechazada";
+        default:           return "otro-estado";
       }
     };
 
-    const isSameDate = (date1, date2) => {
-      const d1 = new Date(date1);
-      const d2 = new Date(date2);
-      return d1.toISOString().split("T")[0] === d2.toISOString().split("T")[0];
+    const isSameDate = (d1, d2) => {
+      return new Date(d1).toISOString().split("T")[0] === new Date(d2).toISOString().split("T")[0];
     };
 
-    const filteredRequests = computed(() => {
-      return requests.value.filter((request) => {
-        const matchesDate = searchDate.value
-          ? isSameDate(request.fechacreacion, searchDate.value)
+    const filteredRequests = computed(() =>
+      requests.value.filter(r => {
+        const byDate   = searchDate.value ? isSameDate(r.fechacreacion, searchDate.value) : true;
+        const byEstado = searchEstado.value
+          ? r.estadosolicitud.idestadosolicitud === +searchEstado.value
           : true;
-        const matchesEstado = searchEstado.value
-          ? request.estadosolicitud.idestadosolicitud === parseInt(searchEstado.value)
-          : true;
-        return matchesDate && matchesEstado;
-      });
-    });
+        return byDate && byEstado;
+      })
+    );
 
-    const filterRequests = () => {
-      // Trigger computed property
-    };
+    const filterRequests = () => {};
+    const resetFilters  = () => { searchDate.value=""; searchEstado.value=""; filterRequests(); };
 
-    const resetFilters = () => {
-      searchDate.value = "";
-      searchEstado.value = "";
-      filterRequests();
-    };
-
-    const formatDate = (date) => {
-      const d = new Date(date);
-      const day = d.getDate().toString().padStart(2, "0");
-      const month = (d.getMonth() + 1).toString().padStart(2, "0");
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-
-    const formatDateTime = (iso) => {
+    const formatDate = iso => {
       const d = new Date(iso);
-      return d.toLocaleString();
+      return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
     };
+    const formatDateTime = iso => new Date(iso).toLocaleString();
 
     onMounted(async () => {
       checkScreenSize();
@@ -529,13 +439,8 @@ export default {
       await retrieveRequests();
       await retrieveEstados();
       createRequestFields.value = [
-        {
-          name: "requestType",
-          label: "Tipo de Solicitud",
-          type: "select",
-          options: tipoSolicitudes.value,
-        },
-        { name: "description", label: "Descripción", type: "text-area" },
+        { name:"requestType", label:"Tipo de Solicitud", type:"select", options:tipoSolicitudes.value },
+        { name:"description", label:"Descripción", type:"text-area" }
       ];
     });
 
@@ -544,43 +449,21 @@ export default {
     });
 
     return {
-      router,
-      showModal,
-      showDetailsModal,
-      requestDetails,
-      createRequestFields,
-      handleRequestCreationSubmit,
-      deleteSolicitud,
-      handleExit,
-      mensaje,
-      visible,
-      tipo,
-      mostrarExito,
-      mostrarError,
-      mostrarAdvertencia,
+      showModal, showDetailsModal, requestDetails,
+      mensaje, visible, tipo,
+      createRequestFields, isNotificationPanelVisible,
+      requests, estados, searchDate, searchEstado,
+      themeClass, notificationStudentURL,
       reusableFormComponent: ReusableForm,
-      isNotificationPanelVisible,
-      toggleNotificationPanel,
-      requests,
-      getStatusClass,
-      openDetailsModal,
-      searchDate,
-      searchEstado,
-      estados,
-      filteredRequests,
-      filterRequests,
-      resetFilters,
-      notificationStudentURL,
-      formatDate,
-      formatDateTime,
-      isHighContrast,
-      toggleTheme,
-      themeClass,
+      toggleNotificationPanel, toggleTheme,
+      formatDate, formatDateTime,
+      openDetailsModal, handleRequestCreationSubmit,
+      handleExit, getStatusClass,
+      filteredRequests, filterRequests, resetFilters
     };
-  },
+  }
 };
 </script>
-
 
 <style scoped>
 /* --- Ajustes globales y layout general --- */

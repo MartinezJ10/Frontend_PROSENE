@@ -28,7 +28,7 @@
     </div>
     <div v-else class="panel-body" role="region" aria-label="Lista de notificaciones">
       <div
-        v-for="notification in sortedNotifications"
+        v-for="notification in notifications"
         :key="notification.idnotificacion"
         class="notification-card mb-3"
         :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }"
@@ -72,7 +72,7 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, onMounted, inject } from "vue";
 
 
 // Directiva personalizada para detectar clics fuera del elemento.
@@ -170,17 +170,10 @@ export default {
       }
     };
 
-    onMounted(retrieveNotifications);    
-    const sortedNotifications = computed(() =>
-      notifications.value.slice().sort(
-        (a, b) =>
-          new Date(b.create_date).getTime() - new Date(a.create_date).getTime()
-      )
-    );
+    onMounted(retrieveNotifications);
 
     return {
       notifications,
-      sortedNotifications,
       formatDate,
       markAsRead,
       deleteNotification,
