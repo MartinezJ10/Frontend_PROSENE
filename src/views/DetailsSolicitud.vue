@@ -275,13 +275,14 @@ export default {
           );
           messageContent.value = 'Solicitud rechazada con éxito';
           messageType.value = 'exito';
-          showRejectModal.value = false;
+          showMessage.value = true; 
+          showRejectModal.value = false; // Cierra el modal
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
         messageContent.value = 'Error al rechazar la solicitud';
         messageType.value = 'error';
-        showMessage.value = false;
+        showMessage.value = true;
         console.error("ERROR REJECTING SOLICITUD:", err.message);
       }
     };
@@ -309,14 +310,12 @@ export default {
           messageContent.value = 'Solicitud finalizada con éxito';
           messageType.value = 'exito';
           showFinalizeModal.value = false;
-          visible.value = true;
           await getSolicitudDetails(solicitud_id);
         }
       } catch (err) {
         messageContent.value = 'Error al finalizar la solicitud';
         messageType.value = 'error';
         showMessage.value = true;
-        visible.value = true;
         console.error("ERROR FINALIZING SOLICITUD:", err.message);
       }
     };
