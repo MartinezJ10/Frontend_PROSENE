@@ -343,7 +343,7 @@ export default {
     const retrieveMisSolicitudes = async () => {
       loading.value = true;
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/v1/solicitudes/atendidas", {
+        const response = await axios.get(`${requestURL}/api/v1/solicitudes/atendidas`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         solicitudes.value = mapSolicitudes(response.data);
