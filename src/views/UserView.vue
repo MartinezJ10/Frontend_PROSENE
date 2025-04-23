@@ -1,5 +1,5 @@
 <template>
-  <!-- role="banner" define el encabezado para NVDA -->
+  <!-- Encabezado mejorado con mejor estructura semántica -->
   <header
     class="header-page d-flex justify-content-between align-items-center px-3"
     role="banner"
@@ -7,29 +7,31 @@
     <div class="d-flex align-items-center">
       <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
     </div>
-    <div class="d-flex justify-content-center flex-grow-1 tittle-container">
+    <div class="d-flex justify-content-center flex-grow-1 title-container" aria-hidden="false">
       <h1 class="m-0">Solicitudes Académicas</h1>
     </div>
-    <div>
-      <!-- aria-live para mensajes dinámicos -->
+
+    <!-- Componente de retroalimentación -->
+    <div aria-live="polite">
       <MensajeRetroalimentacion
         :mensaje="mensaje"
         :visible="visible"
         :tipo="tipo"
         @update:visible="visible = $event"
-        aria-live="polite"
       />
     </div>
 
-    <div class="d-flex gap-2">
+    <!-- Barra de acciones optimizada para accesibilidad -->
+    <div class="d-flex gap-2 action-buttons">
       <button
         class="btn btn-primary request-button"
         @click="showModal = true"
         aria-label="Crear una nueva solicitud"
       >
-        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear
-        solicitud
+        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> 
+        <span>Crear solicitud</span>
       </button>
+      
       <FormModal
         title="Crear Solicitud"
         v-model="showModal"
@@ -41,25 +43,29 @@
           modalClass: 'modal-style-dos',
         }"
         role="dialog"
-        aria-label="Modal para crear solicitud"
+        aria-labelledby="modal-title"
       />
+      
       <button
-        class="btn btn-light border notification-button"
+        class="btn btn-outline-primary border notification-button"
         @click="toggleNotificationPanel"
         :aria-expanded="isNotificationPanelVisible ? 'true' : 'false'"
         aria-controls="notification-panel"
         aria-label="Abrir panel de notificaciones"
       >
         <i class="bi bi-bell" aria-hidden="true"></i>
+        <span class="visually-hidden">Notificaciones</span>
       </button>
+      
       <button
-        class="btn btn-light me-2 border theme-button"
+        class="btn btn-outline-primary border theme-button"
         @click="toggleTheme"
         aria-label="Cambiar tema de contraste"
       >
         <i class="bi bi-brightness-high" aria-hidden="true"></i>
-        <span>Cambiar Tema</span>
+        <span class="theme-text">Cambiar Tema</span>
       </button>
+      
       <NotificationPanel
         :isAdmin="false"
         :url="notificationStudentURL"
@@ -67,17 +73,20 @@
         @close="toggleNotificationPanel"
         id="notification-panel"
         role="dialog"
-        aria-label="Panel de notificaciones"
+        aria-labelledby="notification-title"
       />
+      
       <button
         class="btn btn-danger d-flex align-items-center logout-button"
         @click="handleExit"
         aria-label="Cerrar sesión"
       >
-        <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar
-        sesión
+        <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> 
+        <span class="logout-text">Cerrar sesión</span>
       </button>
     </div>
+    
+    <!-- Menú móvil optimizado -->
     <div
       class="mobile-dropdown dropdown"
       role="navigation"
@@ -91,9 +100,9 @@
         aria-expanded="false"
         aria-label="Abrir menú móvil"
       >
-        Menú
+        <i class="bi bi-list me-1" aria-hidden="true"></i> Menú
       </button>
-      <ul class="dropdown-menu" aria-labelledby="mobileMenu">
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileMenu">
         <li>
           <a
             class="dropdown-item"
@@ -101,7 +110,7 @@
             @click.prevent="showModal = true"
             aria-label="Crear solicitud desde menú móvil"
           >
-            Crear solicitud
+            <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear solicitud
           </a>
         </li>
         <li>
@@ -111,39 +120,55 @@
             @click.prevent="toggleNotificationPanel"
             aria-label="Ver notificaciones desde menú móvil"
           >
-            Notificaciones
+            <i class="bi bi-bell me-2" aria-hidden="true"></i> Notificaciones
           </a>
         </li>
         <li>
           <a
             class="dropdown-item"
             href="#"
+            @click.prevent="toggleTheme"
+            aria-label="Cambiar tema desde menú móvil"
+          >
+            <i class="bi bi-brightness-high me-2" aria-hidden="true"></i> Cambiar tema
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a
+            class="dropdown-item text-danger"
+            href="#"
             @click.prevent="handleExit"
             aria-label="Cerrar sesión desde menú móvil"
           >
-            Cerrar sesión
+            <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar sesión
           </a>
         </li>
       </ul>
     </div>
   </header>
 
-  <!-- role="main" define el contenido principal -->
+  <!-- Contenido principal optimizado -->
   <main class="container-fluid main-content" role="main">
-    <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
+    <div class="dashboard-header">
+      <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
+    </div>
+    
     <div class="dashboard-container p-4">
-      <!-- filtros -->
+      <!-- Filtros reorganizados y con mejor accesibilidad -->
       <div
         class="filters mb-4 row g-3 align-items-end"
         role="search"
-        aria-label="Filtros de solicitudes"
+        aria-labelledby="filtros-heading"
       >
+        <div id="filtros-heading" class="visually-hidden">Filtros de solicitudes</div>
+        
         <div class="col-md-4">
           <label for="dateFilter" class="form-label">Fecha</label>
           <div class="input-group">
-            <span class="input-group-text"
-              ><i class="bi bi-calendar-date" aria-hidden="true"></i
-            ></span>
+            <span class="input-group-text">
+              <i class="bi bi-calendar-date" aria-hidden="true"></i>
+            </span>
             <input
               type="date"
               id="dateFilter"
@@ -154,12 +179,13 @@
             />
           </div>
         </div>
+        
         <div class="col-md-4">
           <label for="estadoFilter" class="form-label">Estado</label>
           <div class="input-group">
-            <span class="input-group-text"
-              ><i class="bi bi-filter" aria-hidden="true"></i
-            ></span>
+            <span class="input-group-text">
+              <i class="bi bi-filter" aria-hidden="true"></i>
+            </span>
             <select
               id="estadoFilter"
               class="form-select"
@@ -178,55 +204,62 @@
             </select>
           </div>
         </div>
+        
         <div class="col-md-4">
           <button
             type="button"
-            class="btn-limpiar btn btn-secondary w-100"
+            class="btn btn-secondary w-100 btn-limpiar"
             @click="resetFilters"
             aria-label="Limpiar todos los filtros"
           >
-            Limpiar filtros
+            <i class="bi bi-x-circle me-2" aria-hidden="true"></i> Limpiar filtros
           </button>
         </div>
       </div>
 
-      <!-- lista -->
+      <!-- Lista de solicitudes mejorada -->
       <div
         v-if="filteredRequests.length"
         role="region"
-        aria-label="Lista de solicitudes"
+        aria-labelledby="solicitudes-heading"
+        class="solicitudes-container"
       >
-        <ul class="list-group">
+        <h3 id="solicitudes-heading" class="visually-hidden">Lista de solicitudes</h3>
+        
+        <ul class="list-group solicitudes-list">
           <li
             class="list-group-item"
             v-for="req in filteredRequests"
             :key="req.idsolicitud"
           >
             <div class="request-card p-3">
-              <div class="row align-items-center g-1">
-                <div class="col-6 col-md-2">
-                  <h5>#{{ req.idsolicitud }}</h5>
+              <div class="row align-items-center g-2">
+                <div class="col-12 col-sm-6 col-md-2">
+                  <h4 class="request-id">#{{ req.idsolicitud }}</h4>
                 </div>
-                <div class="col-6 col-md-6 text-end text-md-start">
-                  <p class="mb-0 text-muted small-text">
+                
+                <div class="col-12 col-sm-6 col-md-6">
+                  <p class="mb-0 request-type">
                     {{ req.tiposolicitud.descripcion }}
                   </p>
                 </div>
-                <div class="col-12 col-md-4 mt-1 mt-md-0">
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
-                    <p class="mb-0 text-muted small-text">
-                      <small>{{ formatDate(req.fechacreacion) }}</small>
+                
+                <div class="col-12 col-md-4 mt-2 mt-md-0">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <p class="mb-0 request-date">
+                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                      <span>{{ formatDate(req.fechacreacion) }}</span>
                     </p>
-                    <div class="d-flex gap-1">
+                    
+                    <div class="d-flex gap-2 mt-2 mt-sm-0">
                       <button
-                        class="btn btn-outline-dark btn-sm"
+                        class="btn btn-outline-primary btn-sm"
                         @click="openDetailsModal(req.idsolicitud)"
                         :aria-label="`Ver detalles de la solicitud ${req.idsolicitud}`"
                       >
-                        Detalles
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i> Detalles
                       </button>
+                      
                       <span
                         class="badge badge-status"
                         :class="getStatusClass(req.estadosolicitud.descripcion)"
@@ -241,38 +274,84 @@
           </li>
         </ul>
       </div>
-      <div v-else class="no-requests">No hay solicitudes registradas.</div>
+      
+      <!-- Mensaje cuando no hay solicitudes -->
+      <div v-else class="no-requests" role="status">
+        <i class="bi bi-inbox me-2" aria-hidden="true"></i>
+        No hay solicitudes registradas.
+      </div>
     </div>
   </main>
 
-  <!-- modal detalles -->
-  <ReusableModal
-    :show="showDetailsModal"
-    title="Detalles de la Solicitud"
-    @close="showDetailsModal = false"
-    role="dialog"
-    aria-label="Modal de detalles de la solicitud"
-  >
-    <template #default>
-      <div v-if="requestDetails">
-        <!-- Nuevo bloque para el becario -->
-        <p v-if="requestDetails.becario">
-          <strong>Becario:</strong> {{ requestDetails.becario }}
-        </p>
-
-        <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
-        <p>
-          <strong>Fecha de creación:</strong>
-          {{ formatDateTime(requestDetails.fechaCreacion) }}
-        </p>
-        <p><strong>Estado:</strong> {{ requestDetails.estado }}</p>
-        <p>
-          <strong>Retroalimentación:</strong> {{ requestDetails.mensajeRetro }}
-        </p>
+  <!-- Modal de detalles mejorado -->
+<div 
+  class="modal-dialog" 
+  :class="{'dark-theme-modal': isDarkTheme}"
+>
+  <div class="modal-content">
+    <!-- Modal de detalles mejorado - Estructura correcta -->
+<ReusableModal
+  :show="showDetailsModal"
+  title="Detalles de la Solicitud"
+  @close="showDetailsModal = false"
+  :class="{'dark-theme-modal': isDarkMode}"
+  role="dialog"
+  aria-labelledby="modal-details-title"
+>
+  <template #header>
+    <h3 id="modal-details-title" class="modal-title">
+      Detalles de la Solicitud
+    </h3>
+  </template>
+  
+  <template #default>
+    <div v-if="requestDetails" class="request-details">
+      <div class="detail-item" v-if="requestDetails.becario">
+        <strong><i class="bi bi-person-badge me-2" aria-hidden="true"></i>Becario:</strong> 
+        <span>{{ requestDetails.becario }}</span>
       </div>
-      <div v-else class="text-center py-3">Cargando detalles…</div>
-    </template>
-  </ReusableModal>
+
+      <div class="detail-item">
+        <strong><i class="bi bi-person-check me-2" aria-hidden="true"></i>Atendida por:</strong> 
+        <span>{{ requestDetails.atendidaPor }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <strong><i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Fecha de creación:</strong>
+        <span>{{ formatDateTime(requestDetails.fechaCreacion) }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <strong><i class="bi bi-tag me-2" aria-hidden="true"></i>Estado:</strong>
+        <span class="badge badge-status" :class="getStatusClass(requestDetails.estado)">
+          {{ requestDetails.estado }}
+        </span>
+      </div>
+      
+      <div class="detail-item">
+        <strong><i class="bi bi-chat-text me-2" aria-hidden="true"></i>Retroalimentación:</strong>
+        <div class="feedback-text mt-2 p-2">
+          {{ requestDetails.mensajeRetro || 'Sin retroalimentación' }}
+        </div>
+      </div>
+    </div>
+    
+    <div v-else class="text-center py-3" role="status">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p>Cargando detalles...</p>
+    </div>
+  </template>
+  
+  <template #footer>
+    <button type="button" class="btn btn-secondary" @click="showDetailsModal = false">
+      Cerrar
+    </button>
+  </template>
+</ReusableModal>
+  </div>
+</div>
 </template>
 
 <script>
@@ -527,6 +606,12 @@ export default {
     };
     const formatDateTime = (iso) => new Date(iso).toLocaleString();
 
+    // En tu setup()
+    const isDarkMode = computed(() => {
+      return document.body.classList.contains('high-contrast') || 
+             document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    });
+
     onMounted(async () => {
       checkScreenSize();
       window.addEventListener("resize", checkScreenSize);
@@ -575,28 +660,110 @@ export default {
       filteredRequests,
       filterRequests,
       resetFilters,
+      isDarkMode,
     };
   },
 };
 </script>
 
 <style scoped>
-/* --- Ajustes globales y layout general --- */
-html,
-body {
+/* --- Variables CSS mejoradas --- */
+:root {
+  /* Variables de colores base */
+  --primary-color: #003366;
+  --secondary-color: #7ba7d1;
+  --background-color: #f5f8fa;
+  --text-color: #333;
+  --text-muted: #6c757d;
+  --sm-text: #666;
+  --header-text-color: #fff;
+  --card-bg-color: #fff;
+  --card-border-color: #dce4ec;
+  --text-shadow-color: rgba(0, 0, 0, 0.1);
+  --filter-border-color: #e5e9f0;
+  --filter-bg-color: #f8fafc;
+  --brat: #fff;
+  
+  /* Variables específicas para badges */
+  --badge-text-color: #2c3e50;
+  --badge-en-proceso-text-color: #0d6efd;
+  --badge-finalizada-bg-color: #198754;
+  --badge-finalizada-text-color: #fff;
+  --badge-cancelada-rechazada-bg-color: #dc3545;
+  --badge-cancelada-rechazada-text-color: #fff;
+  --badge-otro-estado-bg-color: #fd7e14;
+  --badge-otro-estado-text-color: #fff;
+  --placeholder-color: rgba(108, 117, 125, 0.3);
+  
+  /* Variables para animaciones y transiciones */
+  --transition-speed: 0.2s;
+  --box-shadow: 0 2px 5px var(--text-shadow-color);
+  --hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  --primary-text: #212529;
+  --primary-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --feedback-bg: #f8f9fa;
+  --badge-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Clase para tema de alto contraste */
+.high-contrast {
+  --primary-color: #002b4d;
+  --secondary-color: #5d8cb9;
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --text-muted: #b0b0b0;
+  --sm-text: #d0d0d0;
+  --header-text-color: #fff;
+  --card-bg-color: #1e1e1e;
+  --card-border-color: #444;
+  --text-shadow-color: rgba(0, 0, 0, 0.3);
+  --filter-border-color: #444;
+  --filter-bg-color: #2d2d2d;
+  --brat: #f0f0f0;
+  
+  /* Variables específicas para badges en modo oscuro */
+  --badge-text-color: #e2e8f0;
+  --badge-en-proceso-text-color: #63a7ff;
+  --badge-finalizada-bg-color: #28a745;
+  --badge-finalizada-text-color: #fff;
+  --badge-cancelada-rechazada-bg-color: #dc3545;
+  --badge-cancelada-rechazada-text-color: #fff;
+  --badge-otro-estado-bg-color: #fd7e14;
+  --badge-otro-estado-text-color: #fff;
+  --placeholder-color: rgba(180, 185, 190, 0.3);
+}
+
+/* --- Utilidades de accesibilidad --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Layout principal --- */
+html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .main-content {
-  flex-grow: 1;
+  flex: 1;
   padding: 30px;
   background-color: var(--background-color);
   background-image: url("@/assets/fondo-unah4.png");
@@ -605,94 +772,184 @@ body {
   background-size: 300px;
   display: flex;
   flex-direction: column;
-  height: clamp(300px, 85.5vh, 900px);
+  height: calc(100vh - 80px);
+  transition: background-color var(--transition-speed) ease;
+  overflow-x: hidden;
 }
 
+.high-contrast .main-content {
+  background-image: url("@/assets/fondo-unah4-dark.png");
+}
+
+/* --- Encabezado --- */
 .header-page {
   background-color: var(--primary-color);
   padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: background-color var(--transition-speed) ease;
+  height: 80px;
 }
 
 .logo {
   width: 90px;
   max-width: 100%;
+  height: auto;
 }
 
-.tittle-container h1 {
-  font-size: 2em;
+.title-container h1 {
+  font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
   font-weight: bold;
   letter-spacing: 1px;
   text-shadow: 2px 2px 4px var(--text-shadow-color);
   margin: 0;
   color: var(--header-text-color);
+  text-align: center;
 }
 
-/* --- Botones --- */
-.request-button,
-.btn-detalles,
-.btn-limpiar {
-  color: var(--primary-color);
+/* Luego usa estas variables en tus componentes */
+/* Estilos para el modal que deben estar disponibles para el componente ReusableModal */
+.modal-content {
+  background-color: var(--modal-bg, #fff);
+  color: var(--primary-text, #212529);
 }
 
-.request-button {
-  background-color: var(--secondary-color);
-  border: none;
+[data-bs-theme="dark"] .modal-content,
+.dark-theme .modal-content,
+.dark-theme-modal .modal-content {
+  background-color: #2b2b2b;
+  color: #f8f9fa;
 }
 
-.request-button:hover,
-.btn-detalles,
-.btn-limpiar {
-  background-color: lightsteelblue !important;
-}
-/* Add to your existing styles */
-.btn-outline-dark.btn-sm {
-  /* Light mode (default) */
-  color: #4682b4; /* Slightly darker than lightsteelblue for better contrast */
-  border-color: #4682b4;
-  background-color: transparent;
+[data-bs-theme="dark"] .modal-header,
+.dark-theme .modal-header,
+.dark-theme-modal .modal-header {
+  border-bottom-color: #444;
 }
 
-.btn-outline-dark.btn-sm:hover {
-  background-color: lightsteelblue;
-  color: #003366; /* Your primary dark blue */
+[data-bs-theme="dark"] .modal-footer,
+.dark-theme .modal-footer,
+.dark-theme-modal .modal-footer {
+  border-top-color: #444;
 }
 
-/* Dark mode version */
-.high-contrast .btn-outline-dark.btn-sm {
-  color: #7ba7d1; /* Brighter version for dark mode */
-  border-color: #7ba7d1;
+[data-bs-theme="dark"] .badge-status,
+.dark-theme .badge-status,
+.dark-theme-modal .badge-status {
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.high-contrast .btn-outline-dark.btn-sm:hover {
-  background-color: #7ba7d1;
-  color: var(--text-color); /* Will use your dark mode text color */
+[data-bs-theme="dark"] .feedback-text,
+.dark-theme .feedback-text,
+.dark-theme-modal .feedback-text {
+  background-color: #3a3a3a;
+  border: 1px solid #555;
+  color: #f8f9fa;
 }
+
+[data-bs-theme="dark"] .detail-item,
+.dark-theme .detail-item,
+.dark-theme-modal .detail-item {
+  color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .modal-title,
+.dark-theme .modal-title,
+.dark-theme-modal .modal-title {
+  color: #f8f9fa;
+}
+
 /* --- Dashboard --- */
-.dashboard-container {
-  background-color: var(--background-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 5px var(--text-shadow-color);
-  padding: 20px;
-  margin: 10px;
-  overflow-y: auto;
-  flex-grow: 1;
+.dashboard-header {
+  margin-bottom: 1rem;
+}
+
+.theme-button{
+  color: white !important;
+}
+
+.notification-button{
+  color: white !important;
 }
 
 .dashboard-title {
-  font-size: 1.5em;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: var(--sm-text);
-  margin-bottom: 20px;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--secondary-color);
 }
 
-/* --- Ajustes para la lista y la "tarjeta" de solicitud --- */
+.dashboard-container {
+  background-color: var(--card-bg-color);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  padding: 20px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+  overflow-y: auto;
+  flex: 1;
+  transition: background-color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease;
+}
+
+/* --- Filtros --- */
+.filters {
+  padding: 1rem;
+  border: 1px solid var(--filter-border-color);
+  border-radius: 8px;
+  background-color: var(--filter-bg-color);
+  margin-bottom: 1.5rem;
+  transition: background-color var(--transition-speed) ease,
+              border-color var(--transition-speed) ease;
+}
+
+.filters .form-label {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.input-group-text {
+  background-color: var(--primary-color);
+  color: var(--header-text-color);
+  border: none;
+}
+
+/* Input y select estilizados */
+.form-control, .form-select {
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--card-border-color);
+  transition: border-color var(--transition-speed) ease,
+              background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.25rem rgba(123, 167, 209, 0.25);
+}
+
+/* --- Lista de solicitudes --- */
+.solicitudes-container {
+  margin-bottom: 1rem;
+}
+
+.solicitudes-list {
+  padding: 0;
+}
+
 .list-group-item {
   border: none;
   padding: 0;
   margin-bottom: 1rem;
+  background-color: transparent;
 }
 
 .request-card {
@@ -700,49 +957,56 @@ body {
   border-radius: 8px;
   background-color: var(--card-bg-color);
   color: var(--text-color);
-  transition: background-color 0.2s ease;
-  position: relative;
+  transition: all var(--transition-speed) ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.card-text p,
-.request-card p {
-  color: var(--text-color);
+.request-card:hover {
+  box-shadow: var(--hover-shadow);
+  transform: translateY(-2px);
 }
 
-.card-text p {
-  font-size: 1.1rem !important;
-}
-
-.request-card h5 {
+.request-id {
   font-size: 1.25rem;
   color: var(--text-color);
-  text-align: left;
+  margin: 0;
+  font-weight: 600;
 }
 
-/* --- Badge (estado) --- */
+.request-type {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.request-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* --- Badges para estados --- */
 .badge-status {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   min-width: 90px;
   text-align: center;
-  padding: 0.5em;
-}
-
-.badge-status.recibida,
-.badge-status.en-proceso {
-  background-color: var(--background-color);
+  padding: 0.5em 0.75em;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color var(--transition-speed) ease;
 }
 
 .badge-status.recibida {
-  color: var(--badge-text-color);
+  background-color: #e3f2fd;
+  color: #0c63e4;
 }
 
 .badge-status.en-proceso {
-  color: var(--badge-en-proceso-text-color);
+  background-color: #cff4fc;
+  color: #055160;
 }
 
 .badge-status.finalizada {
   background-color: var(--badge-finalizada-bg-color);
-  color: var(----badge-finalizada-text-color);
+  color: var(--badge-finalizada-text-color);
 }
 
 .badge-status.cancelada,
@@ -756,385 +1020,239 @@ body {
   color: var(--badge-otro-estado-text-color);
 }
 
-/* --- Filtros --- */
-.filters {
-  padding: 1rem;
-  border: 1px solid var(--filter-border-color);
-  border-radius: 8px;
-  background-color: var(--filter-bg-color);
+/* --- Botones --- */
+.btn {
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all var(--transition-speed) ease;
 }
 
-.filters .form-label {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.input-group-text {
+.btn-primary {
   background-color: var(--primary-color);
-  color: var(--brat);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+  background-color: color-mix(in srgb, var(--primary-color), #000 10%);
+  border-color: color-mix(in srgb, var(--primary-color), #000 10%);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-limpiar:hover {
+  background-color: #5a6268 !important;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.request-button {
+  background-color: var(--secondary-color);
+  border: none;
+  color: var(--header-text-color);
+}
+
+.request-button:hover {
+  background-color: color-mix(in srgb, var(--secondary-color), #000 10%);
+}
+
+/* --- Modal de detalles --- */
+.request-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item strong {
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+}
+
+.feedback-text {
+  background-color: var(--filter-bg-color);
+  border-radius: 4px;
+  border-left: 3px solid var(--secondary-color);
 }
 
 /* --- Mensaje de "no hay solicitudes" --- */
 .no-requests {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  height: 200px;
   text-align: center;
-  margin-top: 2rem;
+  background-color: var(--filter-bg-color);
+  border-radius: 8px;
+  border: 1px dashed var(--card-border-color);
 }
 
-.small-text {
-  font-size: 0.85rem;
-  color: var(--sm-text) !important;
+.no-requests i {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
 }
 
-.btn-eliminar {
-  padding: 0.25rem 0.5rem;
-  background-color: #dc3545; /* rojo Bootstrap “danger” */
-  border-color: #dc3545;
-  color: #fff;
+/* --- Menú móvil --- */
+.mobile-dropdown {
+  display: none;
 }
 
-.btn-eliminar:hover {
-  background-color: #c82333; /* un poco más oscuro al pasar el ratón */
-  border-color: #bd2130;
-  color: #fff;
-}
-
-@media (max-width: 576px) {
-  .btn-eliminar {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+/* --- Responsive --- */
+@media (max-width: 991px) {
+  .action-buttons .theme-text,
+  .action-buttons .logout-text {
+    display: none;
   }
-}
-
-@media (max-height: 500px) {
+  
+  .request-button span {
+    display: none;
+  }
+  
   .main-content {
-    height: clamp(500px, 88.5vh, 900px) !important;
+    padding: 20px 15px;
   }
-}
-
-@media (max-height: 700px) and (max-width: 400px) {
-  .main-content {
-    height: clamp(500px, 88.5vh, 900px) !important;
-  }
-}
-
-/* --- Media queries --- */
-@media (min-width: 1400px) {
-  .main-content {
-    height: clamp(300px, 93vh, 900px);
-  }
-
+  
   .dashboard-container {
-    max-height: 900px;
-    height: 92vh;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 767px) {
+  .header-page {
+    padding: 10px 15px;
+  }
+  
+  .logo {
+    width: 70px;
+  }
+  
+  .dashboard-title {
+    font-size: 1.3rem;
+  }
+  
+  .filters {
+    padding: 0.75rem;
+  }
+  
+  .request-card {
+    padding: 0.75rem !important;
+  }
+  
+  .badge-status {
+    font-size: 0.75rem;
+    min-width: 80px;
   }
 }
 
 @media (max-width: 900px) {
-  .header {
-    flex-wrap: wrap;
-    padding: 10px;
-  }
-
-  .logo {
-    width: 70px;
-    margin: 0 10px;
-  }
-
-  .dashboard-title {
-    font-size: 1.2em;
-  }
-
-  /* Hacer el dashboard más compacto */
-  .dashboard-container {
-    padding: 10px;
-    margin: 5px 0;
-  }
-
-  .notification-button,
-  .request-button,
-  .logout-button,
-  .theme-button span,
-  .tittle-container h1 {
+  .action-buttons {
     display: none !important;
   }
-
-  .tittle-container h1 {
-    font-size: 1.5em;
-    flex-basis: 100%;
-    text-align: center;
-    margin: 10px 0;
+  
+  .mobile-dropdown {
+    display: block;
   }
-
-  main {
-    height: 86vh;
-  }
-
-  .text-md-end {
-    text-align: left !important;
-  }
-
-  .justify-content-end {
-    justify-content: flex-start !important;
-  }
-
-  /* Reducir el padding general */
-  .main-content {
-    padding: 15px;
-  }
-
-  /* Reducir el espacio entre los elementos de la lista */
-  .list-group-item {
-    margin-bottom: 0.5rem;
-  }
-
-  /* Hacer las tarjetas de solicitud más compactas */
-  .request-card {
-    padding: 0.75rem !important;
-  }
-
-  /* Reducir tamaños de fuente */
-  .request-card h5 {
-    font-size: 1rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .card-text p {
-    font-size: 0.9rem !important;
-    margin-bottom: 0.25rem;
-  }
-
-  /* Ajustar los botones para que ocupen menos espacio */
-  .btn-detalles {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    background-color: ;
-  }
-
-  .badge-status {
-    font-size: 0.75rem;
-    min-width: 70px;
-    padding: 0.3em;
-  }
-
-  /* Reducir el espacio en los filtros */
-  .filters {
-    padding: 0.75rem;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .filters .form-label {
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-  }
-
-  /* Ajustar el espacio entre filas en el grid */
-  .g-3 {
-    --bs-gutter-y: 0.5rem;
+  
+  .title-container h1 {
+    font-size: 1.4rem;
   }
 }
 
 @media (max-width: 576px) {
-  .header h1 {
-    display: none;
+  .header-page {
+    justify-content: space-between;
+    padding: 10px;
   }
-
+  
+  .logo {
+    width: 60px;
+  }
+  
+  .title-container h1 {
+    font-size: 1.2rem;
+  }
+  
   .main-content {
-    height: clamp(500px, 90vh, 900px);
+    padding: 15px 10px;
   }
-
-  .request-card .col-md-5,
-  .request-card .col-md-4 {
-    flex-basis: 100%;
-    max-width: 100%;
-  }
-
-  .request-card .col-md-3 {
-    margin-bottom: 10px;
-  }
-
-  .request-card {
-    padding: 1rem;
-  }
-
-  .request-card h5 {
-    font-size: 1rem;
-  }
-
-  .request-card p {
-    font-size: 0.9rem;
-  }
-
-  .logout-button {
-    display: none !important;
-  }
-
-  /* Ajustes adicionales para pantallas muy pequeñas */
-  .dashboard-title {
-    font-size: 1.1em;
-    margin-bottom: 10px;
-  }
-
-  /* Estructura más compacta para móviles */
-  .request-card .row {
+  
+  .dashboard-container {
+    padding: 12px;
     margin: 0;
   }
-
-  .request-card .col-12 {
-    padding: 0.15rem;
+  
+  .filters {
+    padding: 0.5rem;
+    margin-bottom: 1rem !important;
   }
-
-  /* Reducir aún más los espaciados */
-  .mt-2 {
-    margin-top: 0.25rem !important;
+  
+  .request-card {
+    padding: 0.75rem !important;
   }
-
-  /* Optimizar la visualización de fecha */
-  .text-md-end p {
-    font-size: 0.8rem !important;
-  }
-
-  .small-text {
+  
+  .btn-sm {
+    padding: 0.2rem 0.4rem;
     font-size: 0.75rem;
   }
-}
-/* Add to your existing styles */
-.high-contrast {
-  /* Main content background */
-  .main-content {
-    background-color: var(--background-color);
-    background-image: url("@/assets/fondo-unah4-dark.png"); /* Use a darker version */
-  }
-
-  /* Button adjustments */
-  .btn-light {
-    background-color: var(--card-bg-color);
-    border-color: var(--card-border-color);
-    color: var(--text-color);
-  }
-
-  .btn-light:hover {
-    background-color: lighten(var(--card-bg-color), 10%);
-  }
-
-  /* Form controls */
-  .form-control,
-  .form-select {
-    background-color: var(--card-bg-color);
-    border-color: var(--card-border-color);
-    color: var(--text-color);
-  }
-
-  .input-group-text {
-    background-color: var(--primary-color);
-    color: var(--header-text-color);
-  }
-
-  /* Dropdown menu */
-  .dropdown-menu {
-    background-color: var(--card-bg-color);
-    border-color: var(--card-border-color);
-  }
-
-  .dropdown-item {
-    color: var(--text-color);
-  }
-
-  .dropdown-item:hover {
-    background-color: var(--primary-color);
-    color: var(--header-text-color);
-  }
-
-  /* List group items */
-  .list-group-item {
-    background-color: transparent;
-    border-color: var(--card-border-color);
-  }
-
-  /* Text colors */
-  .text-muted {
-    color: var(--sm-text) !important;
-  }
-
-  /* Badge adjustments */
+  
   .badge-status {
-    color: var(--badge-text-color);
+    font-size: 0.7rem;
+    min-width: 70px;
+    padding: 0.3em 0.5em;
+  }
+  
+  /* Ajustes específicos para móviles pequeños */
+  .detail-item {
+    gap: 0.15rem;
   }
 }
 
-@media (min-width: 900px) {
-  .mobile-dropdown {
-    display: none;
-  }
-}
-
-@media (max-width: 1100px) {
+@media (max-height: 700px) {
   .main-content {
-    height: clamp(500px, 92vh, 1000px);
+    height: calc(100vh - 60px);
   }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
-}
-
-@media (max-width: 1100px) and (min-height: 700px) {
-  .main-content {
-    height: clamp(500px, 88.2vh, 900px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
+  
+  .header-page {
+    height: 60px;
   }
 }
 
-@media (max-width: 1100px) and (max-height: 850px) {
-  .main-content {
-    height: clamp(500px, 88.5vh, 900px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@media (max-width: 1000px) and (max-height: 1050px) {
-  .main-content {
-    height: clamp(500px, 92vh, 1000px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
-}
-
-@media (min-height: 1100px) {
-  .main-content {
-    height: clamp(500px, 100vh, 1100px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
-}
-
-@media (max-width: 1200px) and (min-height: 900px) {
-  .main-content {
-    height: clamp(500px, 88.5vh, 900px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
-}
-
-@media (max-width: 900px) and (min-height: 900px) {
-  .main-content {
-    height: clamp(500px, 95vh, 1100px);
-  }
-
-  .tittle-container h1 {
-    font-size: 1.9em;
-  }
+.request-card {
+  animation: fadeIn 0.3s ease-in-out;
 }
 </style>
