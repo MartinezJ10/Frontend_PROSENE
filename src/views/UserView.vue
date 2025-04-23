@@ -1,6 +1,9 @@
 <template>
   <!-- role="banner" define el encabezado para NVDA -->
-  <header class="header-page d-flex justify-content-between align-items-center px-3" role="banner">
+  <header
+    class="header-page d-flex justify-content-between align-items-center px-3"
+    role="banner"
+  >
     <div class="d-flex align-items-center">
       <img src="@/assets/logo_unah.png" alt="Logo UNAH" class="logo me-3" />
     </div>
@@ -9,38 +12,39 @@
     </div>
     <div>
       <!-- aria-live para mensajes dinámicos -->
-      <MensajeRetroalimentacion 
-        :mensaje="mensaje" 
-        :visible="visible" 
+      <MensajeRetroalimentacion
+        :mensaje="mensaje"
+        :visible="visible"
         :tipo="tipo"
-        @update:visible="visible = $event" 
+        @update:visible="visible = $event"
         aria-live="polite"
       />
     </div>
 
     <div class="d-flex gap-2">
-      <button 
-        class="btn btn-primary request-button" 
+      <button
+        class="btn btn-primary request-button"
         @click="showModal = true"
         aria-label="Crear una nueva solicitud"
       >
-        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear solicitud
+        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> Crear
+        solicitud
       </button>
-      <FormModal 
-        title="Crear Solicitud" 
-        v-model="showModal" 
-        :reusableForm="reusableFormComponent" 
+      <FormModal
+        title="Crear Solicitud"
+        v-model="showModal"
+        :reusableForm="reusableFormComponent"
         :formProps="{
           fields: createRequestFields,
           submitButtonText: 'Crear Solicitud',
           onSubmit: handleRequestCreationSubmit,
-          modalClass: 'modal-style-dos'
-        }" 
+          modalClass: 'modal-style-dos',
+        }"
         role="dialog"
         aria-label="Modal para crear solicitud"
       />
-      <button 
-        class="btn btn-light border notification-button" 
+      <button
+        class="btn btn-light border notification-button"
         @click="toggleNotificationPanel"
         :aria-expanded="isNotificationPanelVisible ? 'true' : 'false'"
         aria-controls="notification-panel"
@@ -48,35 +52,41 @@
       >
         <i class="bi bi-bell" aria-hidden="true"></i>
       </button>
-      <button 
-        class="btn btn-light me-2 border theme-button" 
+      <button
+        class="btn btn-light me-2 border theme-button"
         @click="toggleTheme"
         aria-label="Cambiar tema de contraste"
       >
-        <i class="bi bi-brightness-high" aria-hidden="true"></i> <span>Cambiar Tema</span>
+        <i class="bi bi-brightness-high" aria-hidden="true"></i>
+        <span>Cambiar Tema</span>
       </button>
-      <NotificationPanel 
-        :isAdmin="false" 
-        :url="notificationStudentURL" 
+      <NotificationPanel
+        :isAdmin="false"
+        :url="notificationStudentURL"
         v-if="isNotificationPanelVisible"
-        @close="toggleNotificationPanel" 
+        @close="toggleNotificationPanel"
         id="notification-panel"
         role="dialog"
         aria-label="Panel de notificaciones"
       />
-      <button 
-        class="btn btn-danger d-flex align-items-center logout-button" 
+      <button
+        class="btn btn-danger d-flex align-items-center logout-button"
         @click="handleExit"
         aria-label="Cerrar sesión"
       >
-        <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar sesión
+        <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i> Cerrar
+        sesión
       </button>
     </div>
-    <div class="mobile-dropdown dropdown" role="navigation" aria-label="Menú móvil">
-      <button 
-        class="btn btn-primary dropdown-toggle" 
-        type="button" 
-        id="mobileMenu" 
+    <div
+      class="mobile-dropdown dropdown"
+      role="navigation"
+      aria-label="Menú móvil"
+    >
+      <button
+        class="btn btn-primary dropdown-toggle"
+        type="button"
+        id="mobileMenu"
         data-bs-toggle="dropdown"
         aria-expanded="false"
         aria-label="Abrir menú móvil"
@@ -85,9 +95,9 @@
       </button>
       <ul class="dropdown-menu" aria-labelledby="mobileMenu">
         <li>
-          <a 
-            class="dropdown-item" 
-            href="#" 
+          <a
+            class="dropdown-item"
+            href="#"
             @click.prevent="showModal = true"
             aria-label="Crear solicitud desde menú móvil"
           >
@@ -95,9 +105,9 @@
           </a>
         </li>
         <li>
-          <a 
-            class="dropdown-item" 
-            href="#" 
+          <a
+            class="dropdown-item"
+            href="#"
             @click.prevent="toggleNotificationPanel"
             aria-label="Ver notificaciones desde menú móvil"
           >
@@ -105,9 +115,9 @@
           </a>
         </li>
         <li>
-          <a 
-            class="dropdown-item" 
-            href="#" 
+          <a
+            class="dropdown-item"
+            href="#"
             @click.prevent="handleExit"
             aria-label="Cerrar sesión desde menú móvil"
           >
@@ -123,16 +133,22 @@
     <h2 class="dashboard-title">Dashboard de Solicitudes</h2>
     <div class="dashboard-container p-4">
       <!-- filtros -->
-      <div class="filters mb-4 row g-3 align-items-end" role="search" aria-label="Filtros de solicitudes">
+      <div
+        class="filters mb-4 row g-3 align-items-end"
+        role="search"
+        aria-label="Filtros de solicitudes"
+      >
         <div class="col-md-4">
           <label for="dateFilter" class="form-label">Fecha</label>
           <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-calendar-date" aria-hidden="true"></i></span>
-            <input 
-              type="date" 
-              id="dateFilter" 
-              class="form-control" 
-              v-model="searchDate" 
+            <span class="input-group-text"
+              ><i class="bi bi-calendar-date" aria-hidden="true"></i
+            ></span>
+            <input
+              type="date"
+              id="dateFilter"
+              class="form-control"
+              v-model="searchDate"
               @input="filterRequests"
               aria-label="Filtrar por fecha"
             />
@@ -141,25 +157,31 @@
         <div class="col-md-4">
           <label for="estadoFilter" class="form-label">Estado</label>
           <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-filter" aria-hidden="true"></i></span>
-            <select 
-              id="estadoFilter" 
-              class="form-select" 
-              v-model="searchEstado" 
+            <span class="input-group-text"
+              ><i class="bi bi-filter" aria-hidden="true"></i
+            ></span>
+            <select
+              id="estadoFilter"
+              class="form-select"
+              v-model="searchEstado"
               @change="filterRequests"
               aria-label="Filtrar por estado"
             >
               <option value="">Todos los estados</option>
-              <option v-for="estado in estados" :key="estado.idestadosolicitud" :value="estado.idestadosolicitud">
+              <option
+                v-for="estado in estados"
+                :key="estado.idestadosolicitud"
+                :value="estado.idestadosolicitud"
+              >
                 {{ estado.descripcion }}
               </option>
             </select>
           </div>
         </div>
         <div class="col-md-4">
-          <button 
-            type="button" 
-            class="btn-limpiar btn btn-secondary w-100" 
+          <button
+            type="button"
+            class="btn-limpiar btn btn-secondary w-100"
             @click="resetFilters"
             aria-label="Limpiar todos los filtros"
           >
@@ -169,25 +191,46 @@
       </div>
 
       <!-- lista -->
-      <div v-if="filteredRequests.length" role="region" aria-label="Lista de solicitudes">
+      <div
+        v-if="filteredRequests.length"
+        role="region"
+        aria-label="Lista de solicitudes"
+      >
         <ul class="list-group">
-          <li class="list-group-item" v-for="req in filteredRequests" :key="req.idsolicitud">
+          <li
+            class="list-group-item"
+            v-for="req in filteredRequests"
+            :key="req.idsolicitud"
+          >
             <div class="request-card p-3">
               <div class="row align-items-center g-1">
-                <div class="col-6 col-md-2"><h5>#{{ req.idsolicitud }}</h5></div>
+                <div class="col-6 col-md-2">
+                  <h5>#{{ req.idsolicitud }}</h5>
+                </div>
                 <div class="col-6 col-md-6 text-end text-md-start">
-                  <p class="mb-0 text-muted small-text">{{ req.tiposolicitud.descripcion }}</p>
+                  <p class="mb-0 text-muted small-text">
+                    {{ req.tiposolicitud.descripcion }}
+                  </p>
                 </div>
                 <div class="col-12 col-md-4 mt-1 mt-md-0">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <p class="mb-0 text-muted small-text"><small>{{ formatDate(req.fechacreacion) }}</small></p>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <p class="mb-0 text-muted small-text">
+                      <small>{{ formatDate(req.fechacreacion) }}</small>
+                    </p>
                     <div class="d-flex gap-1">
-                      <button 
-                        class="btn btn-outline-dark btn-sm" 
+                      <button
+                        class="btn btn-outline-dark btn-sm"
                         @click="openDetailsModal(req.idsolicitud)"
                         :aria-label="`Ver detalles de la solicitud ${req.idsolicitud}`"
-                      >Detalles</button>
-                      <span class="badge badge-status" :class="getStatusClass(req.estadosolicitud.descripcion)">
+                      >
+                        Detalles
+                      </button>
+                      <span
+                        class="badge badge-status"
+                        :class="getStatusClass(req.estadosolicitud.descripcion)"
+                      >
                         {{ req.estadosolicitud.descripcion }}
                       </span>
                     </div>
@@ -203,29 +246,33 @@
   </main>
 
   <!-- modal detalles -->
-  <ReusableModal 
-  :show="showDetailsModal" 
-  title="Detalles de la Solicitud" 
-  @close="showDetailsModal = false" 
-  role="dialog"
-  aria-label="Modal de detalles de la solicitud"
->
-  <template #default>
-    <div v-if="requestDetails">
-      <!-- Nuevo bloque para el becario -->
-      <p v-if="requestDetails.becario">
-        <strong>Becario:</strong> {{ requestDetails.becario }}
-      </p>
+  <ReusableModal
+    :show="showDetailsModal"
+    title="Detalles de la Solicitud"
+    @close="showDetailsModal = false"
+    role="dialog"
+    aria-label="Modal de detalles de la solicitud"
+  >
+    <template #default>
+      <div v-if="requestDetails">
+        <!-- Nuevo bloque para el becario -->
+        <p v-if="requestDetails.becario">
+          <strong>Becario:</strong> {{ requestDetails.becario }}
+        </p>
 
-      <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
-      <p><strong>Fecha de creación:</strong> {{ formatDateTime(requestDetails.fechaCreacion) }}</p>
-      <p><strong>Estado:</strong> {{ requestDetails.estado }}</p>
-      <p><strong>Retroalimentación:</strong> {{ requestDetails.mensajeRetro }}</p>
-    </div>
-    <div v-else class="text-center py-3">Cargando detalles…</div>
-  </template>
-</ReusableModal>
-
+        <p><strong>Atendida por:</strong> {{ requestDetails.atendidaPor }}</p>
+        <p>
+          <strong>Fecha de creación:</strong>
+          {{ formatDateTime(requestDetails.fechaCreacion) }}
+        </p>
+        <p><strong>Estado:</strong> {{ requestDetails.estado }}</p>
+        <p>
+          <strong>Retroalimentación:</strong> {{ requestDetails.mensajeRetro }}
+        </p>
+      </div>
+      <div v-else class="text-center py-3">Cargando detalles…</div>
+    </template>
+  </ReusableModal>
 </template>
 
 <script>
@@ -242,8 +289,11 @@ import utils from "../utils";
 export default {
   name: "UserView",
   components: {
-    FormModal, ReusableForm, MensajeRetroalimentacion,
-    NotificationPanel, ReusableModal
+    FormModal,
+    ReusableForm,
+    MensajeRetroalimentacion,
+    NotificationPanel,
+    ReusableModal,
   },
   setup() {
     const router = useRouter();
@@ -269,7 +319,9 @@ export default {
 
     const isHighContrast = inject("isHighContrast");
     const toggleTheme = inject("toggleTheme");
-    const themeClass = computed(() => isHighContrast.value ? "high-contrast" : "");
+    const themeClass = computed(() =>
+      isHighContrast.value ? "high-contrast" : ""
+    );
 
     const toggleNotificationPanel = () => {
       isNotificationPanelVisible.value = !isNotificationPanelVisible.value;
@@ -284,28 +336,40 @@ export default {
     const retrieveTipoSolicitudes = async () => {
       try {
         const { data } = await axios.get(`${requestURL}/api/v1/varios/tipos`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
-        tipoSolicitudes.value = data.map(t => ({ value: t.idtiposolicitud, label: t.descripcion }));
-      } catch (err) { errorLog(err) }
+        tipoSolicitudes.value = data.map((t) => ({
+          value: t.idtiposolicitud,
+          label: t.descripcion,
+        }));
+      } catch (err) {
+        errorLog(err);
+      }
     };
 
     const retrieveRequests = async () => {
       try {
         const { data } = await axios.get(`${requestURL}/api/v1/solicitudes/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
         });
         requests.value = data;
-      } catch (err) { errorLog(err) }
+      } catch (err) {
+        errorLog(err);
+      }
     };
 
     const retrieveEstados = async () => {
       try {
-        const { data } = await axios.get(`${requestURL}/api/v1/varios/estados`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
-        });
+        const { data } = await axios.get(
+          `${requestURL}/api/v1/varios/estados`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+          }
+        );
         estados.value = data;
-      } catch (err) { console.error("Failed to retrieve estados:", err) }
+      } catch (err) {
+        console.error("Failed to retrieve estados:", err);
+      }
     };
 
     const handleRequestCreationSubmit = async (formData) => {
@@ -318,9 +382,11 @@ export default {
             idtiposolicitud: formData.requestType,
             idestadosolicitud: 1,
             fechacreacion: new Date().toISOString(),
-            descripcion: formData.description
+            descripcion: formData.description,
           },
-          { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+          }
         );
         showModal.value = false;
         mostrarExito();
@@ -347,27 +413,34 @@ export default {
       const estado = d.estadosolicitud?.descripcion || "";
       let mensajeRetro = "";
       switch (estado.toLowerCase()) {
-        case "en proceso":  mensajeRetro = d.retroalimentacionEnProceso; break;
-        case "finalizada":  mensajeRetro = d.retroalimentacionFinalizada; break;
-        case "cancelada":   mensajeRetro = d.retroalimentacionCancelada; break;
-        case "recibida":    mensajeRetro = d.retroalimentacionRecibida; break;
-        case "rechazada":   mensajeRetro = d.retroalimentacionRechazada; break;
+        case "en proceso":
+          mensajeRetro = d.retroalimentacionEnProceso;
+          break;
+        case "finalizada":
+          mensajeRetro = d.retroalimentacionFinalizada;
+          break;
+        case "cancelada":
+          mensajeRetro = d.retroalimentacionCancelada;
+          break;
+        case "recibida":
+          mensajeRetro = d.retroalimentacionRecibida;
+          break;
+        case "rechazada":
+          mensajeRetro = d.retroalimentacionRechazada;
+          break;
       }
-    
+
       // Becario (sólo si viene true y hay nombre)
-      const becario = (d.toBecario && d.nombreBecario)
-        ? d.nombreBecario
-        : null;
-    
+      const becario = d.toBecario && d.nombreBecario ? d.nombreBecario : null;
+
       return {
         atendidaPor,
         fechaCreacion: d.fechacreacion,
         estado,
         mensajeRetro: mensajeRetro ?? "–",
-        becario      // <— aquí lo agregas
+        becario,
       };
     };
-
 
     const openDetailsModal = async (solicitudId) => {
       showDetailsModal.value = true;
@@ -379,6 +452,7 @@ export default {
         mostrarError();
         showDetailsModal.value = false;
       }
+      console.log(requestDetails.value);
     };
 
     const handleExit = () => {
@@ -400,24 +474,35 @@ export default {
 
     const getStatusClass = (status) => {
       switch (status.toLowerCase()) {
-        case "recibida":   return "recibida";
-        case "en proceso": return "en-proceso";
-        case "finalizada": return "finalizada";
-        case "cancelada":  return "cancelada";
-        case "rechazada":  return "rechazada";
-        default:           return "otro-estado";
+        case "recibida":
+          return "recibida";
+        case "en proceso":
+          return "en-proceso";
+        case "finalizada":
+          return "finalizada";
+        case "cancelada":
+          return "cancelada";
+        case "rechazada":
+          return "rechazada";
+        default:
+          return "otro-estado";
       }
     };
 
     const isSameDate = (d1, d2) => {
-      return new Date(d1).toISOString().split("T")[0] === new Date(d2).toISOString().split("T")[0];
+      return (
+        new Date(d1).toISOString().split("T")[0] ===
+        new Date(d2).toISOString().split("T")[0]
+      );
     };
 
     const filteredRequests = computed(() =>
       requests.value
         // 1. Filtramos
-        .filter(r => {
-          const byDate   = searchDate.value ? isSameDate(r.fechacreacion, searchDate.value) : true;
+        .filter((r) => {
+          const byDate = searchDate.value
+            ? isSameDate(r.fechacreacion, searchDate.value)
+            : true;
           const byEstado = searchEstado.value
             ? r.estadosolicitud.idestadosolicitud === +searchEstado.value
             : true;
@@ -428,13 +513,19 @@ export default {
     );
 
     const filterRequests = () => {};
-    const resetFilters  = () => { searchDate.value=""; searchEstado.value=""; filterRequests(); };
-
-    const formatDate = iso => {
-      const d = new Date(iso);
-      return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+    const resetFilters = () => {
+      searchDate.value = "";
+      searchEstado.value = "";
+      filterRequests();
     };
-    const formatDateTime = iso => new Date(iso).toLocaleString();
+
+    const formatDate = (iso) => {
+      const d = new Date(iso);
+      return `${String(d.getDate()).padStart(2, "0")}/${String(
+        d.getMonth() + 1
+      ).padStart(2, "0")}/${d.getFullYear()}`;
+    };
+    const formatDateTime = (iso) => new Date(iso).toLocaleString();
 
     onMounted(async () => {
       checkScreenSize();
@@ -443,8 +534,13 @@ export default {
       await retrieveRequests();
       await retrieveEstados();
       createRequestFields.value = [
-        { name:"requestType", label:"Tipo de Solicitud", type:"select", options:tipoSolicitudes.value },
-        { name:"description", label:"Descripción", type:"text-area" }
+        {
+          name: "requestType",
+          label: "Tipo de Solicitud",
+          type: "select",
+          options: tipoSolicitudes.value,
+        },
+        { name: "description", label: "Descripción", type: "text-area" },
       ];
     });
 
@@ -453,19 +549,34 @@ export default {
     });
 
     return {
-      showModal, showDetailsModal, requestDetails,
-      mensaje, visible, tipo,
-      createRequestFields, isNotificationPanelVisible,
-      requests, estados, searchDate, searchEstado,
-      themeClass, notificationStudentURL,
+      showModal,
+      showDetailsModal,
+      requestDetails,
+      mensaje,
+      visible,
+      tipo,
+      createRequestFields,
+      isNotificationPanelVisible,
+      requests,
+      estados,
+      searchDate,
+      searchEstado,
+      themeClass,
+      notificationStudentURL,
       reusableFormComponent: ReusableForm,
-      toggleNotificationPanel, toggleTheme,
-      formatDate, formatDateTime,
-      openDetailsModal, handleRequestCreationSubmit,
-      handleExit, getStatusClass,
-      filteredRequests, filterRequests, resetFilters
+      toggleNotificationPanel,
+      toggleTheme,
+      formatDate,
+      formatDateTime,
+      openDetailsModal,
+      handleRequestCreationSubmit,
+      handleExit,
+      getStatusClass,
+      filteredRequests,
+      filterRequests,
+      resetFilters,
     };
-  }
+  },
 };
 </script>
 
@@ -520,7 +631,9 @@ body {
 }
 
 /* --- Botones --- */
-.request-button, .btn-detalles, .btn-limpiar {
+.request-button,
+.btn-detalles,
+.btn-limpiar {
   color: var(--primary-color);
 }
 
@@ -529,10 +642,34 @@ body {
   border: none;
 }
 
-.request-button:hover, .btn-detalles, .btn-limpiar {
+.request-button:hover,
+.btn-detalles,
+.btn-limpiar {
   background-color: lightsteelblue !important;
 }
+/* Add to your existing styles */
+.btn-outline-dark.btn-sm {
+  /* Light mode (default) */
+  color: #4682b4; /* Slightly darker than lightsteelblue for better contrast */
+  border-color: #4682b4;
+  background-color: transparent;
+}
 
+.btn-outline-dark.btn-sm:hover {
+  background-color: lightsteelblue;
+  color: #003366; /* Your primary dark blue */
+}
+
+/* Dark mode version */
+.high-contrast .btn-outline-dark.btn-sm {
+  color: #7ba7d1; /* Brighter version for dark mode */
+  border-color: #7ba7d1;
+}
+
+.high-contrast .btn-outline-dark.btn-sm:hover {
+  background-color: #7ba7d1;
+  color: var(--text-color); /* Will use your dark mode text color */
+}
 /* --- Dashboard --- */
 .dashboard-container {
   background-color: var(--background-color);
@@ -547,7 +684,7 @@ body {
 .dashboard-title {
   font-size: 1.5em;
   font-weight: bold;
-  color: var(--primary-color);
+  color: var(--sm-text);
   margin-bottom: 20px;
 }
 
@@ -567,7 +704,8 @@ body {
   position: relative;
 }
 
-.card-text p, .request-card p {
+.card-text p,
+.request-card p {
   color: var(--text-color);
 }
 
@@ -589,7 +727,8 @@ body {
   padding: 0.5em;
 }
 
-.badge-status.recibida, .badge-status.en-proceso {
+.badge-status.recibida,
+.badge-status.en-proceso {
   background-color: var(--background-color);
 }
 
@@ -644,17 +783,18 @@ body {
 
 .small-text {
   font-size: 0.85rem;
+  color: var(--sm-text) !important;
 }
 
 .btn-eliminar {
   padding: 0.25rem 0.5rem;
-  background-color: #dc3545;    /* rojo Bootstrap “danger” */
+  background-color: #dc3545; /* rojo Bootstrap “danger” */
   border-color: #dc3545;
   color: #fff;
 }
 
 .btn-eliminar:hover {
-  background-color: #c82333;    /* un poco más oscuro al pasar el ratón */
+  background-color: #c82333; /* un poco más oscuro al pasar el ratón */
   border-color: #bd2130;
   color: #fff;
 }
@@ -666,13 +806,13 @@ body {
   }
 }
 
-@media (max-height: 500px){
+@media (max-height: 500px) {
   .main-content {
     height: clamp(500px, 88.5vh, 900px) !important;
   }
 }
 
-@media (max-height: 700px) and (max-width: 400px){
+@media (max-height: 700px) and (max-width: 400px) {
   .main-content {
     height: clamp(500px, 88.5vh, 900px) !important;
   }
@@ -705,8 +845,8 @@ body {
     font-size: 1.2em;
   }
 
-    /* Hacer el dashboard más compacto */
-    .dashboard-container {
+  /* Hacer el dashboard más compacto */
+  .dashboard-container {
     padding: 10px;
     margin: 5px 0;
   }
@@ -718,7 +858,7 @@ body {
   .tittle-container h1 {
     display: none !important;
   }
-  
+
   .tittle-container h1 {
     font-size: 1.5em;
     flex-basis: 100%;
@@ -738,23 +878,23 @@ body {
     justify-content: flex-start !important;
   }
 
-    /* Reducir el padding general */
-    .main-content {
+  /* Reducir el padding general */
+  .main-content {
     padding: 15px;
   }
 
-    /* Reducir el espacio entre los elementos de la lista */
-    .list-group-item {
+  /* Reducir el espacio entre los elementos de la lista */
+  .list-group-item {
     margin-bottom: 0.5rem;
   }
 
-    /* Hacer las tarjetas de solicitud más compactas */
-    .request-card {
+  /* Hacer las tarjetas de solicitud más compactas */
+  .request-card {
     padding: 0.75rem !important;
   }
 
-    /* Reducir tamaños de fuente */
-    .request-card h5 {
+  /* Reducir tamaños de fuente */
+  .request-card h5 {
     font-size: 1rem;
     margin-bottom: 0.25rem;
   }
@@ -763,30 +903,31 @@ body {
     font-size: 0.9rem !important;
     margin-bottom: 0.25rem;
   }
-  
+
   /* Ajustar los botones para que ocupen menos espacio */
   .btn-detalles {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
+    background-color: ;
   }
-  
+
   .badge-status {
     font-size: 0.75rem;
     min-width: 70px;
     padding: 0.3em;
   }
-  
+
   /* Reducir el espacio en los filtros */
   .filters {
     padding: 0.75rem;
     margin-bottom: 0.75rem !important;
   }
-  
+
   .filters .form-label {
     font-size: 0.9rem;
     margin-bottom: 0.25rem;
   }
-  
+
   /* Ajustar el espacio entre filas en el grid */
   .g-3 {
     --bs-gutter-y: 0.5rem;
@@ -828,26 +969,26 @@ body {
     display: none !important;
   }
 
-   /* Ajustes adicionales para pantallas muy pequeñas */
-   .dashboard-title {
+  /* Ajustes adicionales para pantallas muy pequeñas */
+  .dashboard-title {
     font-size: 1.1em;
     margin-bottom: 10px;
   }
-  
+
   /* Estructura más compacta para móviles */
   .request-card .row {
     margin: 0;
   }
-  
+
   .request-card .col-12 {
     padding: 0.15rem;
   }
-  
+
   /* Reducir aún más los espaciados */
   .mt-2 {
     margin-top: 0.25rem !important;
   }
-  
+
   /* Optimizar la visualización de fecha */
   .text-md-end p {
     font-size: 0.8rem !important;
@@ -857,6 +998,69 @@ body {
     font-size: 0.75rem;
   }
 }
+/* Add to your existing styles */
+.high-contrast {
+  /* Main content background */
+  .main-content {
+    background-color: var(--background-color);
+    background-image: url("@/assets/fondo-unah4-dark.png"); /* Use a darker version */
+  }
+
+  /* Button adjustments */
+  .btn-light {
+    background-color: var(--card-bg-color);
+    border-color: var(--card-border-color);
+    color: var(--text-color);
+  }
+
+  .btn-light:hover {
+    background-color: lighten(var(--card-bg-color), 10%);
+  }
+
+  /* Form controls */
+  .form-control,
+  .form-select {
+    background-color: var(--card-bg-color);
+    border-color: var(--card-border-color);
+    color: var(--text-color);
+  }
+
+  .input-group-text {
+    background-color: var(--primary-color);
+    color: var(--header-text-color);
+  }
+
+  /* Dropdown menu */
+  .dropdown-menu {
+    background-color: var(--card-bg-color);
+    border-color: var(--card-border-color);
+  }
+
+  .dropdown-item {
+    color: var(--text-color);
+  }
+
+  .dropdown-item:hover {
+    background-color: var(--primary-color);
+    color: var(--header-text-color);
+  }
+
+  /* List group items */
+  .list-group-item {
+    background-color: transparent;
+    border-color: var(--card-border-color);
+  }
+
+  /* Text colors */
+  .text-muted {
+    color: var(--sm-text) !important;
+  }
+
+  /* Badge adjustments */
+  .badge-status {
+    color: var(--badge-text-color);
+  }
+}
 
 @media (min-width: 900px) {
   .mobile-dropdown {
@@ -864,7 +1068,7 @@ body {
   }
 }
 
-@media (max-width: 1100px){
+@media (max-width: 1100px) {
   .main-content {
     height: clamp(500px, 92vh, 1000px);
   }
@@ -872,9 +1076,9 @@ body {
   .tittle-container h1 {
     font-size: 1.9em;
   }
-} 
+}
 
-@media (max-width: 1100px) and (min-height: 700px){
+@media (max-width: 1100px) and (min-height: 700px) {
   .main-content {
     height: clamp(500px, 88.2vh, 900px);
   }
@@ -884,7 +1088,7 @@ body {
   }
 }
 
-@media (max-width: 1100px) and (max-height: 850px){
+@media (max-width: 1100px) and (max-height: 850px) {
   .main-content {
     height: clamp(500px, 88.5vh, 900px);
   }
@@ -894,7 +1098,7 @@ body {
   }
 }
 
-@media (max-width: 1000px) and (max-height: 1050px){
+@media (max-width: 1000px) and (max-height: 1050px) {
   .main-content {
     height: clamp(500px, 92vh, 1000px);
   }
@@ -904,7 +1108,7 @@ body {
   }
 }
 
-@media(min-height: 1100px){
+@media (min-height: 1100px) {
   .main-content {
     height: clamp(500px, 100vh, 1100px);
   }
@@ -914,7 +1118,7 @@ body {
   }
 }
 
-@media(max-width: 1200px) and (min-height: 900px){
+@media (max-width: 1200px) and (min-height: 900px) {
   .main-content {
     height: clamp(500px, 88.5vh, 900px);
   }
@@ -924,7 +1128,7 @@ body {
   }
 }
 
-@media(max-width: 900px) and (min-height: 900px){
+@media (max-width: 900px) and (min-height: 900px) {
   .main-content {
     height: clamp(500px, 95vh, 1100px);
   }
