@@ -778,7 +778,7 @@ html, body {
 }
 
 .high-contrast .main-content {
-  background-image: url("@/assets/fondo-unah4-dark.png");
+  background-image: url("@/assets/fondo-unah4.png");
 }
 
 /* --- Encabezado --- */

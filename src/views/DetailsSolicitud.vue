@@ -66,41 +66,43 @@
       </div>
 
       <div class="buttons-container">
-        <!-- Botón "Atender" -->
+        <!-- Botón "Atender" - Mostrar para admin o si está en estado "Recibida" -->
         <button class="btn btn-outline-primary" @click="assignSolicitud"
-          v-if="solicitud.estadosolicitud?.idestadosolicitud === 1" aria-label="Atender esta solicitud">
+          v-if="currentUserRole === 1 || solicitud.estadosolicitud?.idestadosolicitud === 1" aria-label="Atender esta solicitud">
           Atender
         </button>
 
-        <!-- Botón "Asignar a Empleado" (solo para rol=1) -->
+        <!-- Botón "Asignar a Empleado" - Siempre visible para admin -->
         <button class="btn btn-outline-primary" v-if="currentUserRole === 1" @click="showModal = true"
           aria-label="Asignar esta solicitud a un empleado">
           <i class="bi bi-person-badge me-2" aria-hidden="true"></i>
           Asignar a Empleado
         </button>
-        <!-- Botón "Asignar a Becario"  -->
-        <button class="btn btn-outline-dark" v-if="solicitud.estadosolicitud?.idestadosolicitud === 1"
+        
+        <!-- Botón "Asignar a Becario" - Visible para admin o si está en estado "Recibida" -->
+        <button class="btn btn-outline-dark" 
+          v-if="currentUserRole === 1 || solicitud.estadosolicitud?.idestadosolicitud === 1"
           @click="showBecarioModal = true" aria-label="Asignar esta solicitud a un becario">
           <i class="bi bi-person-badge me-2" aria-hidden="true"></i>
           Asignar a Becario
         </button>
 
-        <!-- Botón "Rechazar" -->
+        <!-- Botón "Rechazar" - Visible para admin o si está en estado "Recibida" -->
         <button class="btn btn-outline-danger" @click="showRejectModal = true"
-          v-if="solicitud.estadosolicitud?.idestadosolicitud === 1" aria-label="Rechazar esta solicitud">
+          v-if="currentUserRole === 1 || solicitud.estadosolicitud?.idestadosolicitud === 1" aria-label="Rechazar esta solicitud">
           Rechazar
         </button>
 
-        <!-- Botón "Finalizar" (estado 3) -->
+        <!-- Botón "Finalizar" - Visible para admin o si está en proceso y es responsable -->
         <button class="btn btn-outline-success" @click="showFinalizeModal = true"
-          v-if="solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible"
+          v-if="currentUserRole === 1 || (solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible)"
           aria-label="Finalizar esta solicitud">
           Finalizar Solicitud
         </button>
 
-        <!-- Botón "Cancelar" (estado 4) -->
+        <!-- Botón "Cancelar" - Visible para admin o si está en proceso y es responsable -->
         <button class="btn btn-outline-warning" @click="showCancelModal = true"
-          v-if="solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible"
+          v-if="currentUserRole === 1 || (solicitud.estadosolicitud?.idestadosolicitud === 2 && isResponsible)"
           aria-label="Cancelar esta solicitud">
           Cancelar Solicitud
         </button>
@@ -459,18 +461,6 @@ export default {
         }
       ];
 
-      asignToBecarioFields.value = [
-        {
-          name: 'nombreBecario',
-          label: 'Nombre Becario',
-          type: 'text',
-        },
-        {
-          name: 'retroalimentacionEnProceso',
-          label: 'Detalles de asignación',
-          type: 'text-area',
-        },
-      ];
       asignToBecarioFields.value = [
         {
           name: 'nombreBecario',

@@ -38,7 +38,7 @@ const routes = [
     ],
   },
   { path: '/userView', component: UserView, meta: { requiresAuth: true, allowedRoleIds: [3] } }, 
-  { path: '/usuario/cambiopass/', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, allowedRoleIds: [1, 2, 3] } },
+  { path: '/usuario/cambiopass/', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: false, allowedRoleIds: [1, 2, 3] } },
   { path: '/error', component: ErrorPage }, // Ruta para la página de error
   {
     path: '/:catchAll(.*)',
@@ -64,10 +64,15 @@ router.beforeEach((to, from, next) => {
 
 
     // Permitir el acceso a la ruta de cambio de contraseña sin validar el token
-    if (to.path.startsWith('/usuario/cambiopass') && to.path.startsWith('/error') && to.path.startsWith('/session-expired')) {
+    if (
+      to.path.startsWith('/usuario/cambiopass') ||
+      to.path.startsWith('/error') ||
+      to.path.startsWith('/session-expired')
+    ) {
       next();
       return;
     }
+    
 
   // Si la ruta requiere autenticación y no hay token, redirigir al login
   if (to.meta.requiresAuth && !token) {
