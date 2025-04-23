@@ -9,7 +9,9 @@
     <div class="panel-header d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center">
         <h5 class="mb-0">Notificaciones</h5>
-        <span v-if="unreadCount > 0" class="unread-badge ms-2">{{ unreadCount }}</span>
+        <span v-if="unreadCount > 0" class="unread-badge ms-2">{{
+          unreadCount
+        }}</span>
       </div>
       <div class="header-controls">
         <button
@@ -32,24 +34,30 @@
 
     <div class="filter-bar d-flex justify-content-between p-2">
       <div class="filter-buttons">
-        <button 
-          @click="setFilter('all')" 
-          class="filter-btn" 
+        <button
+          @click="setFilter('all')"
+          class="filter-btn"
           :class="{ active: currentFilter === 'all' }"
         >
           Todas
         </button>
-        <button 
-          @click="setFilter('unread')" 
-          class="filter-btn" 
+        <button
+          @click="setFilter('unread')"
+          class="filter-btn"
           :class="{ active: currentFilter === 'unread' }"
         >
           No leídas
         </button>
       </div>
-      <select v-if="typeOptions.length > 1" v-model="typeFilter" class="type-filter">
+      <select
+        v-if="typeOptions.length > 1"
+        v-model="typeFilter"
+        class="type-filter"
+      >
         <option value="all">Todos los tipos</option>
-        <option v-for="type in typeOptions" :key="type" :value="type">{{ type }}</option>
+        <option v-for="type in typeOptions" :key="type" :value="type">
+          {{ type }}
+        </option>
       </select>
     </div>
 
@@ -65,27 +73,43 @@
     <div v-else-if="error" class="alert alert-danger m-3">
       <i class="bi bi-exclamation-triangle me-2"></i>
       Error al cargar notificaciones. Intente de nuevo.
-      <button @click="retrieveNotifications" class="btn btn-sm btn-outline-danger mt-2">
+      <button
+        @click="retrieveNotifications"
+        class="btn btn-sm btn-outline-danger mt-2"
+      >
         Reintentar
       </button>
     </div>
 
     <!-- Estado vacío -->
-    <div v-else-if="filteredNotifications.length === 0" class="text-muted p-3 text-center">
+    <div
+      v-else-if="filteredNotifications.length === 0"
+      class="text-muted p-3 text-center"
+    >
       <div class="empty-state">
         <i class="bi bi-bell-slash mb-2"></i>
         <p v-if="notifications.length === 0">No hay notificaciones.</p>
-        <p v-else>No hay notificaciones que coincidan con los filtros actuales.</p>
+        <p v-else>
+          No hay notificaciones que coincidan con los filtros actuales.
+        </p>
       </div>
     </div>
 
     <!-- Lista de notificaciones -->
-    <div v-else class="panel-body" role="region" aria-label="Lista de notificaciones">
+    <div
+      v-else
+      class="panel-body"
+      role="region"
+      aria-label="Lista de notificaciones"
+    >
       <div
         v-for="notification in filteredNotifications"
         :key="notification.idnotificacion"
         class="notification-card mb-3"
-        :class="{ 'notification-read': notification.isread, 'notification-unread': !notification.isread }"
+        :class="{
+          'notification-read': notification.isread,
+          'notification-unread': !notification.isread,
+        }"
       >
         <div class="notification-content p-3">
           <div class="notification-header mb-2">
@@ -101,7 +125,9 @@
 
           <div class="id-container mt-2">
             <span class="id-label me-2">ID Solicitud:</span>
-            <span class="id-value">{{ notification.solicitudes.idsolicitud }}</span>
+            <span class="id-value">{{
+              notification.solicitudes.idsolicitud
+            }}</span>
           </div>
         </div>
 
@@ -129,8 +155,15 @@
       <div class="delete-modal-content p-3">
         <h6 class="mb-3">¿Está seguro que desea eliminar esta notificación?</h6>
         <div class="d-flex justify-content-end">
-          <button @click="showDeleteModal = false" class="btn btn-sm btn-secondary me-2">Cancelar</button>
-          <button @click="executeDelete" class="btn btn-sm btn-danger">Eliminar</button>
+          <button
+            @click="showDeleteModal = false"
+            class="btn btn-sm btn-secondary me-2"
+          >
+            Cancelar
+          </button>
+          <button @click="executeDelete" class="btn btn-sm btn-danger">
+            Eliminar
+          </button>
         </div>
       </div>
     </div>
@@ -155,17 +188,17 @@ const clickOutsideDirective = {
   },
   unmounted(el) {
     document.removeEventListener("click", el.clickOutsideEvent);
-  }
+  },
 };
 
 export default {
   name: "NotificationPanel",
   directives: {
-    "click-outside": clickOutsideDirective
+    "click-outside": clickOutsideDirective,
   },
   props: {
     url: { type: String, required: true },
-    isAdmin: { type: Boolean, default: false }
+    isAdmin: { type: Boolean, default: false },
   },
   emits: ["close", "countUpdate"],
   setup(props, { emit }) {
@@ -173,8 +206,8 @@ export default {
     const loading = ref(true);
     const error = ref(false);
     const requestURL = inject("requestURL");
-    const currentFilter = ref('all');
-    const typeFilter = ref('all');
+    const currentFilter = ref("all");
+    const typeFilter = ref("all");
     const showDeleteModal = ref(false);
     const notificationToDelete = ref(null);
 
@@ -197,8 +230,8 @@ export default {
       try {
         const response = await axios.get(props.url, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
         });
         notifications.value =
           response.data.detail === "No tienes notificaciones"
@@ -222,8 +255,8 @@ export default {
           {},
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwt")}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
           }
         );
         const notification = notifications.value.find(
@@ -247,20 +280,20 @@ export default {
           {},
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwt")}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
           }
         );
         // Si no existe tal endpoint, podrías marcarlas una por una
-        notifications.value.forEach(notification => {
+        notifications.value.forEach((notification) => {
           notification.isread = true;
         });
         emit("countUpdate", 0);
       } catch (err) {
         // Marcar una por una como alternativa
         const promises = notifications.value
-          .filter(n => !n.isread)
-          .map(n => markAsRead(n.idnotificacion));
+          .filter((n) => !n.isread)
+          .map((n) => markAsRead(n.idnotificacion));
         await Promise.all(promises);
       }
     };
@@ -274,14 +307,14 @@ export default {
     // Ejecutar eliminación
     const executeDelete = async () => {
       if (!notificationToDelete.value) return;
-      
+
       try {
         await axios.delete(
           `${requestURL}/api/v1/notificaciones/delete/${notificationToDelete.value}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwt")}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
           }
         );
         notifications.value = notifications.value.filter(
@@ -298,26 +331,27 @@ export default {
 
     // Obtener icono según tipo de notificación
     const getNotificationIcon = (notification) => {
-      const type = notification.solicitudes.tiposolicitud.descripcion.toLowerCase();
-      
+      const type =
+        notification.solicitudes.tiposolicitud.descripcion.toLowerCase();
+
       // Mapa de iconos según el tipo de solicitud
       const iconMap = {
-        'solicitud': 'bi bi-file-earmark-text',
-        'reclamo': 'bi bi-exclamation-triangle',
-        'consulta': 'bi bi-question-circle',
-        'pago': 'bi bi-credit-card',
-        'actualizacion': 'bi bi-arrow-clockwise'
+        solicitud: "bi bi-file-earmark-text",
+        reclamo: "bi bi-exclamation-triangle",
+        consulta: "bi bi-question-circle",
+        pago: "bi bi-credit-card",
+        actualizacion: "bi bi-arrow-clockwise",
       };
-      
+
       // Buscar coincidencias parciales en el tipo
       for (const [key, icon] of Object.entries(iconMap)) {
         if (type.includes(key)) {
           return icon;
         }
       }
-      
+
       // Icono por defecto
-      return 'bi bi-bell';
+      return "bi bi-bell";
     };
 
     // Función para cambiar filtro
@@ -327,13 +361,17 @@ export default {
 
     // Computed properties
     const unreadCount = computed(() => {
-      return notifications.value.filter(n => !n.isread).length;
+      return notifications.value.filter((n) => !n.isread).length;
     });
 
     const typeOptions = computed(() => {
       const types = new Set();
-      notifications.value.forEach(n => {
-        if (n.solicitudes && n.solicitudes.tiposolicitud && n.solicitudes.tiposolicitud.descripcion) {
+      notifications.value.forEach((n) => {
+        if (
+          n.solicitudes &&
+          n.solicitudes.tiposolicitud &&
+          n.solicitudes.tiposolicitud.descripcion
+        ) {
           types.add(n.solicitudes.tiposolicitud.descripcion);
         }
       });
@@ -342,21 +380,22 @@ export default {
 
     const filteredNotifications = computed(() => {
       let filtered = [...notifications.value];
-      
+
       // Filtrar por leídas/no leídas
-      if (currentFilter.value === 'unread') {
-        filtered = filtered.filter(n => !n.isread);
+      if (currentFilter.value === "unread") {
+        filtered = filtered.filter((n) => !n.isread);
       }
-      
+
       // Filtrar por tipo
-      if (typeFilter.value !== 'all') {
-        filtered = filtered.filter(n => 
-          n.solicitudes && 
-          n.solicitudes.tiposolicitud && 
-          n.solicitudes.tiposolicitud.descripcion === typeFilter.value
+      if (typeFilter.value !== "all") {
+        filtered = filtered.filter(
+          (n) =>
+            n.solicitudes &&
+            n.solicitudes.tiposolicitud &&
+            n.solicitudes.tiposolicitud.descripcion === typeFilter.value
         );
       }
-      
+
       return filtered;
     });
 
@@ -380,9 +419,9 @@ export default {
       closePanel,
       retrieveNotifications,
       getNotificationIcon,
-      setFilter
+      setFilter,
     };
-  }
+  },
 };
 </script>
 
@@ -417,8 +456,14 @@ export default {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .panel-header {
@@ -657,8 +702,12 @@ export default {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .delete-modal-content {
@@ -671,8 +720,14 @@ export default {
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Estilo para la barra de desplazamiento */
@@ -692,6 +747,134 @@ export default {
 
 .panel-body::-webkit-scrollbar-thumb:hover {
   background: var(--main-blue);
+}
+
+/* Add these styles to your NotificationPanel component's style section */
+
+.high-contrast .notification-panel {
+  background-color: var(--card-bg-color);
+  border-color: var(--card-border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.high-contrast .panel-header {
+  background-color: var(--primary-color);
+  border-color: var(--card-border-color);
+  color: var(--header-text-color);
+}
+
+.high-contrast .close-btn {
+  color: var(--header-text-color);
+}
+
+.high-contrast .close-btn:hover {
+  color: var(--secondary-color);
+}
+
+.high-contrast .filter-bar {
+  background-color: var(--filter-bg-color);
+  border-color: var(--card-border-color);
+}
+
+.high-contrast .filter-btn {
+  color: var(--text-color);
+}
+
+.high-contrast .filter-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--header-text-color);
+}
+
+.high-contrast .filter-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.high-contrast .type-filter {
+  background-color: var(--card-bg-color);
+  border-color: var(--card-border-color);
+  color: var(--text-color);
+}
+
+.high-contrast .notification-unread {
+  background-color: rgba(214, 158, 46, 0.15); /* secondary color with opacity */
+  border-left-color: var(--secondary-color);
+}
+
+.high-contrast .notification-read {
+  background-color: var(--card-bg-color);
+  border-left-color: var(--card-border-color);
+  opacity: 0.8;
+}
+
+.high-contrast .type-badge {
+  color: var(--secondary-color);
+}
+
+.high-contrast .type-badge i {
+  color: var(--secondary-color);
+}
+
+.high-contrast .date-container,
+.high-contrast .id-label {
+  color: var(--sm-text);
+}
+
+.high-contrast .id-value {
+  color: var(--text-color);
+}
+
+.high-contrast .notification-actions {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-color: var(--card-border-color);
+}
+
+.high-contrast .mark-read-btn {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.high-contrast .mark-read-btn:hover {
+  background-color: #e6b800;
+}
+
+.high-contrast .mark-all-btn {
+  color: var(--secondary-color);
+}
+
+.high-contrast .mark-all-btn:hover {
+  color: var(--header-text-color);
+}
+
+.high-contrast .empty-state {
+  color: var(--sm-text);
+}
+
+.high-contrast .panel-body::-webkit-scrollbar-track {
+  background: var(--card-bg-color);
+}
+
+.high-contrast .panel-body::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+}
+
+.high-contrast .delete-modal-content {
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+}
+
+.high-contrast .text-muted {
+  color: var(--sm-text) !important;
+}
+
+/* Specific styles for the notification cards */
+.high-contrast .notification-card {
+  background-color: var(--card-bg-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.high-contrast .notification-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Media queries para responsividad */
