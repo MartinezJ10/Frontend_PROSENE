@@ -168,7 +168,7 @@ export default {
     };
 
     const mostrarExito = () => {
-      mensaje.value = 'Inicio de sesión exitoso.';
+      mensaje.value = 'Correo enviado con exito';
       tipo.value = 'exito';
       visible.value = true;
     };

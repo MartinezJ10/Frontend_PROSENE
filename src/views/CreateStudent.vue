@@ -302,6 +302,10 @@ label {
         min-width: 120px;
         font-size: 13px;
     }
+
+    .formkit-tab::after {
+      display: none !important;
+    }
     
     label {
         font-size: 14px;

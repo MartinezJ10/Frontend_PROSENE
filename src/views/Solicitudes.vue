@@ -329,6 +329,7 @@ export default {
 
     // Traer todas las solicitudes (dashboard completo)
     const retrieveSolicitudes = async () => {
+      loading.value = true; // Añadir esto para mostrar el mensaje de carga
       try {
         const response = await axios.get(`${requestURL}/api/v1/solicitudes/all`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
@@ -336,6 +337,8 @@ export default {
         solicitudes.value = mapSolicitudes(response.data);
       } catch (err) {
         console.error("Failed to retrieve Solicitudes:", err.message);
+      } finally {
+        loading.value = false; // Añadir esto para ocultar el mensaje de carga una vez completada la operación
       }
     };
 
@@ -468,7 +471,7 @@ export default {
 
     // Paginación
     const currentPage = ref(1);
-    const pageSize = ref(8);
+    const pageSize = ref(20);
     const totalPages = computed(() => {
       return Math.ceil(sortedSolicitudes.value.length / pageSize.value) || 1;
     });
