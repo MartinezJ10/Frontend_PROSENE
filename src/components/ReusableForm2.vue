@@ -501,7 +501,7 @@ const formFields = computed(() => {
 }
 
 .btn-primary {
-  background: #003366;
+  background-color: #002244 !important;
   color: white;
 }
 
@@ -511,7 +511,7 @@ const formFields = computed(() => {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #002244;
+  background-color: #007bff !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

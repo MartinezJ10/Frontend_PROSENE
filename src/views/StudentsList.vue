@@ -4,53 +4,80 @@
     <div class="right-container">
       <div class="page-header">
         <h1 class="page-title">Lista de Estudiantes</h1>
-        <!-- role="search" identifica el filtro como área de búsqueda -->
-        <div class="filter-container" role="search">
-          <i class="bi bi-search" aria-hidden="true"></i>
-          <!-- aria-label describe el propósito del select -->
-          <select 
-            v-model="selectedCentroRegional" 
-            class="filter-select"
-            @change="onCentroChange"
-            aria-label="Filtrar por centro regional"
-          >
-            <option value="">Todos los Centros</option>
-            <option 
-              v-for="centro in centrosRegionales" 
-              :key="centro.value" 
-              :value="centro.value"
+        <!-- role="search" identifica el área de filtros como búsqueda -->
+        <div class="filters-wrapper" role="search">
+          <!-- Filtro de búsqueda por nombre -->
+          <div class="filter-container search-filter">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input 
+              type="text" 
+              v-model="searchQuery" 
+              placeholder="Buscar por nombre" 
+              class="filter-input"
+              aria-label="Buscar estudiante por nombre"
+              @input="onSearchChange"
+            />
+            <i 
+              v-if="searchQuery" 
+              class="bi bi-x-circle clear-button" 
+              @click="clearSearch" 
+              aria-label="Borrar búsqueda"
+            ></i>
+          </div>
+          
+          <!-- Filtro de centro regional -->
+          <div class="filter-container">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            <!-- aria-label describe el propósito del select -->
+            <select 
+              v-model="selectedCentroRegional" 
+              class="filter-select"
+              @change="onCentroChange"
+              aria-label="Filtrar por centro regional"
             >
-              {{ centro.label }}
-            </option>
-          </select>
-          <i class="bi bi-chevron-down select-icon" aria-hidden="true"></i>
+              <option value="">Todos los Centros</option>
+              <option 
+                v-for="centro in centrosRegionales" 
+                :key="centro.value" 
+                :value="centro.value"
+              >
+                {{ centro.label }}
+              </option>
+            </select>
+            <i class="bi bi-chevron-down select-icon" aria-hidden="true"></i>
+          </div>
         </div>
       </div>
 
-      <!-- Paginación movida arriba de la tabla -->
+      <!-- Paginación y número de resultados -->
       <div class="pagination-container" role="navigation" aria-label="Paginación de la lista de estudiantes">
-        <button 
-          :disabled="currentPage === 1" 
-          @click="prevPage"
-          aria-label="Página anterior"
-          :aria-disabled="currentPage === 1 ? 'true' : 'false'"
-          class="pagination-button"
-        >
-          Anterior
-        </button>
-        <span aria-live="polite" class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
-        <button 
-          :disabled="currentPage === totalPages" 
-          @click="nextPage"
-          aria-label="Página siguiente"
-          :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
-          class="pagination-button"
-        >
-          Siguiente
-        </button>
+        <div class="results-count" aria-live="polite">
+          {{ filteredUserInfo.length }} estudiante(s) encontrado(s)
+        </div>
+        <div class="pagination-controls">
+          <button 
+            :disabled="currentPage === 1" 
+            @click="prevPage"
+            aria-label="Página anterior"
+            :aria-disabled="currentPage === 1 ? 'true' : 'false'"
+            class="pagination-button"
+          >
+            Anterior
+          </button>
+          <span aria-live="polite" class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
+          <button 
+            :disabled="currentPage === totalPages" 
+            @click="nextPage"
+            aria-label="Página siguiente"
+            :aria-disabled="currentPage === totalPages ? 'true' : 'false'"
+            class="pagination-button"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
 
-      <!-- Se elimina la vista de tarjetas y se usa la tabla para todas las vistas -->
+      <!-- Tabla de estudiantes -->
       <div class="table-responsive" role="region" aria-label="Lista de estudiantes">
         <table class="table table-striped">
           <thead>
@@ -111,7 +138,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { onMounted, ref, computed, inject,onBeforeUnmount  } from "vue";
+import { onMounted, ref, computed, inject, onBeforeUnmount, watch } from "vue";
 import Mensaje from "../components/Mensaje.vue";
 import utils from "../utils";
 
@@ -126,8 +153,10 @@ export default {
     const userInfo = ref([]);
     const centrosRegionales = ref([]);
     const selectedCentroRegional = ref("");
+    const searchQuery = ref(""); // Nuevo filtro de búsqueda por nombre
+    const searchTimeout = ref(null); // Para debounce
     
-    // Mantenemos esta referencia para ajustar el pageSize, pero eliminamos su uso para la visualización
+    // Mantenemos esta referencia para ajustar el pageSize
     const isMobileView = ref(window.innerWidth < 768);
 
     const requestURL = inject("requestURL");
@@ -194,6 +223,23 @@ export default {
       }
     };
 
+    // Función para manejar cambios en la búsqueda con debounce
+    const onSearchChange = () => {
+      if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+      }
+      
+      searchTimeout.value = setTimeout(() => {
+        currentPage.value = 1; // Reiniciar paginación al buscar
+      }, 300);
+    };
+
+    // Función para limpiar el campo de búsqueda
+    const clearSearch = () => {
+      searchQuery.value = "";
+      currentPage.value = 1;
+    };
+
     // Reinicia la paginación cuando se cambia el filtro
     const onCentroChange = () => {
       currentPage.value = 1;
@@ -205,13 +251,28 @@ export default {
       updateViewMode(); // Verificar el modo de vista inicial
     });
 
-    // Se filtran solo los estudiantes y se aplica el filtro por centro regional
+    // Se filtran solo los estudiantes y se aplica el filtro por centro regional y nombre
     const filteredUserInfo = computed(() => {
-      return userInfo.value.filter(user =>
-        user.role_id === 3 &&
-        (selectedCentroRegional.value === "" ||
-          user.centroregional?.idcentroregional === selectedCentroRegional.value)
-      );
+      return userInfo.value.filter(user => {
+        // Filtrar solo estudiantes (role_id === 3)
+        if (user.role_id !== 3) return false;
+        
+        // Filtrar por centro regional si está seleccionado
+        const centroMatch = selectedCentroRegional.value === "" || 
+                          user.centroregional?.idcentroregional === selectedCentroRegional.value;
+        
+        // Filtrar por nombre (buscando en primernombre y primerapellido)
+        const searchLower = searchQuery.value.toLowerCase();
+        const nameMatch = !searchQuery.value || (
+          user.persona && (
+            (user.persona.primernombre && user.persona.primernombre.toLowerCase().includes(searchLower)) ||
+            (user.persona.primerapellido && user.persona.primerapellido.toLowerCase().includes(searchLower)) ||
+            (user.email && user.email.toLowerCase().includes(searchLower))
+          )
+        );
+        
+        return centroMatch && nameMatch;
+      });
     });
 
     // Total de páginas para la paginación
@@ -237,6 +298,13 @@ export default {
       }
     };
 
+    // Observar cambios en filtros para actualizar la UI
+    watch([searchQuery, selectedCentroRegional], () => {
+      if (currentPage.value > totalPages.value) {
+        currentPage.value = totalPages.value;
+      }
+    });
+
     return {
       router,
       userInfo,
@@ -251,7 +319,10 @@ export default {
       onCentroChange,
       showMessage,
       messageContent,
-      messageType
+      messageType,
+      searchQuery,
+      onSearchChange,
+      clearSearch
     };
   }
 };
@@ -294,6 +365,13 @@ export default {
   color: #002D62;
 }
 
+/* Contenedor para ambos filtros */
+.filters-wrapper {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .filter-container {
   display: flex;
   align-items: center;
@@ -304,7 +382,35 @@ export default {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.bi-search {
+.search-filter {
+  position: relative;
+  min-width: 200px;
+}
+
+.filter-input {
+  background-color: #fff;
+  color: #002D62;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+}
+
+.clear-button {
+  position: absolute;
+  right: 0.8rem;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.clear-button:hover {
+  color: #002D62;
+}
+
+.bi-search, .bi-geo-alt {
   color: #002D62;
   font-size: 1.1rem;
 }
@@ -396,17 +502,29 @@ export default {
   background-color: #001F4D;
 }
 
-/* Paginación responsiva */
+/* Paginación mejorada */
 .pagination-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding: 0.5rem;
   background-color: #f8f9fa;
   border-radius: 8px;
   flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: #666;
+  padding: 0 0.5rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .pagination-button {
@@ -443,13 +561,18 @@ export default {
     align-items: flex-start;
   }
   
-  .filter-container {
+  .filters-wrapper {
     width: 100%;
     margin-top: 0.5rem;
+    flex-direction: column;
+  }
+  
+  .filter-container {
+    width: 100%;
     justify-content: space-between;
   }
   
-  .filter-select {
+  .filter-select, .filter-input {
     flex-grow: 1;
     width: 100%;
   }
@@ -469,6 +592,8 @@ export default {
   }
   
   .pagination-container {
+    flex-direction: column;
+    align-items: center;
     padding: 0.25rem;
   }
   
